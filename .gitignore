@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyo
+*.pyd
+*.pdb
+*.pyc
+
+# JavaScript
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# VSCode
+.vscode/
+.history/
+*.code-workspace
