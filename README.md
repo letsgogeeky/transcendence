@@ -1,5 +1,8 @@
 # Transcendence on steroids
 
+### User Journey
+![User Journey](docs/user-journey.png)
+
 
 ### Decision records
 - **Use the new subject** Fastify is a good lightweight and flexible framework.

@@ -29,3 +29,10 @@ Icon?
 .vscode/
 .history/
 *.code-workspace
+
+# TypeScript
+*.tsbuildinfo
+
+
+# env
+.env
