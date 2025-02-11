@@ -6,6 +6,7 @@ const configCallback: FastifyPluginCallback<object> = (fastify, options, done) =
     dotenv.config();
     fastify.decorate('config', {
         port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+        dbFileName: process.env.DB_PATH || './db/auth.db',
     });
     done();
 };
@@ -16,6 +17,7 @@ declare module 'fastify' {
     interface FastifyInstance {
         config: {
             port: number;
+            dbFileName: string;
         };
     }
 }

@@ -13,6 +13,9 @@
         "forceConsistentCasingInFileNames": true,
         "declaration": true,
         "lib": ["es2023"],
-        "moduleResolution": "node"
-    }
+        "moduleResolution": "node",
+        "resolveJsonModule": true
+    },
+    "include": ["**/*.ts"],
+    "exclude": ["node_modules", "**/*.d.ts", "**/*.spec.ts"]
 }
