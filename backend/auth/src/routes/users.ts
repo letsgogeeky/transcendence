@@ -15,7 +15,7 @@ export const User = Type.Object({
 
 export type UserType = Static<typeof User>;
 
-export async function usersRoutes(fastify: FastifyInstance) {
+export function usersRoutes(fastify: FastifyInstance) {
     fastify.get('/users', async (_request, reply) => {
         const users = await fastify.db.all('SELECT * FROM users');
         reply.send(users);
