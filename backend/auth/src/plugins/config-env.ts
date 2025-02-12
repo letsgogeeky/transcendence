@@ -7,6 +7,7 @@ const configCallback: FastifyPluginCallback<object> = (fastify, options, done) =
     fastify.decorate('config', {
         port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
         dbFileName: process.env.DB_PATH || './db/auth.db',
+        secret: process.env.SECRET || 'supersecret',
     });
     done();
 };
@@ -18,6 +19,7 @@ declare module 'fastify' {
         config: {
             port: number;
             dbFileName: string;
+            secret: string;
         };
     }
 }
