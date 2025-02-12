@@ -7,6 +7,16 @@ import { options } from './config.js';
 import { authRoutes } from './routes/register.js';
 import { usersRoutes } from './routes/users.js';
 
+declare module 'fastify' {
+    interface FastifyInstance {
+        config: {
+            PORT: number;
+            DB_PATH: string;
+            SECRET: string;
+        };
+    }
+}
+
 const app = fastify({ logger: true });
 const start = async () => {
     try {
@@ -21,7 +31,7 @@ const start = async () => {
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(authRoutes);
         app.register(usersRoutes);
-        app.listen({ port: app.config.PORT });
+        await app.listen({ port: app.config.PORT });
     } catch (err) {
         app.log.error(err);
         process.exit(1);

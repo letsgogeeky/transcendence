@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { Static, Type } from '@sinclair/typebox';
+import { UserType } from './users';
 
 export const RegisterDto = Type.Object({
     email: Type.String({ format: 'email' }),
@@ -9,59 +10,32 @@ export const RegisterDto = Type.Object({
     name: Type.String(),
 });
 
-interface IQuerystring {
-    token: string;
-}
-
-interface IDecodeToken {
-    email: string;
-}
-
-// export const ValidateDto = Type.Object({
-//     email: Type.String({ format: 'email' }),
-//     password: Type.String(),
-//     confirmPassword: Type.String(),
-//     name: Type.String(),
-// });
-
-export const AuthSuccess = Type.Object({
+export const RegisterSuccess = Type.Object({
     success: Type.Boolean(),
     id: Type.Integer(),
 });
 
-export const AuthError = Type.Object({
-    success: Type.Boolean(),
-    error: Type.Optional(Type.String()),
-});
-
-export type AuthSuccessType = Static<typeof AuthSuccess>;
-export type AuthErrorType = Static<typeof AuthError>;
-export type RegisterDtoType = Static<typeof RegisterDto>;
-
-export async function authRoutes(fastify: FastifyInstance) {
-    fastify.post<{ Body: RegisterDtoType; Reply: AuthSuccessType | AuthErrorType }>(
+export function authRoutes(fastify: FastifyInstance) {
+    fastify.post<{ Body: Static<typeof RegisterDto> }>(
         '/register',
         {
             schema: {
                 body: RegisterDto,
                 response: {
-                    200: AuthSuccess,
+                    200: RegisterSuccess,
                 },
             },
         },
 
         async (request, reply) => {
-            const { email, password, name, confirmPassword } = request.body;
-            if (confirmPassword != password) throw Error("Passwords don't match");
-
-            // const match = await fastify.bcrypt.compare('password', hash);
-            // console.log(match ? 'Matched!' : 'Not matched!');
-
             try {
-                let query = 'INSERT INTO users (email, password, name, token) VALUES (?, ?, ?, ?)';
+                const { email, password, name, confirmPassword } = request.body;
+                if (confirmPassword != password) throw Error("Passwords don't match");
+                const query =
+                    'INSERT INTO users (email, password, name, token) VALUES (?, ?, ?, ?)';
                 const hash = await fastify.bcrypt.hash(password);
                 const token = fastify.jwt.sign({ email: email });
-                let result = await fastify.db.run(query, [email, hash, name, token]);
+                const result = await fastify.db.run(query, [email, hash, name, token]);
                 const response = { id: result.lastID, success: true };
                 reply.status(200).send(response);
             } catch (error) {
@@ -72,18 +46,19 @@ export async function authRoutes(fastify: FastifyInstance) {
         },
     );
 
-    fastify.get<{ Querystring: IQuerystring }>('/verify-email', async (request, reply) => {
+    fastify.get<{ Querystring: { token: string } }>('/verify-email', async (request, reply) => {
         try {
             const { token } = request.query;
             let query = 'SELECT * FROM users WHERE token = ?';
-            let result = await fastify.db.get(query, [token]);
-            console.log(result);
-            const decoded: IDecodeToken = await fastify.jwt.verify(token);
-            if (decoded?.email != result.email)
+            const user: UserType | undefined = await fastify.db.get(query, [token]);
+            if (!user)
+                return reply.code(400).send({ success: false, error: 'Invalid or expired token' });
+            const decoded = fastify.jwt.verify<{ email: string }>(token);
+            if (decoded?.email != user.email)
                 return reply.code(400).send({ error: 'Invalid or expired token' });
             query = 'UPDATE users SET is_validated = 1 WHERE id = ?';
-            result = await fastify.db.run(query, [result.id]);
-            reply.status(200).send(token);
+            await fastify.db.run(query, [user.id]);
+            reply.status(200).send({ success: true, message: 'Email verified' });
         } catch (error) {
             if (error instanceof Error)
                 reply.status(500).send({ success: false, error: error.message });
