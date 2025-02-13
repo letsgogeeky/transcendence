@@ -10,6 +10,7 @@ import { usersRoutes } from './routes/users.js';
 declare module 'fastify' {
     interface FastifyInstance {
         config: {
+            GOOGLE_PASS: string;
             PORT: number;
             DB_PATH: string;
             SECRET: string;
