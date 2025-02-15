@@ -1,9 +1,10 @@
 const schema = {
     type: 'object',
-    required: ['DB_PATH', 'SECRET', 'PORT', 'GOOGLE_PASS'],
+    required: ['DB_PATH', 'SECRET', 'REFRESH_SECRET', 'PORT', 'GOOGLE_PASS'],
     properties: {
         DB_PATH: { type: 'string' },
         SECRET: { type: 'string' },
+        REFRESH_SECRET: { type: 'string' },
         GOOGLE_PASS: { type: 'string' },
         PORT: { type: 'number' },
     },

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     token TEXT NOT NULL,
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    registration_date TIMESTAMP,
     last_login TIMESTAMP,
     avatar_url TEXT DEFAULT NULL,
     is_validated INTEGER DEFAULT 0
