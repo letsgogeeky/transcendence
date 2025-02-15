@@ -4,6 +4,7 @@ import fastify from 'fastify';
 import fastifyBcrypt from 'fastify-bcrypt';
 import { fpSqlitePlugin } from 'fastify-sqlite-typed';
 import { options } from './config.js';
+import { loginRoutes } from './routes/login.js';
 import { authRoutes } from './routes/register.js';
 import { usersRoutes } from './routes/users.js';
 
@@ -14,6 +15,7 @@ declare module 'fastify' {
             PORT: number;
             DB_PATH: string;
             SECRET: string;
+            REFRESH_SECRET: string;
         };
     }
 }
@@ -32,6 +34,7 @@ const start = async () => {
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(authRoutes);
         app.register(usersRoutes);
+        app.register(loginRoutes);
         await app.listen({ port: app.config.PORT });
     } catch (err) {
         app.log.error(err);

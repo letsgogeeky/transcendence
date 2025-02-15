@@ -32,13 +32,12 @@ export function authRoutes(fastify: FastifyInstance) {
                 },
             },
         },
-
         async (request, reply) => {
             const { email, password, name, confirmPassword } = request.body;
             if (confirmPassword != password)
                 reply.status(400).send({ error: "Passwords don't match" });
             const query =
-                'INSERT INTO users (email, password, name, token) VALUES (?, ?, ?, ?)';
+                'INSERT INTO users (email, password, name, token, registration_date) VALUES (?, ?, ?, ?, ?)';
             const hash = await fastify.bcrypt.hash(password);
             const token = fastify.jwt.sign({ email: email });
             await sendVerificationEmail(email, token, request);
@@ -47,6 +46,7 @@ export function authRoutes(fastify: FastifyInstance) {
                 hash,
                 name,
                 token,
+                new Date().toISOString(),
             ]);
             reply.status(200).send({ id: result.lastID });
         },
@@ -89,9 +89,7 @@ export function authRoutes(fastify: FastifyInstance) {
                         pass: fastify.config.GOOGLE_PASS,
                     },
                 });
-            console.log(req.hostname);
             const tokenLink = `<a href = "${req.protocol}://${req.hostname}:${req.port}/verify-email?token=${token}&email=${email}"> Email verification </a>`;
-            console.log(tokenLink);
             await transporter.sendMail({
                 from: '"noreply transcendence" <noreply.transcendence2025@gmail.com>',
                 to: email,
