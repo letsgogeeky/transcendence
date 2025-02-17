@@ -1,7 +1,6 @@
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import nodemailer from 'nodemailer';
-import { UserType } from './users';
 
 export const RegisterDto = Type.Object({
     email: Type.String({ format: 'email' }),
@@ -14,11 +13,10 @@ export const RegisterSuccess = Type.Object({
     id: Type.Integer(),
 });
 
-export function authRoutes(fastify: FastifyInstance) {
+export function registerRoutes(fastify: FastifyInstance) {
     fastify.setErrorHandler(function (error, request, reply) {
         this.log.error(error);
-        if (error.message.includes('SQLITE_CONSTRAINT: UNIQUE constraint'))
-            error.statusCode = 409;
+        if (error.code == 'P2002') error.statusCode = 409;
         reply.status(error.statusCode || 500).send({ error: error.message });
     });
 
@@ -36,19 +34,19 @@ export function authRoutes(fastify: FastifyInstance) {
             const { email, password, name, confirmPassword } = request.body;
             if (confirmPassword != password)
                 reply.status(400).send({ error: "Passwords don't match" });
-            const query =
-                'INSERT INTO users (email, password, name, token, registration_date) VALUES (?, ?, ?, ?, ?)';
             const hash = await fastify.bcrypt.hash(password);
             const token = fastify.jwt.sign({ email: email });
             await sendVerificationEmail(email, token, request);
-            const result = await fastify.db.run(query, [
-                email,
-                hash,
-                name,
-                token,
-                new Date().toISOString(),
-            ]);
-            reply.status(200).send({ id: result.lastID });
+            const result = await fastify.prisma.users.create({
+                data: {
+                    email,
+                    password: hash,
+                    name,
+                    token,
+                    registration_date: new Date().toISOString(),
+                },
+            });
+            reply.status(200).send({ id: result.id });
         },
     );
 
@@ -56,10 +54,9 @@ export function authRoutes(fastify: FastifyInstance) {
         '/verify-email',
         async (request, reply) => {
             const { token } = request.query;
-            let query = 'SELECT * FROM users WHERE token = ?';
-            const user: UserType | undefined = await fastify.db.get(query, [
-                token,
-            ]);
+            const user = await fastify.prisma.users.findFirst({
+                where: { token },
+            });
             if (!user)
                 return reply
                     .code(400)
@@ -69,8 +66,13 @@ export function authRoutes(fastify: FastifyInstance) {
                 return reply
                     .code(400)
                     .send({ error: 'Invalid or expired token' });
-            query = 'UPDATE users SET is_validated = 1 WHERE id = ?';
-            await fastify.db.run(query, [user.id]);
+
+            await fastify.prisma.users.update({
+                where: { id: user.id },
+                data: {
+                    is_validated: 1,
+                },
+            });
             reply.status(200).send({ message: 'Email verified' });
         },
     );

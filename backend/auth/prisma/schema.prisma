@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id                Int       @id @default(autoincrement())
+  name              String    @unique(map: "sqlite_autoindex_users_1")
+  email             String    @unique(map: "sqlite_autoindex_users_2")
+  password          String
+  token             String
+  registration_date DateTime?
+  last_login        DateTime?
+  avatar_url        String?
+  is_validated      Int?      @default(0)
+}

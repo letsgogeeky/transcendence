@@ -17,6 +17,7 @@
     "dependencies": {
         "@fastify/env": "^5.0.2",
         "@fastify/jwt": "^9.0.4",
+        "@prisma/client": "^6.3.1",
         "@sinclair/typebox": "^0.34.16",
         "dotenv": "^16.4.7",
         "fastify": "^5.2.1",
@@ -42,6 +43,7 @@
         "eslint-plugin-prettier": "^5.2.3",
         "nodemon": "^3.1.9",
         "prettier": "^3.5.0",
+        "prisma": "^6.3.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.3",
         "typescript-eslint": "^8.24.0"

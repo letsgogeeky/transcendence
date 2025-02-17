@@ -1,11 +1,13 @@
 import fastifyEnv from '@fastify/env';
 import fastifyJwt from '@fastify/jwt';
+import { PrismaClient } from '@prisma/client';
 import fastify from 'fastify';
 import fastifyBcrypt from 'fastify-bcrypt';
 import { fpSqlitePlugin } from 'fastify-sqlite-typed';
 import { options } from './config.js';
+import prismaPlugin from './plugins/prisma.js';
 import { loginRoutes } from './routes/login.js';
-import { authRoutes } from './routes/register.js';
+import { registerRoutes } from './routes/register.js';
 import { usersRoutes } from './routes/users.js';
 
 declare module 'fastify' {
@@ -17,6 +19,7 @@ declare module 'fastify' {
             SECRET: string;
             REFRESH_SECRET: string;
         };
+        prisma: PrismaClient;
     }
 }
 
@@ -28,11 +31,12 @@ const start = async () => {
             dbFilename: app.config.DB_PATH,
             driverSettings: { verbose: true },
         });
+        app.register(prismaPlugin);
         app.register(fastifyJwt, {
             secret: app.config.SECRET,
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
-        app.register(authRoutes);
+        app.register(registerRoutes);
         app.register(usersRoutes);
         app.register(loginRoutes);
         await app.listen({ port: app.config.PORT });

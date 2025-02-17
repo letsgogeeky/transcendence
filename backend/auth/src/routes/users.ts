@@ -17,7 +17,7 @@ export type UserType = Static<typeof User>;
 
 export function usersRoutes(fastify: FastifyInstance) {
     fastify.get('/users', async (_request, reply) => {
-        const users = await fastify.db.all('SELECT * FROM users');
+        const users = await fastify.prisma.users.findMany();
         reply.send(users);
     });
 }
