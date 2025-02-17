@@ -1,6 +1,5 @@
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance } from 'fastify';
-import { UserType } from './users';
 
 export const LoginDto = Type.Object({
     email: Type.String({ format: 'email' }),
@@ -28,10 +27,9 @@ export function loginRoutes(fastify: FastifyInstance) {
         },
         async (request, reply) => {
             const { email, password } = request.body;
-            let query = 'SELECT * FROM users WHERE email = ?';
-            const user: UserType | undefined = await fastify.db.get(query, [
-                email,
-            ]);
+            const user = await fastify.prisma.users.findFirst({
+                where: { email },
+            });
             const isCorrect = await fastify.bcrypt.compare(
                 password,
                 user?.password || '',
@@ -46,9 +44,13 @@ export function loginRoutes(fastify: FastifyInstance) {
                 { id: user.id },
                 { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
             );
-            query = 'UPDATE users SET last_login = ? WHERE id = ?';
             const newTimestamp = new Date().toISOString();
-            await fastify.db.run(query, [newTimestamp, user.id]);
+            await fastify.prisma.users.update({
+                where: { id: user.id },
+                data: {
+                    last_login: newTimestamp,
+                },
+            });
             return reply.send({
                 authToken,
                 refreshToken,
