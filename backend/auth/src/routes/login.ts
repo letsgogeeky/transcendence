@@ -1,3 +1,4 @@
+import { LoginLevel } from '@prisma/client';
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance } from 'fastify';
 
@@ -27,7 +28,7 @@ export function loginRoutes(fastify: FastifyInstance) {
         },
         async (request, reply) => {
             const { email, password } = request.body;
-            const user = await fastify.prisma.users.findFirst({
+            const user = await fastify.prisma.user.findFirst({
                 where: { email },
             });
             const isCorrect = await fastify.bcrypt.compare(
@@ -37,7 +38,12 @@ export function loginRoutes(fastify: FastifyInstance) {
             if (!user || !isCorrect)
                 throw Error('Invalid credential combination');
             const authToken = fastify.jwt.sign(
-                { id: user.id },
+                {
+                    id: user.id,
+                    loginLevel: user.otpMethod
+                        ? LoginLevel.CREDENTIALS
+                        : LoginLevel.FULL,
+                },
                 { expiresIn: '1h', key: fastify.config.SECRET },
             );
             const refreshToken = fastify.jwt.sign(
@@ -45,23 +51,32 @@ export function loginRoutes(fastify: FastifyInstance) {
                 { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
             );
             const newTimestamp = new Date().toISOString();
-            await fastify.prisma.users.update({
+            await fastify.prisma.user.update({
                 where: { id: user.id },
                 data: {
-                    last_login: newTimestamp,
+                    refreshToken,
+                    lastLogin: newTimestamp,
                 },
             });
-            return reply.send({
-                authToken,
-                refreshToken,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    isValidated: user.is_validated,
-                    avatarUrl: user.avatar_url,
-                    name: user.name,
-                },
-            });
+            if (user.otpMethod)
+                reply.send({
+                    authToken,
+                    userId: user.id,
+                    message: '2FA required',
+                    otpMethod: user.otpMethod,
+                });
+            else
+                return reply.send({
+                    authToken,
+                    refreshToken,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        isValidated: user.emailValidated,
+                        avatarUrl: user.avatarUrl,
+                        name: user.name,
+                    },
+                });
         },
     );
 }

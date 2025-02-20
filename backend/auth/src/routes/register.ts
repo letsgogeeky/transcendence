@@ -1,16 +1,15 @@
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance, FastifyRequest } from 'fastify';
-import nodemailer from 'nodemailer';
 
 export const RegisterDto = Type.Object({
     email: Type.String({ format: 'email' }),
     password: Type.String(),
-    confirmPassword: Type.String(),
     name: Type.String(),
+    phoneNumber: Type.Optional(Type.String()),
 });
 
 export const RegisterSuccess = Type.Object({
-    id: Type.Integer(),
+    id: Type.String(),
 });
 
 export function registerRoutes(fastify: FastifyInstance) {
@@ -31,19 +30,18 @@ export function registerRoutes(fastify: FastifyInstance) {
             },
         },
         async (request, reply) => {
-            const { email, password, name, confirmPassword } = request.body;
-            if (confirmPassword != password)
-                reply.status(400).send({ error: "Passwords don't match" });
+            const { email, password, name, phoneNumber } = request.body;
             const hash = await fastify.bcrypt.hash(password);
             const token = fastify.jwt.sign({ email: email });
             await sendVerificationEmail(email, token, request);
-            const result = await fastify.prisma.users.create({
+            const result = await fastify.prisma.user.create({
                 data: {
                     email,
                     password: hash,
                     name,
-                    token,
-                    registration_date: new Date().toISOString(),
+                    emailVerificationToken: token,
+                    registrationDate: new Date().toISOString(),
+                    phoneNumber: phoneNumber,
                 },
             });
             reply.status(200).send({ id: result.id });
@@ -54,8 +52,8 @@ export function registerRoutes(fastify: FastifyInstance) {
         '/verify-email',
         async (request, reply) => {
             const { token } = request.query;
-            const user = await fastify.prisma.users.findFirst({
-                where: { token },
+            const user = await fastify.prisma.user.findFirst({
+                where: { emailVerificationToken: token },
             });
             if (!user)
                 return reply
@@ -67,10 +65,10 @@ export function registerRoutes(fastify: FastifyInstance) {
                     .code(400)
                     .send({ error: 'Invalid or expired token' });
 
-            await fastify.prisma.users.update({
+            await fastify.prisma.user.update({
                 where: { id: user.id },
                 data: {
-                    is_validated: 1,
+                    emailValidated: 1,
                 },
             });
             reply.status(200).send({ message: 'Email verified' });
@@ -83,16 +81,8 @@ export function registerRoutes(fastify: FastifyInstance) {
         req: FastifyRequest,
     ) {
         try {
-            const transporter: nodemailer.Transporter =
-                nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: 'noreply.transcendence2025@gmail.com',
-                        pass: fastify.config.GOOGLE_PASS,
-                    },
-                });
             const tokenLink = `<a href = "${req.protocol}://${req.hostname}:${req.port}/verify-email?token=${token}&email=${email}"> Email verification </a>`;
-            await transporter.sendMail({
+            await fastify.transporter.sendMail({
                 from: '"noreply transcendence" <noreply.transcendence2025@gmail.com>',
                 to: email,
                 subject: 'Verify your email',
