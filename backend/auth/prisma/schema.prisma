@@ -7,14 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  id                Int       @id @default(autoincrement())
-  name              String    @unique(map: "sqlite_autoindex_users_1")
+ enum OtpMethod {
+  SMS
+  EMAIL
+  AUTHENTICATOR
+}
+
+enum LoginLevel {
+  NONE
+  CREDENTIALS
+  FULL
+}
+
+model User {
+  id                String    @id @default(uuid()) 
+  name              String
   email             String    @unique(map: "sqlite_autoindex_users_2")
   password          String
-  token             String
-  registration_date DateTime?
-  last_login        DateTime?
-  avatar_url        String?
-  is_validated      Int?      @default(0)
+  phoneNumber       String?
+  emailVerificationToken             String
+  refreshToken     String?
+  registrationDate DateTime?
+  lastLogin        DateTime?
+  avatarUrl        String?
+  emailValidated      Int?      @default(0)
+
+  otpMethod  OtpMethod? // Can be null if 2FA is not enabled
+  otpBase32   String?
+  loginLevel LoginLevel  @default(NONE)
+
+  @@map(name: "users")
+
+}
+
+
+model BlacklistToken {
+  id         String  @id @default(uuid())
+  token      String  @unique
 }
