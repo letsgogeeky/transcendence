@@ -13,6 +13,7 @@ import { loginRoutes } from './routes/login.js';
 import { logoutRoutes } from './routes/logout.js';
 import { protectedOtpRoutes } from './routes/protected-2fa.js';
 import { registerRoutes } from './routes/register.js';
+import { userRoutes } from './routes/user.js';
 import { usersRoutes } from './routes/users.js';
 
 declare module '@fastify/jwt' {
@@ -58,6 +59,7 @@ const start = async () => {
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(registerRoutes);
         app.register(usersRoutes);
+        app.register(userRoutes);
         app.register(loginRoutes);
         app.register(logoutRoutes);
         app.register(otpRoutes);
