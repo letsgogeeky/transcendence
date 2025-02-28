@@ -1,5 +1,6 @@
 import fastifyEnv from '@fastify/env';
 import fastifyJwt from '@fastify/jwt';
+import fastifyStatic from '@fastify/static';
 import { LoginLevel, PrismaClient } from '@prisma/client';
 import fastify from 'fastify';
 import fastifyBcrypt from 'fastify-bcrypt';
@@ -33,6 +34,7 @@ declare module 'fastify' {
             INFOBIP_ID: string;
             INFOBIP_TOKEN: string;
             INFOBIP_SENDER: string;
+            UPLOAD_DIR: string;
         };
         prisma: PrismaClient;
         transporter: Transporter;
@@ -46,11 +48,16 @@ const app = fastify({ logger: true });
 const start = async () => {
     try {
         await app.register(fastifyEnv, options);
+        app.register(fastifyStatic, {
+            root: app.config.UPLOAD_DIR,
+            prefix: '/images/',
+        });
         app.register(fpSqlitePlugin, {
             dbFilename: app.config.DB_PATH,
             driverSettings: { verbose: true },
         });
         app.register(prismaPlugin);
+
         app.register(emailPlugin);
 
         app.register(fastifyJwt, {

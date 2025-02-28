@@ -31,3 +31,10 @@ npx prisma studio
 
 7. POST /logout Logout User
    Logs the user out. The previous token is blacklisted.
+
+    PUT /user/avatar
+    file: picture
+
+    GET /images/{{filename}}
+    serve all files located in UPLOAD_DIR
+    public, can be accessed without login
