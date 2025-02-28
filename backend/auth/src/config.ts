@@ -9,6 +9,7 @@ const schema = {
         'INFOBIP_ID',
         'INFOBIP_TOKEN',
         'INFOBIP_SENDER',
+        'UPLOAD_DIR',
     ],
     properties: {
         DB_PATH: { type: 'string' },
@@ -19,6 +20,7 @@ const schema = {
         INFOBIP_ID: { type: 'string' },
         INFOBIP_TOKEN: { type: 'string' },
         INFOBIP_SENDER: { type: 'string' },
+        UPLOAD_DIR: { type: 'string' },
     },
 };
 
