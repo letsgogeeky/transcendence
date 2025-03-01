@@ -156,18 +156,27 @@ export function otpRoutes(fastify: FastifyInstance) {
                     message,
                 });
             }
-            await fastify.prisma.blacklistToken.create({
-                data: {
-                    token: req.headers['authorization']!.replace('Bearer ', ''),
-                },
-            });
+            fastify.cache.set(
+                req.headers['authorization']!.replace('Bearer ', ''),
+                1,
+                600,
+            );
             const authToken = fastify.jwt.sign(
                 {
                     id: user.id,
                     loginLevel: LoginLevel.FULL,
                 },
-                { expiresIn: '1h', key: fastify.config.SECRET },
+                { expiresIn: '10m', key: fastify.config.SECRET },
             );
+            const refreshToken = fastify.jwt.sign(
+                { id: user.id },
+                { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
+            );
+            res.setCookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+            });
             res.status(200).send({
                 authToken,
             });

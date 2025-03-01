@@ -10,6 +10,9 @@ const schema = {
         'INFOBIP_TOKEN',
         'INFOBIP_SENDER',
         'UPLOAD_DIR',
+        'COOKIE_SECRET',
+        'SSL_KEY_PATH',
+        'SSL_CERT_PATH',
     ],
     properties: {
         DB_PATH: { type: 'string' },
@@ -21,6 +24,9 @@ const schema = {
         INFOBIP_TOKEN: { type: 'string' },
         INFOBIP_SENDER: { type: 'string' },
         UPLOAD_DIR: { type: 'string' },
+        COOKIE_SECRET: { type: 'string' },
+        SSL_KEY_PATH: { type: 'string' },
+        SSL_CERT_PATH: { type: 'string' },
     },
 };
 

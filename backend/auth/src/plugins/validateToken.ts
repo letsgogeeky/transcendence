@@ -10,10 +10,7 @@ const validateToken: FastifyPluginCallback = fp((server, _options, done) => {
                 '',
             );
             if (!token) reply.status(401).send({ error: 'Unauthorized' });
-            const blacklistedToken =
-                await server.prisma.blacklistToken.findFirst({
-                    where: { token },
-                });
+            const blacklistedToken = await server.cache.get(token!);
             if (blacklistedToken) throw Error();
             const decoded = server.jwt.verify<{
                 id: string;
@@ -23,7 +20,7 @@ const validateToken: FastifyPluginCallback = fp((server, _options, done) => {
             request.user = decoded.id;
         } catch (error) {
             console.log(error);
-            reply.status(401).send({ message: 'Invalid or expired token' });
+            reply.status(401).send({ error: 'Invalid or expired token' });
         }
     });
     done();

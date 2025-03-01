@@ -26,7 +26,6 @@ model User {
   password          String
   phoneNumber       String?
   emailVerificationToken             String
-  refreshToken     String?
   registrationDate DateTime?
   lastLogin        DateTime?
   avatarUrl        String?
@@ -34,14 +33,8 @@ model User {
 
   otpMethod  OtpMethod? // Can be null if 2FA is not enabled
   otpBase32   String?
-  loginLevel LoginLevel  @default(NONE)
+  loginLevel LoginLevel  @default(NONE) //just so that prisma generates LoginLevel enum correctly.
 
   @@map(name: "users")
 
-}
-
-
-model BlacklistToken {
-  id         String  @id @default(uuid())
-  token      String  @unique
 }

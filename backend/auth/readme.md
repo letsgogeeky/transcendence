@@ -14,10 +14,15 @@ npx prisma studio
 
 2. POST /login Login User
    Login with username+password. It will return UserId and authToken. If 2FA is disabled (default) this token is sufficient. It should be sent in all future request headers, as Authorization: Bearer {{authToken}}
+   sets refreshToken cookie. Whenever the request has an expired access token, 401 { error: 'Token expired' } will be sent. Then the frontend needs to initiate refresh, by POST to /refresh
+
+    POST /refresh
+    Verifies the refresh token sent as cookie. If valid, sends new authToken.
 
 3. POST /otp/setup Setup 2FA method
    Sets up the 2FA method. Users can choose from 3 options: SMS, EMAIL, or AUTHENTICATOR.
    For SMS, they need to send phoneNumber in request body.
+   After setup, user is logged out and should be prompted to log in with 2FA
 
 4. POST /otp/generate Generate the OTP
    OTP will be sent to chosen method. If no method set yet, they get 403 Error.

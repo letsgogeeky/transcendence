@@ -4,11 +4,11 @@ import twoFAuthCheck from '../plugins/2fa.js';
 export function logoutRoutes(fastify: FastifyInstance) {
     fastify.register(twoFAuthCheck);
     fastify.post('/logout', async (req, res) => {
-        await fastify.prisma.blacklistToken.create({
-            data: {
-                token: req.headers['authorization']!.replace('Bearer ', ''),
-            },
-        });
+        fastify.cache.set(
+            req.headers['authorization']!.replace('Bearer ', ''),
+            1,
+            600,
+        );
         res.send({ message: 'Logged out' });
     });
 }

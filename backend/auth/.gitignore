@@ -3,3 +3,5 @@ node_modules
 .env
 draft.md
 test-scripts
+cert.pem
+key.pem
