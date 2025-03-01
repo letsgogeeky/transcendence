@@ -44,17 +44,21 @@ export function loginRoutes(fastify: FastifyInstance) {
                         ? LoginLevel.CREDENTIALS
                         : LoginLevel.FULL,
                 },
-                { expiresIn: '1h', key: fastify.config.SECRET },
+                { expiresIn: '10m', key: fastify.config.SECRET },
             );
             const refreshToken = fastify.jwt.sign(
                 { id: user.id },
                 { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
             );
+            reply.setCookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'lax',
+            });
             const newTimestamp = new Date().toISOString();
             await fastify.prisma.user.update({
                 where: { id: user.id },
                 data: {
-                    refreshToken,
                     lastLogin: newTimestamp,
                 },
             });
@@ -68,7 +72,6 @@ export function loginRoutes(fastify: FastifyInstance) {
             else
                 return reply.send({
                     authToken,
-                    refreshToken,
                     user: {
                         id: user.id,
                         email: user.email,

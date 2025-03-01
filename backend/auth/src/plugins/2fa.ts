@@ -19,7 +19,7 @@ const twoFAuthCheck: FastifyPluginCallback = fp((server, _options, done) => {
             request.user = decoded.id;
         } catch (error) {
             console.log(error);
-            reply.status(401).send({ message: '2FA incomplete' });
+            reply.status(401).send({ error: '2FA incomplete' });
         }
     });
     done();

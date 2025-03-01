@@ -31,6 +31,13 @@ export function registerRoutes(fastify: FastifyInstance) {
         },
         async (request, reply) => {
             const { email, password, name, phoneNumber } = request.body;
+            const existingUser = await fastify.prisma.user.findUnique({
+                where: { email },
+            });
+            if (existingUser)
+                return reply
+                    .status(409)
+                    .send({ error: 'Account already exists for email.' });
             const hash = await fastify.bcrypt.hash(password);
             const token = fastify.jwt.sign({ email: email });
             await sendVerificationEmail(email, token, request);
