@@ -13,6 +13,8 @@ const schema = {
         'COOKIE_SECRET',
         'SSL_KEY_PATH',
         'SSL_CERT_PATH',
+        'GOOGLE_ID',
+        'GOOGLE_SECRET'
     ],
     properties: {
         DB_PATH: { type: 'string' },
@@ -27,6 +29,8 @@ const schema = {
         COOKIE_SECRET: { type: 'string' },
         SSL_KEY_PATH: { type: 'string' },
         SSL_CERT_PATH: { type: 'string' },
+        GOOGLE_ID: { type: 'string' },
+        GOOGLE_SECRET: { type: 'string' },
     },
 };
 

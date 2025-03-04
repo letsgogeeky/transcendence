@@ -13,8 +13,18 @@ npx prisma studio
    Register
 
 2. POST /login Login User
-   Login with username+password. It will return UserId and authToken. If 2FA is disabled (default) this token is sufficient. It should be sent in all future request headers, as Authorization: Bearer {{authToken}}
-   sets refreshToken cookie. Whenever the request has an expired access token, 401 { error: 'Token expired' } will be sent. Then the frontend needs to initiate refresh, by POST to /refresh
+   Login with username+password.
+
+    GET /login/google
+    Will redirect to google login. If google login is valid but user email is not registered, error is thrown ("No account found with this Google email. Please sign up first.")
+    If email is already registered, but this is the first time they try logging in with google, they will get the gooleToken in the response, that they need to send to /login/link-google together with their password
+    to confirm linking Google login. Only after that will they be able to use remote login seamlessly.
+
+    Both will return UserId and authToken. If 2FA is disabled (default) this token is sufficient. It should be sent in all future request headers, as Authorization: Bearer {{authToken}}
+    sets refreshToken cookie. Whenever the request has an expired access token, 401 { error: 'Token expired' } will be sent. Then the frontend needs to initiate refresh, by POST to /refresh
+
+    POST /login/link-google
+    Send gooleToken and password to link Google account
 
     POST /refresh
     Verifies the refresh token sent as cookie. If valid, sends new authToken.
