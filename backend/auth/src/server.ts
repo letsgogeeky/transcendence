@@ -1,5 +1,6 @@
 import fastifyEnv from '@fastify/env';
 import fastifyJwt from '@fastify/jwt';
+import oauthPlugin, { OAuth2Namespace } from '@fastify/oauth2';
 import fastifyStatic from '@fastify/static';
 import { LoginLevel, PrismaClient } from '@prisma/client';
 import fastify from 'fastify';
@@ -41,10 +42,13 @@ declare module 'fastify' {
             INFOBIP_SENDER: string;
             UPLOAD_DIR: string;
             COOKIE_SECRET: string;
+            GOOGLE_SECRET: string;
+            GOOGLE_ID: string;
         };
         prisma: PrismaClient;
         transporter: Transporter;
         cache: NodeCache;
+        googleOAuth2: OAuth2Namespace;
     }
     interface FastifyRequest {
         auth: LoginLevel;
@@ -65,7 +69,6 @@ const start = async () => {
     try {
         await app.register(fastifyEnv, options);
         app.register(myCachePlugin);
-
         app.register(fastifyStatic, {
             root: app.config.UPLOAD_DIR,
             prefix: '/images/',
@@ -80,10 +83,6 @@ const start = async () => {
 
         app.register(fastifyJwt, {
             secret: app.config.SECRET,
-            // cookie: {
-            //     cookieName: 'refreshToken',
-            //     signed: false,
-            // },
         });
         app.register(fastifyCookie, {
             secret: process.env.COOKIE_SECRET,
@@ -99,6 +98,20 @@ const start = async () => {
         app.register(usersRoutes);
         app.register(userRoutes);
         app.register(loginRoutes);
+        app.register(oauthPlugin, {
+            name: 'googleOAuth2',
+            scope: ['email', 'profile'],
+            credentials: {
+                client: {
+                    id: app.config.GOOGLE_ID,
+                    secret: app.config.GOOGLE_SECRET,
+                },
+                auth: oauthPlugin.GOOGLE_CONFIGURATION,
+            },
+            startRedirectPath: '/login/google',
+            callbackUri: (req) =>
+                `${req.protocol}://${req.hostname}:${app.config.PORT}/login/google/callback`,
+        });
         app.register(logoutRoutes);
         app.register(otpRoutes);
         app.register(protectedOtpRoutes);

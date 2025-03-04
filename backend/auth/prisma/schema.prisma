@@ -30,6 +30,7 @@ model User {
   lastLogin        DateTime?
   avatarUrl        String?
   emailValidated      Int?      @default(0)
+  googleLinkedAccount Int?      @default(0)
 
   otpMethod  OtpMethod? // Can be null if 2FA is not enabled
   otpBase32   String?
