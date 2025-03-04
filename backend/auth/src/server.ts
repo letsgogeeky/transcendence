@@ -1,3 +1,4 @@
+import fastifyCors from '@fastify/cors';
 import fastifyEnv from '@fastify/env';
 import fastifyJwt from '@fastify/jwt';
 import oauthPlugin, { OAuth2Namespace } from '@fastify/oauth2';
@@ -44,6 +45,7 @@ declare module 'fastify' {
             COOKIE_SECRET: string;
             GOOGLE_SECRET: string;
             GOOGLE_ID: string;
+            FRONTEND: string;
         };
         prisma: PrismaClient;
         transporter: Transporter;
@@ -68,6 +70,11 @@ const app = fastify({
 const start = async () => {
     try {
         await app.register(fastifyEnv, options);
+        app.register(fastifyCors, {
+            origin: [app.config.FRONTEND],
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
+        });
         app.register(myCachePlugin);
         app.register(fastifyStatic, {
             root: app.config.UPLOAD_DIR,
@@ -78,9 +85,7 @@ const start = async () => {
             driverSettings: { verbose: true },
         });
         app.register(prismaPlugin);
-
         app.register(emailPlugin);
-
         app.register(fastifyJwt, {
             secret: app.config.SECRET,
         });
@@ -115,6 +120,7 @@ const start = async () => {
         app.register(logoutRoutes);
         app.register(otpRoutes);
         app.register(protectedOtpRoutes);
+
         await app.listen({ port: app.config.PORT });
     } catch (err) {
         app.log.error(err);

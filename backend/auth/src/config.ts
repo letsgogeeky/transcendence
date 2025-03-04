@@ -14,7 +14,8 @@ const schema = {
         'SSL_KEY_PATH',
         'SSL_CERT_PATH',
         'GOOGLE_ID',
-        'GOOGLE_SECRET'
+        'GOOGLE_SECRET',
+        'FRONTEND',
     ],
     properties: {
         DB_PATH: { type: 'string' },
@@ -31,6 +32,7 @@ const schema = {
         SSL_CERT_PATH: { type: 'string' },
         GOOGLE_ID: { type: 'string' },
         GOOGLE_SECRET: { type: 'string' },
+        FRONTEND: { type: 'string' },
     },
 };
 
