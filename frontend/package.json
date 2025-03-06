@@ -4,9 +4,11 @@
   "main": "src/main.ts",
   "scripts": {
     "build:css": "npx tailwindcss -i ./src/styles/style.css -o ./public/dist/output.css --watch",
-    "build:ts": "esbuild src/main.ts --outfile=public/dist/main.js --bundle --watch",
-    "start": "http-server public -p 3000 -c-1",
-    "dev": "concurrently \"npm run build:css\" \"npm run build:ts\" \"npm run start\""
+    "build:css:prod": "npx tailwindcss -i ./src/styles/style.css -o ./public/dist/output.css --minify",
+    "start": "vite preview",
+    "dev": "vite",
+    "build": "vite build",
+    "clean": "rm -rf ./public/dist"
   },
   "keywords": [],
   "author": "",
@@ -14,11 +16,12 @@
   "description": "",
   "devDependencies": {
     "autoprefixer": "^10.4.20",
-    "concurrently": "^9.1.2",
     "esbuild": "^0.25.0",
     "http-server": "^14.1.1",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0"
   }
 }

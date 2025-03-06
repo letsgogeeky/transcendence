@@ -46,4 +46,14 @@
   ```sh
   npm run start
   ```
-  
+
+### Makefile Commands
+
+The following commands are available in the frontend Makefile:
+
+| Command | Description |
+|---------|-------------|
+| `make install-local` | Install dependencies locally using npm ci |
+| `make run-local` | Run the frontend locally (includes installation) |
+| `make clean` | Remove node_modules and dist directories |
+| `make run-docker` | Build and run the frontend using Docker Compose |  
