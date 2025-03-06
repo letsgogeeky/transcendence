@@ -9,7 +9,7 @@ export async function renderHome(): Promise<HTMLElement> {
     title.textContent = "Welcome to The Orca's PONG";
     const description = document.createElement("p");
     description.className = "text-gray-600";
-    description.textContent = "Welcome to the home page!";
+    description.textContent = "Welcome to the home page buddy!";
     let count = 0;
     const counter = document.createElement("p");
     counter.className = "mt-4 text-lg font-semibold";
