@@ -18,4 +18,26 @@ export function usersRoutes(fastify: FastifyInstance) {
 
         reply.send(users);
     });
+
+    fastify.get<{ Params: { id: string } }>(
+        '/users/:id',
+        async (request, reply) => {
+            const { id } = request.params;
+            const user = await fastify.prisma.user.findUnique({
+                where: { id },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phoneNumber: true,
+                    avatarUrl: true,
+                },
+            });
+            if (!user) {
+                reply.code(404).send({ error: 'User not found' });
+                return;
+            }
+            reply.send(user);
+        },
+    );
 }
