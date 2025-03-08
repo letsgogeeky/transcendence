@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+ enum OtpMethod {
+  SMS
+  EMAIL
+  AUTHENTICATOR
+}
+
+enum LoginLevel {
+  NONE
+  CREDENTIALS
+  FULL
+}
+
+model User {
+  id                String    @id @default(uuid()) 
+  name              String
+  email             String    @unique(map: "sqlite_autoindex_users_2")
+  password          String
+  phoneNumber       String?
+  emailVerificationToken             String
+  registrationDate DateTime?
+  lastLogin        DateTime?
+  avatarUrl        String?
+  emailValidated      Int?      @default(0)
+  googleLinkedAccount Int?      @default(0)
+
+  otpMethod  OtpMethod? // Can be null if 2FA is not enabled
+  otpBase32   String?
+  loginLevel LoginLevel  @default(NONE) //just so that prisma generates LoginLevel enum correctly.
+
+  @@map(name: "users")
+
+}
