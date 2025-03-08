@@ -3,6 +3,7 @@ import fastifyEnv from '@fastify/env';
 import fastifyJwt from '@fastify/jwt';
 import oauthPlugin, { OAuth2Namespace } from '@fastify/oauth2';
 import fastifyStatic from '@fastify/static';
+import fastifyWebsocket from '@fastify/websocket';
 import { LoginLevel, PrismaClient } from '@prisma/client';
 import fastify from 'fastify';
 import fastifyBcrypt from 'fastify-bcrypt';
@@ -11,7 +12,9 @@ import { fpSqlitePlugin } from 'fastify-sqlite-typed';
 import * as fs from 'fs';
 import NodeCache from 'node-cache';
 import { Transporter } from 'nodemailer';
+import { WebSocket } from 'ws';
 import { options } from './config.js';
+import connectionsPlugin from './plugins/connectionMap.js';
 import myCachePlugin from './plugins/myCache.js';
 import prismaPlugin from './plugins/prisma.js';
 import emailPlugin from './plugins/sendEmail.js';
@@ -21,6 +24,7 @@ import { logoutRoutes } from './routes/logout.js';
 import { protectedOtpRoutes } from './routes/protected-2fa.js';
 import { refreshRoutes } from './routes/refresh.js';
 import { registerRoutes } from './routes/register.js';
+import { SocketRoutes } from './routes/socket.js';
 import { userRoutes } from './routes/user.js';
 import { usersRoutes } from './routes/users.js';
 
@@ -51,6 +55,7 @@ declare module 'fastify' {
         transporter: Transporter;
         cache: NodeCache;
         googleOAuth2: OAuth2Namespace;
+        connections: Map<string, WebSocket>;
     }
     interface FastifyRequest {
         auth: LoginLevel;
@@ -75,6 +80,7 @@ const start = async () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Content-Type', 'Authorization'],
         });
+        app.register(fastifyWebsocket);
         app.register(myCachePlugin);
         app.register(fastifyStatic, {
             root: app.config.UPLOAD_DIR,
@@ -99,9 +105,7 @@ const start = async () => {
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(registerRoutes);
-        app.register(refreshRoutes);
-        app.register(usersRoutes);
-        app.register(userRoutes);
+
         app.register(loginRoutes);
         app.register(oauthPlugin, {
             name: 'googleOAuth2',
@@ -117,6 +121,11 @@ const start = async () => {
             callbackUri: (req) =>
                 `${req.protocol}://${req.hostname}:${app.config.PORT}/login/google/callback`,
         });
+        app.register(connectionsPlugin);
+        app.register(SocketRoutes);
+        app.register(refreshRoutes);
+        app.register(usersRoutes);
+        app.register(userRoutes);
         app.register(logoutRoutes);
         app.register(otpRoutes);
         app.register(protectedOtpRoutes);

@@ -53,3 +53,15 @@ npx prisma studio
     GET /images/{{filename}}
     serve all files located in UPLOAD_DIR
     public, can be accessed without login
+
+8. Authentication will maintain a socket connection with the client to send real-time updates about other users' status changes, ensuring the frontend stays up-to-date. A user's online status is updated when their socket is disconnected.
+   {"type":"STATUS_CHANGE",
+   "data":{"message":"User logged out", "id":"3ed54bb6-d940-4edf-8b2c-cefaf62557b5"}
+   }
+
+GET /users?status=online
+returns online users (all who have socket connection open)
+
+after login the user must initiate socket connection to endpoint
+wss://<HOST>/socket/
+to be visible to other users and to receive updates about their online status changes

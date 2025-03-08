@@ -10,5 +10,6 @@ export function logoutRoutes(fastify: FastifyInstance) {
             600,
         );
         res.send({ message: 'Logged out' });
+        fastify.connections.get(req.user)?.terminate();
     });
 }
