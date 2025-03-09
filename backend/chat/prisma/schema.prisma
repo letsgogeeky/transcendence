@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ChatRoom {
+  id          String    @id @default(uuid())
+  name        String?   // Optional name for group chats
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  participants ChatParticipant[]
+  messages     Message[]
+}
+
+model ChatParticipant {
+  id          String    @id @default(uuid())
+  userId      String    // References User from auth schema
+  chatRoomId  String
+  joinedAt    DateTime  @default(now())
+  chatRoom    ChatRoom  @relation(fields: [chatRoomId], references: [id])
+  isAdmin     Boolean   @default(false)
+
+  @@unique([userId, chatRoomId])
+}
+
+model Message {
+  id          String    @id @default(uuid())
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String    // References User from auth schema
+  chatRoomId  String
+  chatRoom    ChatRoom  @relation(fields: [chatRoomId], references: [id])
+  attachments Attachment[]
+}
+
+model Attachment {
+  id          String    @id @default(uuid())
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  uploadedAt  DateTime  @default(now())
+  messageId   String
+  message     Message   @relation(fields: [messageId], references: [id])
+}
