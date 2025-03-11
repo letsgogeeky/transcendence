@@ -1,6 +1,6 @@
 import Component from '../components/Component';
 
-export default class ErrorPage extends Component {
+export default class ErrorComponent extends Component {
     readonly element: HTMLElement;
 
     constructor(errorMessage: string) {

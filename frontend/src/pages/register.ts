@@ -1,25 +1,75 @@
-import { Button } from '../components/Button';
+import Component from '../components/Component';
+import FormComponent from '../components/Form';
+import Input from '../components/Input';
+import { showToast, ToastState } from '../components/Toast';
 
-export async function renderRegister(): Promise<HTMLElement> {
-    const container = document.createElement('div');
-    container.className = 'text-center';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.gap = '10px';
+async function registerUser(data: any): Promise<void> {
+    try {
+        const response = await fetch('https://localhost:8081/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            credentials: 'include',
+        });
 
-    const title = document.createElement('h1');
-    const emailInput = document.createElement('input');
-    emailInput.type = 'email';
-    emailInput.placeholder = 'email';
-    emailInput.id = 'email';
-    const passwordInput = document.createElement('input');
-    passwordInput.type = 'password';
-    passwordInput.placeholder = 'password';
-    passwordInput.id = 'password';
+        const responseBody = await response.json();
+        if (!response.ok) {
+            throw new Error(`Error: ${responseBody.error}`);
+        }
+        showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
+    } catch (error) {
+        if (error instanceof Error) {
+            showToast(ToastState.ERROR, error.message);
+        } else {
+            showToast(ToastState.ERROR, 'An unexpected error occurred');
+        }
+    }
+}
 
-    const submitButton = Button('Register', () => {
-        console.log();
-    });
-    container.append(title, emailInput, passwordInput, submitButton);
-    return container;
+export default class RegisterComponent extends Component {
+    readonly element: HTMLElement;
+
+    constructor() {
+        super();
+        const container = document.createElement('div');
+        container.className = 'text-center';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '10px';
+
+        const inputStyle = 'border border-gray-300 rounded p-2 w-full';
+
+        const emailInput = new Input(
+            'email',
+            'email',
+            'email',
+            true,
+            inputStyle,
+        );
+        const nameInput = new Input('name', 'text', 'name', true, inputStyle);
+        const passwordInput = new Input(
+            'password',
+            'password',
+            'password',
+            true,
+            inputStyle,
+        );
+
+        const form = new FormComponent(
+            'register',
+            [emailInput, nameInput, passwordInput],
+            registerUser,
+        );
+
+        document.createElement('form');
+        form.className = 'flex flex-col gap-4 w-64';
+
+        const title = document.createElement('h1');
+
+        container.append(title);
+        this.element = container;
+        form.render(this.element);
+    }
 }
