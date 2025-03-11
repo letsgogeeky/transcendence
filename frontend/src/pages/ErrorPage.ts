@@ -1,0 +1,16 @@
+import Component from '../components/Component';
+
+export default class ErrorPage extends Component {
+    readonly element: HTMLElement;
+
+    constructor(errorMessage: string) {
+        super();
+        this.element = document.createElement('div');
+        this.element.classList.add('error-page');
+
+        const errorText = document.createElement('p');
+        errorText.textContent = errorMessage;
+
+        this.element.appendChild(errorText);
+    }
+}
