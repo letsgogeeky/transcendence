@@ -1,21 +1,26 @@
-type Route = { path: string, component: () => Promise<HTMLElement>; title: string };
+import Component from './components/Component';
+import ErrorPage from './pages/ErrorPage';
+import HomeComponent from './pages/home';
+import NotFoundComponent from './pages/notfound';
 
-const routes: Route[] = [
-    { path: "/", component: () => import("./pages/home").then(c => c.renderHome()), title: "Orca's Home"},
-    { path: "*", component: () => import("./pages/notfound").then(c => c.renderNotFound()), title: "Sorry!" },
-]
+export type Route = {
+    path: string;
+    title: string;
+    component: Component;
+};
 
-
-export async function navigateTo(hash: string) {
-    const route = routes.find(r => r.path == hash) || routes.find(r => r.path === "*");
-    if (route) {
-        const component = await route.component();
-        document.getElementById("app")!.innerHTML = "";
-        document.getElementById("app")?.appendChild(component);
-    }
-}
-
-export function setupRouter() {
-    window.addEventListener("hashchange", () => navigateTo(location.hash.slice(1) || "/"));
-    navigateTo(location.hash.slice(1) || "/");
-}
+export const routes: Route[] = [
+    { path: '/', title: 'Home', component: new HomeComponent() },
+    {
+        path: '/register',
+        title: 'Register',
+        component: new ErrorPage('register'),
+    },
+    {
+        path: '/profile',
+        title: 'My Profile',
+        component: new ErrorPage('my profile'),
+    },
+    { path: '/users', title: 'Users', component: new ErrorPage('users') },
+    { path: '/error', title: 'Error', component: new NotFoundComponent() },
+];

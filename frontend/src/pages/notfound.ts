@@ -1,21 +1,28 @@
-import { Button } from "../components/button";
+import Button from '../components/Button';
+import Component from '../components/Component';
 
-export function renderNotFound(): HTMLElement {
-    const container = document.createElement("div");
-    container.className = "text-center";
+export default class NotFoundComponent extends Component {
+    readonly element: HTMLElement;
 
-    const title = document.createElement("h1");
-    title.className = "text-2xl font-bold text-red-500";
-    title.textContent = "404";
+    constructor() {
+        super();
+        const container = document.createElement('div');
+        container.className = 'text-center';
 
-    const description = document.createElement("p");
-    description.className = "text-gray-600";
-    description.textContent = "I think you missed the correct exit on the highway.";
+        const title = document.createElement('h1');
+        title.className = 'text-2xl font-bold text-red-500';
+        title.textContent = '404';
 
-    const homeButton = Button("Go Home", () => {
-        location.hash = "#";
-    });
+        const description = document.createElement('p');
+        description.className = 'text-gray-600';
+        description.textContent =
+            'I think you missed the correct exit on the highway.';
 
-    container.append(title, description, homeButton);
-    return container;
+        const homeButton = new Button('Go Home', () => {
+            window.history.pushState({ path: '/' }, '/', '/');
+        });
+        container.append(title, description);
+        homeButton.render(container);
+        this.element = container;
+    }
 }
