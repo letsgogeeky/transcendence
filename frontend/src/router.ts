@@ -1,7 +1,8 @@
 import Component from './components/Component';
-import ErrorPage from './pages/ErrorPage';
+import ErrorComponent from './pages/error';
 import HomeComponent from './pages/home';
 import NotFoundComponent from './pages/notfound';
+import RegisterComponent from './pages/register';
 
 export type Route = {
     path: string;
@@ -14,13 +15,13 @@ export const routes: Route[] = [
     {
         path: '/register',
         title: 'Register',
-        component: new ErrorPage('register'),
+        component: new RegisterComponent(),
     },
     {
         path: '/profile',
         title: 'My Profile',
-        component: new ErrorPage('my profile'),
+        component: new ErrorComponent('my profile'),
     },
-    { path: '/users', title: 'Users', component: new ErrorPage('users') },
+    { path: '/users', title: 'Users', component: new ErrorComponent('users') },
     { path: '/error', title: 'Error', component: new NotFoundComponent() },
 ];
