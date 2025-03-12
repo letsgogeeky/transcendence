@@ -69,7 +69,6 @@ const app = fastify({
     https: {
         key: fs.readFileSync(keyPath),
         cert: fs.readFileSync(certPath),
-        passphrase: process.env.SSL_PASSPHRASE,
     },
 });
 const start = async () => {
@@ -77,8 +76,9 @@ const start = async () => {
         await app.register(fastifyEnv, options);
         app.register(fastifyCors, {
             origin: [app.config.FRONTEND],
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true,
         });
         app.register(fastifyWebsocket);
         app.register(myCachePlugin);
