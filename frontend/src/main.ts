@@ -1,5 +1,6 @@
 import NavigatorComponent from './components/Nav/Navigator';
 import { routes } from './router';
+import State from './services/state';
 
 (function () {
     const originalPushState = history.pushState;
@@ -10,6 +11,11 @@ import { routes } from './router';
 })();
 
 const render = () => {
+    const authToken = localStorage.getItem('authToken');
+    if (authToken && !State.getState().getAuthToken()) {
+        State.getState().setAuthToken(authToken);
+        console.log('Auth token is: ' + State.getState().getAuthToken());
+    }
     const element = document.getElementById('app');
     const root = element as HTMLElement;
     const navigator = new NavigatorComponent('main', routes);
@@ -33,6 +39,7 @@ const render = () => {
 
     window.addEventListener('pushstate', (e) => {
         navigator.changeSelection(new URL(window.location.href).pathname);
+        console.log('Auth token is: ' + State.getState().getAuthToken());
     });
 };
 

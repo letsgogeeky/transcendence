@@ -3,11 +3,12 @@ import FormComponent from '../components/Form';
 import Input from '../components/Input';
 import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
+import State from '../services/state';
 
-async function registerUser(data: any): Promise<void> {
+async function loginUser(data: any): Promise<void> {
     try {
         const response = await sendRequest(
-            '/register',
+            '/login',
             'POST',
             data,
             Services.AUTH,
@@ -17,6 +18,8 @@ async function registerUser(data: any): Promise<void> {
             throw new Error(`Error: ${responseBody.error}`);
         }
         showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
+        localStorage.setItem('authToken', responseBody.authToken);
+        State.getState().setAuthToken(responseBody.authToken);
     } catch (error) {
         if (error instanceof Error) {
             showToast(ToastState.ERROR, error.message);
@@ -26,7 +29,7 @@ async function registerUser(data: any): Promise<void> {
     }
 }
 
-export default class RegisterComponent extends Component {
+export default class LoginComponent extends Component {
     readonly element: HTMLElement;
 
     constructor() {
@@ -46,7 +49,6 @@ export default class RegisterComponent extends Component {
             true,
             inputStyle,
         );
-        const nameInput = new Input('name', 'text', 'name', true, inputStyle);
         const passwordInput = new Input(
             'password',
             'password',
@@ -56,9 +58,9 @@ export default class RegisterComponent extends Component {
         );
 
         const form = new FormComponent(
-            'register',
-            [emailInput, nameInput, passwordInput],
-            registerUser,
+            'login',
+            [emailInput, passwordInput],
+            loginUser,
         );
 
         document.createElement('form');
