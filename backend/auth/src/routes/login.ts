@@ -52,6 +52,11 @@ export function loginRoutes(fastify: FastifyInstance) {
             secure: true,
             sameSite: 'lax',
         });
+        reply.setCookie('userId', user.id, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+        });
         const newTimestamp = new Date().toISOString();
         await fastify.prisma.user.update({
             where: { id: user.id },

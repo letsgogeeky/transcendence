@@ -16,7 +16,7 @@ export default class FormComponent extends Component {
         super();
         this.element = document.createElement('form');
         const submitButton = new Button(
-            'Register',
+            label,
             () => {},
             `px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 active:scale-95 transition`,
         );

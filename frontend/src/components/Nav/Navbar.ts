@@ -17,9 +17,10 @@ export default class Navbar extends Component {
         return `
             <ul style="display: flex; list-style-type: none; padding: 0; margin: 0;">
                 ${routes
-                    .map(
-                        (route) =>
-                            `<li style="padding: 10px;"><a href=${route.path}>${route.title}</a></li>`,
+                    .map((route) =>
+                        route.visible
+                            ? `<li style="padding: 10px"><a href=${route.path}>${route.title}</a></li>`
+                            : `<li style="padding: 10px; display:none"><a href=${route.path}>${route.title}</a></li>`,
                     )
                     .join('')}
             </ul>
