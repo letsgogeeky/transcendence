@@ -13,13 +13,14 @@ export const endpoints = {
     friends: 'https://localhost:8080',
 };
 
-const noRetryRoutes = ['/login', '/logout', '/register'];
+const noRetryRoutes = ['/login', '/register'];
 
 async function tryRefresh(): Promise<boolean> {
     let response = await fetch(endpoints.auth + '/refresh', {
-        method: 'POST',
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${State.getState().getAuthToken()}`,
         },
         credentials: 'include',
     });
@@ -63,17 +64,17 @@ export default async function sendRequest(
         });
         console.log(path in noRetryRoutes);
         console.log(path);
-        if (noRetryRoutes.includes(path)) {
-            return response;
-        } else if (!response.ok) {
+        if (noRetryRoutes.includes(path)) return response;
+        else if (!response.ok) {
             const responseBody = await response.json();
             if (responseBody.error == 'Invalid or expired token') {
                 const refreshSuccess = await tryRefresh();
                 if (refreshSuccess)
                     return sendRequest(path, method, data, service);
+                else throw Error('Unauthorized');
             }
-        }
-        throw Error('ajajajaj');
+        } else return response;
+        throw Error('ajajaj');
     } catch (error) {
         throw error;
     }

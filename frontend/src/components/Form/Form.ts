@@ -1,16 +1,19 @@
-import Button from './Button';
-import Component from './Component';
+import Button from '../Button';
+import Component from '../Component';
 import Input from './Input';
+import Select from './Select';
+
+type FormInput = Input | Select;
 
 export default class FormComponent extends Component {
     readonly element: HTMLFormElement;
-    inputs: Input[];
+    inputs: FormInput[];
     submitButton: Button;
     submitCallback: (data: any) => Promise<void>;
 
     constructor(
         label: string,
-        inputs: Input[],
+        inputs: FormInput[],
         submitCallback: (data: any) => Promise<void>,
     ) {
         super();

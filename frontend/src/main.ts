@@ -1,6 +1,6 @@
 import NavigatorComponent from './components/Nav/Navigator';
 import { routes } from './router';
-import State from './services/state';
+import State, { MyUser } from './services/state';
 
 (function () {
     const originalPushState = history.pushState;
@@ -12,10 +12,17 @@ import State from './services/state';
 
 const render = () => {
     const authToken = localStorage.getItem('authToken');
+    const currentUser = JSON.parse(
+        localStorage.getItem('currentUser') || '{}',
+    ) as MyUser;
     if (authToken && !State.getState().getAuthToken()) {
         State.getState().setAuthToken(authToken);
         console.log('Auth token is: ' + State.getState().getAuthToken());
     }
+    if (currentUser && !State.getState().getCurrentUser()) {
+        State.getState().setCurrentUser(currentUser);
+    }
+
     const element = document.getElementById('app');
     const root = element as HTMLElement;
     const navigator = new NavigatorComponent('main', routes);

@@ -1,6 +1,6 @@
 import Component from '../components/Component';
-import FormComponent from '../components/Form';
-import Input from '../components/Input';
+import FormComponent from '../components/Form/Form';
+import Input from '../components/Form/Input';
 import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
@@ -18,8 +18,11 @@ async function loginUser(data: any): Promise<void> {
             throw new Error(`Error: ${responseBody.error}`);
         }
         showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
+
         localStorage.setItem('authToken', responseBody.authToken);
+        localStorage.setItem('currentUser', JSON.stringify(responseBody.user));
         State.getState().setAuthToken(responseBody.authToken);
+        State.getState().setCurrentUser(responseBody.user);
     } catch (error) {
         if (error instanceof Error) {
             showToast(ToastState.ERROR, error.message);
@@ -47,6 +50,7 @@ export default class LoginComponent extends Component {
             'email',
             'email',
             true,
+            null,
             inputStyle,
         );
         const passwordInput = new Input(
@@ -54,6 +58,7 @@ export default class LoginComponent extends Component {
             'password',
             'password',
             true,
+            null,
             inputStyle,
         );
 
