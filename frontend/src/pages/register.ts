@@ -1,6 +1,6 @@
 import Component from '../components/Component';
-import FormComponent from '../components/Form';
-import Input from '../components/Input';
+import FormComponent from '../components/Form/Form';
+import Input from '../components/Form/Input';
 import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 
@@ -44,14 +44,23 @@ export default class RegisterComponent extends Component {
             'email',
             'email',
             true,
+            null,
             inputStyle,
         );
-        const nameInput = new Input('name', 'text', 'name', true, inputStyle);
+        const nameInput = new Input(
+            'name',
+            'text',
+            'name',
+            true,
+            null,
+            inputStyle,
+        );
         const passwordInput = new Input(
             'password',
             'password',
             'password',
             true,
+            null,
             inputStyle,
         );
 

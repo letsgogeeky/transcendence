@@ -81,6 +81,8 @@ export function loginRoutes(fastify: FastifyInstance) {
                     isValidated: user.emailValidated,
                     avatarUrl: user.avatarUrl,
                     name: user.name,
+                    otpMethod: user.otpMethod,
+                    phoneNumber: user.phoneNumber,
                 },
             });
     }

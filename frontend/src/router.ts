@@ -2,8 +2,10 @@ import Component from './components/Component';
 import ErrorComponent from './pages/error';
 import HomeComponent from './pages/home';
 import LoginComponent from './pages/login';
+import LogoutComponent from './pages/logout';
 import NotFoundComponent from './pages/notfound';
 import RegisterComponent from './pages/register';
+import UserSettingsComponent from './pages/settings';
 
 export type Route = {
     path: string;
@@ -42,6 +44,18 @@ export const routes: Route[] = [
         path: '/login',
         title: 'Login',
         component: new LoginComponent(),
+        visible: true,
+    },
+    {
+        path: '/logout',
+        title: 'Logout',
+        component: new LogoutComponent(),
+        visible: true,
+    },
+    {
+        path: '/settings',
+        title: 'User settings',
+        component: new UserSettingsComponent(),
         visible: true,
     },
 ];
