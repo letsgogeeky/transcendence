@@ -1,5 +1,6 @@
 import NavigatorComponent from './components/Nav/Navigator';
 import { routes } from './router';
+import { tryRefresh } from './services/send-request';
 import State, { MyUser } from './services/state';
 
 (function () {
@@ -12,9 +13,9 @@ import State, { MyUser } from './services/state';
 
 const render = () => {
     const authToken = localStorage.getItem('authToken');
-    const currentUser = JSON.parse(
-        localStorage.getItem('currentUser') || '{}',
-    ) as MyUser;
+    const currentUser = localStorage.getItem('currentUser')
+        ? (JSON.parse(localStorage.getItem('currentUser')!) as MyUser)
+        : null;
     if (authToken && !State.getState().getAuthToken()) {
         State.getState().setAuthToken(authToken);
         console.log('Auth token is: ' + State.getState().getAuthToken());
@@ -22,7 +23,7 @@ const render = () => {
     if (currentUser && !State.getState().getCurrentUser()) {
         State.getState().setCurrentUser(currentUser);
     }
-
+    tryRefresh();
     const element = document.getElementById('app');
     const root = element as HTMLElement;
     const navigator = new NavigatorComponent('main', routes);

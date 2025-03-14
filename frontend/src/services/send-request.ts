@@ -13,9 +13,9 @@ export const endpoints = {
     friends: 'https://localhost:8080',
 };
 
-const noRetryRoutes = ['/login', '/register'];
+const noRetryRoutes = ['/login', '/register', '/reset-password'];
 
-async function tryRefresh(): Promise<boolean> {
+export async function tryRefresh(): Promise<boolean> {
     let response = await fetch(endpoints.auth + '/refresh', {
         method: 'GET',
         headers: {
@@ -40,6 +40,7 @@ export default async function sendRequest(
     method: string,
     data: any,
     service: Services,
+    token: string | null = null,
 ): Promise<Response> {
     let url;
     switch (service) {
@@ -57,7 +58,9 @@ export default async function sendRequest(
             method,
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${State.getState().getAuthToken()}`,
+                Authorization: `Bearer ${
+                    token ?? State.getState().getAuthToken()
+                }`,
             },
             body: JSON.stringify(data),
             credentials: 'include',
@@ -65,7 +68,7 @@ export default async function sendRequest(
         console.log(path in noRetryRoutes);
         console.log(path);
         if (noRetryRoutes.includes(path)) return response;
-        else if (!response.ok) {
+        else if (!response.ok && response.status == 401) {
             const responseBody = await response.json();
             if (responseBody.error == 'Invalid or expired token') {
                 const refreshSuccess = await tryRefresh();

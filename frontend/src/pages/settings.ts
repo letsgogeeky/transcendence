@@ -70,7 +70,7 @@ export default class UserSettingsComponent extends Component {
             '2FA Method',
             'otpMethod',
             otpOptions,
-            true,
+            false,
             inputStyle,
         );
 

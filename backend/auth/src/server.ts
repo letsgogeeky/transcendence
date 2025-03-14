@@ -24,6 +24,7 @@ import { logoutRoutes } from './routes/logout.js';
 import { protectedOtpRoutes } from './routes/protected-2fa.js';
 import { refreshRoutes } from './routes/refresh.js';
 import { registerRoutes } from './routes/register.js';
+import { resetPasswordRoutes } from './routes/reset-password.js';
 import { SocketRoutes } from './routes/socket.js';
 import { userRoutes } from './routes/user.js';
 import { usersRoutes } from './routes/users.js';
@@ -105,7 +106,7 @@ const start = async () => {
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(registerRoutes);
-
+        app.register(resetPasswordRoutes);
         app.register(loginRoutes);
         app.register(oauthPlugin, {
             name: 'googleOAuth2',

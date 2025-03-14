@@ -4,6 +4,8 @@ import HomeComponent from './pages/home';
 import LoginComponent from './pages/login';
 import LogoutComponent from './pages/logout';
 import NotFoundComponent from './pages/notfound';
+import ForgotPasswordComponent from './pages/password/forgot-password';
+import ResetPasswordComponent from './pages/password/reset-password';
 import RegisterComponent from './pages/register';
 import UserSettingsComponent from './pages/settings';
 
@@ -57,5 +59,17 @@ export const routes: Route[] = [
         title: 'User settings',
         component: new UserSettingsComponent(),
         visible: true,
+    },
+    {
+        path: '/forgot-password',
+        title: 'Password reset',
+        component: new ForgotPasswordComponent(),
+        visible: false,
+    },
+    {
+        path: '/reset-password',
+        title: 'Password reset',
+        component: new ResetPasswordComponent(),
+        visible: false,
     },
 ];

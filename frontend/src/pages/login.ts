@@ -20,7 +20,10 @@ async function loginUser(data: any): Promise<void> {
         showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
 
         localStorage.setItem('authToken', responseBody.authToken);
-        localStorage.setItem('currentUser', JSON.stringify(responseBody.user));
+        localStorage.setItem(
+            'currentUser',
+            JSON.stringify(responseBody.user || null),
+        );
         State.getState().setAuthToken(responseBody.authToken);
         State.getState().setCurrentUser(responseBody.user);
     } catch (error) {
@@ -76,5 +79,9 @@ export default class LoginComponent extends Component {
         container.append(title);
         this.element = container;
         form.render(this.element);
+        const resetPasswordLink = document.createElement('a');
+        resetPasswordLink.href = '/forgot-password';
+        resetPasswordLink.innerText = 'Forgot my password';
+        container.append(resetPasswordLink);
     }
 }
