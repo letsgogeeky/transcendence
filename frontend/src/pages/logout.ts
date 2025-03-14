@@ -19,6 +19,7 @@ async function logoutUser(): Promise<void> {
         showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
         localStorage.clear();
         State.getState().setAuthToken(null);
+        State.getState().setCurrentUser(null);
     } catch (error) {
         if (error instanceof Error) {
             showToast(ToastState.ERROR, error.message);
@@ -37,6 +38,7 @@ export default class LogoutComponent extends Component {
     }
 
     public render(parent: HTMLElement | Component): void {
+        this.element.innerHTML = '';
         const logoutButton = new Button('Log out', logoutUser);
         logoutButton.render(this.element);
         super.render(parent);

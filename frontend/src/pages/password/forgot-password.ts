@@ -1,33 +1,14 @@
 import Component from '../../components/Component';
 import FormComponent from '../../components/Form/Form';
 import Input from '../../components/Form/Input';
-import { showToast, ToastState } from '../../components/Toast';
 import sendRequest, { Services } from '../../services/send-request';
 
 export default class ForgotPasswordComponent extends Component {
     readonly element: HTMLElement;
     private form: FormComponent;
 
-    private async forgotPassword(data: any): Promise<void> {
-        try {
-            const response = await sendRequest(
-                '/forgot-password',
-                'POST',
-                data,
-                Services.AUTH,
-            );
-            const responseBody = await response.json();
-            if (!response.ok) {
-                throw new Error(`Error: ${responseBody.error}`);
-            }
-            showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
-        } catch (error) {
-            if (error instanceof Error) {
-                showToast(ToastState.ERROR, error.message);
-            } else {
-                showToast(ToastState.ERROR, 'An unexpected error occurred');
-            }
-        }
+    private async forgotPassword(data: any): Promise<Response> {
+        return sendRequest('/forgot-password', 'POST', data, Services.AUTH);
     }
 
     constructor() {

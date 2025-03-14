@@ -39,7 +39,7 @@ export default class State {
         return this.user;
     }
 
-    public setCurrentUser(user: MyUser): void {
+    public setCurrentUser(user: MyUser | null): void {
         console.log('set current user to ' + JSON.stringify(user));
         this.user = user;
     }
