@@ -5,6 +5,7 @@ import PhoneInput from '../components/Form/PhoneInput';
 import Select from '../components/Form/Select';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
+import ChangePasswordComponent from './password/change-password';
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
@@ -67,6 +68,8 @@ export default class UserSettingsComponent extends Component {
 
         this.element.append(title);
         form.render(this.element);
+        const changePasswordForm = new ChangePasswordComponent();
+        changePasswordForm.render(this.element);
         super.render(parent);
     }
 
