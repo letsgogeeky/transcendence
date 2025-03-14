@@ -1,5 +1,6 @@
 import Button from '../Button';
 import Component from '../Component';
+import { showToast, ToastState } from '../Toast';
 import Input from './Input';
 import Select from './Select';
 
@@ -9,12 +10,13 @@ export default class FormComponent extends Component {
     readonly element: HTMLFormElement;
     inputs: FormInput[];
     submitButton: Button;
-    submitCallback: (data: any) => Promise<void>;
+    submitCallback: ((data: any) => Promise<void>) | null;
 
     constructor(
         label: string,
         inputs: FormInput[],
-        submitCallback: (data: any) => Promise<void>,
+        submitCallback: ((data: any) => Promise<Response>) | null,
+        successCallback: ((data: any) => Promise<void>) | null = null,
     ) {
         super();
         this.element = document.createElement('form');
@@ -25,7 +27,10 @@ export default class FormComponent extends Component {
         );
         submitButton.element.type = 'submit';
         this.inputs = inputs;
-        this.submitCallback = submitCallback;
+        this.submitCallback = FormComponent.showNotification(
+            submitCallback,
+            successCallback,
+        );
         this.submitButton = submitButton;
     }
 
@@ -37,7 +42,7 @@ export default class FormComponent extends Component {
             const formValues = Object.fromEntries(formData.entries());
             this.inputs.forEach((input) => input.disable());
             this.submitButton.disable();
-            await this.submitCallback(formValues);
+            if (this.submitCallback) await this.submitCallback(formValues);
             this.submitButton.enable();
             this.inputs.forEach((input) => input.enable());
         });
@@ -46,5 +51,34 @@ export default class FormComponent extends Component {
         });
         this.submitButton.render(this.element);
         super.render(parent);
+    }
+
+    public static showNotification(
+        submitCallback: ((data: any) => Promise<Response>) | null,
+        successCallback: ((data: any) => Promise<void>) | null = null,
+    ): (data: any) => Promise<void> {
+        return async function (data: any) {
+            {
+                if (!submitCallback) return;
+                try {
+                    const response = await submitCallback!(data);
+                    const responseBody = await response!.json();
+                    if (!response!.ok) {
+                        throw new Error(`Error: ${responseBody.error}`);
+                    }
+                    if (successCallback) successCallback(responseBody);
+                    showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
+                } catch (error) {
+                    if (error instanceof Error) {
+                        showToast(ToastState.ERROR, error.message);
+                    } else {
+                        showToast(
+                            ToastState.ERROR,
+                            'An unexpected error occurred',
+                        );
+                    }
+                }
+            }
+        };
     }
 }

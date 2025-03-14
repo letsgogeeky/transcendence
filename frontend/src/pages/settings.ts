@@ -3,32 +3,8 @@ import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import PhoneInput from '../components/Form/PhoneInput';
 import Select from '../components/Form/Select';
-import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
-
-async function updateUser(data: any): Promise<void> {
-    try {
-        console.log(data);
-        const response = await sendRequest(
-            '/user/update',
-            'PUT',
-            data,
-            Services.AUTH,
-        );
-        const responseBody = await response.json();
-        if (!response.ok) {
-            throw new Error(`Error: ${responseBody.error}`);
-        }
-        showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
-    } catch (error) {
-        if (error instanceof Error) {
-            showToast(ToastState.ERROR, error.message);
-        } else {
-            showToast(ToastState.ERROR, 'An unexpected error occurred');
-        }
-    }
-}
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
@@ -80,7 +56,8 @@ export default class UserSettingsComponent extends Component {
         const form = new FormComponent(
             'update',
             [nameInput, phoneInput, otpMethodInput],
-            updateUser,
+            (data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
+            this.setUserFromResponse,
         );
 
         document.createElement('form');
@@ -91,5 +68,10 @@ export default class UserSettingsComponent extends Component {
         this.element.append(title);
         form.render(this.element);
         super.render(parent);
+    }
+
+    private async setUserFromResponse(data: any): Promise<void> {
+        localStorage.setItem('currentUser', JSON.stringify(data || null));
+        State.getState().setCurrentUser(data);
     }
 }

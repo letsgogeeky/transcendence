@@ -1,39 +1,8 @@
 import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
-import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
-
-async function loginUser(data: any): Promise<void> {
-    try {
-        const response = await sendRequest(
-            '/login',
-            'POST',
-            data,
-            Services.AUTH,
-        );
-        const responseBody = await response.json();
-        if (!response.ok) {
-            throw new Error(`Error: ${responseBody.error}`);
-        }
-        showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
-
-        localStorage.setItem('authToken', responseBody.authToken);
-        localStorage.setItem(
-            'currentUser',
-            JSON.stringify(responseBody.user || null),
-        );
-        State.getState().setAuthToken(responseBody.authToken);
-        State.getState().setCurrentUser(responseBody.user);
-    } catch (error) {
-        if (error instanceof Error) {
-            showToast(ToastState.ERROR, error.message);
-        } else {
-            showToast(ToastState.ERROR, 'An unexpected error occurred');
-        }
-    }
-}
 
 export default class LoginComponent extends Component {
     readonly element: HTMLElement;
@@ -68,7 +37,8 @@ export default class LoginComponent extends Component {
         const form = new FormComponent(
             'login',
             [emailInput, passwordInput],
-            loginUser,
+            (data) => sendRequest('/login', 'POST', data, Services.AUTH),
+            this.setUserFromResponse,
         );
 
         document.createElement('form');
@@ -83,5 +53,12 @@ export default class LoginComponent extends Component {
         resetPasswordLink.href = '/forgot-password';
         resetPasswordLink.innerText = 'Forgot my password';
         container.append(resetPasswordLink);
+    }
+
+    private async setUserFromResponse(data: any): Promise<void> {
+        localStorage.setItem('authToken', data.authToken);
+        localStorage.setItem('currentUser', JSON.stringify(data.user || null));
+        State.getState().setAuthToken(data.authToken);
+        State.getState().setCurrentUser(data.user);
     }
 }
