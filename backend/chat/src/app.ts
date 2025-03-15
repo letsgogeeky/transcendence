@@ -1,20 +1,13 @@
-import fastifyCors from '@fastify/cors';
-import fpSqlitePlugin from "fastify-sqlite-typed";
 import fastifyWebsocket from '@fastify/websocket';
 import prismaPlugin from './plugins/prisma.ts';
 import socketConnectionPlugin from './plugins/socketConnection.ts';
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { chatRoutes } from './routes/ws/chat.ts';
 import chatHistoryRoutes from './routes/http/history.ts';
 import demoRoutes from './routes/http/demo.ts';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import fastifySwagger from '@fastify/swagger';
 import fastifyPlugin from 'fastify-plugin';
-
-interface Config {
-    FRONTEND: string;
-    DB_PATH: string;
-}
 
 const swaggerOptions = {
     routePrefix: '/docs',
@@ -40,16 +33,7 @@ const swaggerUiOptions = {
     exposeRoute: true,
 } as const;
 
-export const app = fastifyPlugin((chatServer: FastifyInstance, options: { config: Config}) => {
-    chatServer.register(fastifyCors, {
-        origin: [options.config.FRONTEND],
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-    });
-    chatServer.register(fpSqlitePlugin, {
-        dbFilename: options.config.DB_PATH,
-        driverSettings: { verbose: true },
-    });
+export const app = fastifyPlugin((chatServer: FastifyInstance, _options: FastifyPluginOptions) => {
     chatServer.register(fastifyWebsocket);
     chatServer.register(prismaPlugin);
     chatServer.register(socketConnectionPlugin);
