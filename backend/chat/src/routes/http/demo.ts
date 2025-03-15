@@ -17,7 +17,7 @@ const user2 = { id: '2', name: 'User 2' };
 const user3 = { id: '3', name: 'User 3' };
 const user4 = { id: '4', name: 'User 4' };
 
-export function demoRoutes(fastify: FastifyInstance) {
+export default function demoRoutes(fastify: FastifyInstance) {
     fastify.get('/demo', async (request, reply) => {
         const room1 = await fastify.prisma.chatRoom.create({
             data: {
