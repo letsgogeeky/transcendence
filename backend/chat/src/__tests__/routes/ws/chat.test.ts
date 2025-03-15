@@ -17,6 +17,7 @@ declare module 'fastify' {
         config: {
             PORT: number;
             DB_PATH: string;
+            DATABASE_URL: string;
             UPLOAD_DIR: string;
             FRONTEND: string;
             SSL_KEY_PATH: string;

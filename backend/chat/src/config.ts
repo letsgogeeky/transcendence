@@ -23,6 +23,6 @@ const schema = {
 export const options = {
     confKey: 'config',
     schema,
-    // dotenv: true,
+    dotenv: true,
     data: process.env,
 };

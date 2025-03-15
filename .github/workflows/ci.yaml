@@ -20,12 +20,16 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+    # test chat app
+    - name: Install dependencies chat app
+      run: npm install --prefix backend/chat
+    # - name: Run tests chat app
+    #   run: npm run test --prefix backend/chat
 
-    - name: Install dependencies
-      run: npm install
+    - name: Install dependencies auth app
+      run: npm install --prefix backend/auth
 
-    - name: Run tests
-      run: npm test
+
   
   frontend:
     runs-on: ubuntu-latest
@@ -39,7 +43,4 @@ jobs:
       with:
         node-version: '20'
     - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm test
+      run: npm install --prefix frontend

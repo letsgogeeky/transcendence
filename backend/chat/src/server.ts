@@ -4,6 +4,8 @@ import fastifyEnv from '@fastify/env';
 import fastify from "fastify";
 import { PrismaClient } from '@prisma/client';
 import { WebSocket } from 'ws';
+import fpSqlitePlugin from "fastify-sqlite-typed";
+import fastifyCors from "@fastify/cors";
 
 interface User {
     id: string;
@@ -17,6 +19,7 @@ declare module 'fastify' {
         config: {
             PORT: number;
             DB_PATH: string;
+            DATABASE_URL: string;
             UPLOAD_DIR: string;
             FRONTEND: string;
             SSL_KEY_PATH: string;
@@ -49,12 +52,16 @@ const chatServer = fastify({
 const start = async () => {
     try {
         await chatServer.register(fastifyEnv, options);
-        await chatServer.register(app, {
-            config: {
-                FRONTEND: chatServer.config.FRONTEND,
-                DB_PATH: chatServer.config.DB_PATH,
-            },
+        chatServer.register(fastifyCors, {
+            origin: [chatServer.config.FRONTEND],
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
         });
+        chatServer.register(fpSqlitePlugin, {
+            dbFilename: chatServer.config.DB_PATH,
+            driverSettings: { verbose: true },
+        });
+        await chatServer.register(app, options);
         await chatServer.listen({ port: chatServer.config.PORT });
     } catch (err) {
         chatServer.log.error(err);
