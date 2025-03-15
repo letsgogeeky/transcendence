@@ -20,7 +20,7 @@ const render = () => {
         State.getState().setAuthToken(authToken);
         console.log('Auth token is: ' + State.getState().getAuthToken());
     }
-    if (currentUser && !State.getState().getCurrentUser()) {
+    if (!State.getState().getCurrentUser()) {
         State.getState().setCurrentUser(currentUser);
     }
     tryRefresh();
@@ -48,6 +48,32 @@ const render = () => {
     window.addEventListener('pushstate', (e) => {
         navigator.changeSelection(new URL(window.location.href).pathname);
         console.log('Auth token is: ' + State.getState().getAuthToken());
+    });
+
+    window.addEventListener('userChange', (e) => {
+        const user = State.getState().getCurrentUser();
+        console.log('user changed it it');
+        console.log(user);
+        if (user) {
+            navigator.displayTab('/register', false);
+            navigator.displayTab('/logout', true);
+            navigator.displayTab('/settings', true);
+        }
+        if (!user) {
+            navigator.displayTab('/register', true);
+            navigator.displayTab('/logout', false);
+            navigator.displayTab('/settings', false);
+        }
+        document.querySelectorAll('#app [href^="/"]').forEach((el) =>
+            el.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                try {
+                    const target = evt.target as HTMLAnchorElement;
+                    const { pathname: path } = new URL(target.href);
+                    window.history.pushState({ path }, path, path);
+                } catch (error) {}
+            }),
+        );
     });
 };
 

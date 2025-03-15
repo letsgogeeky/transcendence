@@ -29,6 +29,7 @@ export default class State {
     public setAuthToken(token: string | null): void {
         this.authToken = token;
         this.authSocket = new WebSocketService(endpoints.authSocket);
+        window.dispatchEvent(new Event('userChange'));
     }
 
     public getAuthSocket(): WebSocketService | null {
@@ -41,6 +42,7 @@ export default class State {
 
     public setCurrentUser(user: MyUser | null): void {
         this.user = user;
+        window.dispatchEvent(new Event('userChange'));
     }
 
     public static getState(): State {

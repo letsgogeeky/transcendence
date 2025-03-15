@@ -23,6 +23,7 @@ const noRetryRoutes = [
 ];
 
 export async function tryRefresh(): Promise<boolean> {
+    if (!State.getState().getAuthToken()) return false;
     let response = await fetch(endpoints.auth + '/refresh', {
         method: 'GET',
         headers: {

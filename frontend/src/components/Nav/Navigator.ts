@@ -36,6 +36,11 @@ export default class NavigatorComponent extends Component {
         }
     }
 
+    displayTab(path: string, shouldDisplay: boolean) {
+        this.navbar.displayTab(path, shouldDisplay);
+        // this.render(this.parent);
+    }
+
     render(parent: HTMLElement) {
         this.element.innerHTML = '';
         this.navbar.render(this.element);
