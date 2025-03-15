@@ -40,7 +40,6 @@ export default class State {
     }
 
     public setCurrentUser(user: MyUser | null): void {
-        console.log('set current user to ' + JSON.stringify(user));
         this.user = user;
     }
 

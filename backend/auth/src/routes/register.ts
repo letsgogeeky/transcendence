@@ -49,6 +49,7 @@ export function registerRoutes(fastify: FastifyInstance) {
                     emailVerificationToken: token,
                     registrationDate: new Date().toISOString(),
                     phoneNumber: phoneNumber,
+                    avatarUrl: 'images/default.jpg',
                 },
             });
             reply.status(200).send({ id: result.id });

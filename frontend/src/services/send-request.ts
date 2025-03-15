@@ -35,12 +35,26 @@ export async function tryRefresh(): Promise<boolean> {
     }
 }
 
+export async function retryFetch(
+    input: RequestInfo | URL,
+    init?: RequestInit,
+): Promise<Response> {
+    let response = await fetch(input, init);
+    if (!response.ok && response.status == 401) {
+        const refreshSuccess = await tryRefresh();
+        if (refreshSuccess) return fetch(input, init);
+        else throw Error('Unauthorized');
+    }
+    return response;
+}
+
 export default async function sendRequest(
     path: string,
     method: string,
     data: any,
     service: Services,
     token: string | null = null,
+    contentType: string = 'application/json',
 ): Promise<Response> {
     let url;
     switch (service) {
@@ -54,10 +68,10 @@ export default async function sendRequest(
             break;
     }
     try {
-        let response = await fetch(url + path, {
+        let response = await retryFetch(url + path, {
             method,
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': contentType,
                 Authorization: `Bearer ${
                     token ?? State.getState().getAuthToken()
                 }`,
@@ -65,19 +79,7 @@ export default async function sendRequest(
             body: JSON.stringify(data),
             credentials: 'include',
         });
-        console.log(path in noRetryRoutes);
-        console.log(path);
-        if (noRetryRoutes.includes(path)) return response;
-        else if (!response.ok && response.status == 401) {
-            const responseBody = await response.json();
-            if (responseBody.error == 'Invalid or expired token') {
-                const refreshSuccess = await tryRefresh();
-                if (refreshSuccess)
-                    return sendRequest(path, method, data, service);
-                else throw Error('Unauthorized');
-            }
-        } else return response;
-        throw Error('ajajaj');
+        return response;
     } catch (error) {
         throw error;
     }
