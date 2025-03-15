@@ -1,6 +1,7 @@
 import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
+import LinkComponent from '../components/Link';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 
@@ -38,27 +39,71 @@ export default class LoginComponent extends Component {
             'login',
             [emailInput, passwordInput],
             (data) => sendRequest('/login', 'POST', data, Services.AUTH),
-            this.setUserFromResponse,
+            this.loginCallback.bind(this),
         );
 
-        document.createElement('form');
         form.className = 'flex flex-col gap-4 w-64';
-
         const title = document.createElement('h1');
 
         container.append(title);
         this.element = container;
         form.render(this.element);
-        const resetPasswordLink = document.createElement('a');
-        resetPasswordLink.href = '/forgot-password';
-        resetPasswordLink.innerText = 'Forgot my password';
-        container.append(resetPasswordLink);
+        const lorgotPasswordLink = new LinkComponent(
+            'Forgot my password',
+            '/forgot-password',
+        );
+        lorgotPasswordLink.render(this.element);
     }
 
     private async setUserFromResponse(data: any): Promise<void> {
         localStorage.setItem('authToken', data.authToken);
-        localStorage.setItem('currentUser', JSON.stringify(data.user || null));
         State.getState().setAuthToken(data.authToken);
-        State.getState().setCurrentUser(data.user);
+        if (data.user) {
+            localStorage.setItem(
+                'currentUser',
+                JSON.stringify(data.user || null),
+            );
+            State.getState().setCurrentUser(data.user);
+        }
+    }
+
+    private async loginCallback(data: any): Promise<void> {
+        this.setUserFromResponse(data);
+        if (data.otpMethod) {
+            const generated = await sendRequest(
+                '/otp/generate',
+                'POST',
+                null,
+                Services.AUTH,
+            );
+            const responseBody = await generated.json();
+            this.element.innerHTML = '';
+            if (responseBody.otpAuthUrl) {
+                const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(
+                    responseBody.otpAuthUrl,
+                )}`;
+                const imageContainer = document.createElement('div');
+                const qrCodeImage = document.createElement('img');
+                qrCodeImage.src = qrCodeUrl;
+                imageContainer.append(qrCodeImage);
+                this.element.append(qrCodeImage);
+            }
+            const codeInput = new Input(
+                'Verification code',
+                'text',
+                'token',
+                true,
+                '6 digit code',
+            );
+            const form = new FormComponent(
+                'Send code',
+                [codeInput],
+                (data) =>
+                    sendRequest('/otp/verify', 'POST', data, Services.AUTH),
+                this.setUserFromResponse,
+            );
+            form.className = 'flex flex-col gap-4 w-64';
+            form.render(this.element);
+        }
     }
 }

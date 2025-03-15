@@ -22,8 +22,9 @@ export function resetPasswordRoutes(fastify: FastifyInstance) {
             await fastify.transporter.sendMail({
                 from: '"noreply transcendence" <noreply.transcendence2025@gmail.com>',
                 to: email,
-                subject: 'Verify your email',
-                html: '<b>Click the link to verify your email?</b>' + tokenLink, // html body
+                subject: 'Reset your password',
+                html:
+                    '<b>Click the link to reset your password</b>' + tokenLink, // html body
             });
         } catch (error) {
             throw Error('Error sending email:' + (error as Error).message);

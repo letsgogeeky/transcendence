@@ -179,6 +179,15 @@ export function otpRoutes(fastify: FastifyInstance) {
             });
             res.status(200).send({
                 authToken,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    isValidated: user.emailValidated,
+                    avatarUrl: user.avatarUrl,
+                    name: user.name,
+                    otpMethod: user.otpMethod,
+                    phoneNumber: user.phoneNumber,
+                },
             });
         },
     );

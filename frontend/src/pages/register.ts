@@ -1,6 +1,7 @@
 import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
+import LinkComponent from '../components/Link';
 import sendRequest, { Services } from '../services/send-request';
 
 export default class RegisterComponent extends Component {
@@ -55,5 +56,11 @@ export default class RegisterComponent extends Component {
         container.append(title);
         this.element = container;
         form.render(this.element);
+
+        const loginLink = new LinkComponent(
+            'Already have an account? Log in',
+            '/login',
+        );
+        loginLink.render(this.element);
     }
 }
