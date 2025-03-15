@@ -5,8 +5,8 @@ migrate:
 push:
 	npx run db:push
 
-view-db: push
+view-db:
 	npx prisma studio
 
-dev: push
+dev:
 	npx run dev

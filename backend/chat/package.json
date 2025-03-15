@@ -4,13 +4,13 @@
     "main": "dist/server.js",
     "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "jest --verbose --coverage --config jest.config.cjs",
         "build": "tsc -p tsconfig.json",
         "lint": "eslint .",
         "start": "node dist/server.js",
         "db:migrate": "npx prisma migrate dev --name chat --create-only && npx prisma generate",
         "db:push": "npx prisma db push",
-        "dev": "tsc -w & nodemon dist/server.js"
+        "dev": "tsc -w & nodemon dist/server"
     },
     "keywords": [],
     "author": "",
@@ -61,6 +61,7 @@
         "@types/axios": "^0.9.36",
         "@types/better-sqlite3": "^7.6.12",
         "@types/eslint__js": "^8.42.3",
+        "@types/jest": "^29.5.14",
         "@types/node": "^22.13.5",
         "@types/nodemailer": "^6.4.17",
         "@types/qrcode": "^1.5.5",
@@ -73,9 +74,11 @@
         "eslint": "^9.20.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-prettier": "^5.2.3",
+        "jest": "^29.7.0",
         "nodemon": "^3.1.9",
         "prettier": "^3.5.0",
         "prisma": "^6.4.0",
+        "ts-jest": "^29.2.6",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.3",
         "typescript-eslint": "^8.24.0"

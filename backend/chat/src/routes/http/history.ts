@@ -8,9 +8,46 @@ export const ChatHistoryResponse = Type.Object({
     })),
 });
 
-export function chatRoutes(fastify: FastifyInstance) {
-    // validate token
+const ChatHistoryParams = Type.Object({
+    chatRoomId: Type.String(),
+});
 
+export default function chatHistoryRoutes(fastify: FastifyInstance) {
+    // get all messages for chatroom
+    fastify.get<{
+        Params: typeof ChatHistoryParams;
+    }>('/:chatRoomId', {
+        schema: {
+            params: ChatHistoryParams,
+        },
+    }, async (request, reply) => {
+        // verify user is in chatroom
+        const { chatRoomId } = request.params;
+        if (!chatRoomId) {
+            return reply.status(400).send({ message: 'Chat room ID is required' });
+        }
+        const chatParticipant = await fastify.prisma.chatParticipant.findFirst({
+            where: {
+                userId: request.user?.id,
+                chatRoomId: chatRoomId as string,
+            },
+        });
+        if (!chatParticipant) {
+            return reply.status(401).send({ message: 'Unauthorized' });
+        }
+        const messages = await fastify.prisma.message.findMany({
+            where: {
+                chatRoomId: chatRoomId as string,
+            },
+            include: {
+                attachments: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        return reply.status(200).send({ messages });
+    });
     fastify.get('/', async (request, reply) => {
         // returns history of all chats per user
         const chats = await fastify.prisma.chatParticipant.findMany({
@@ -31,5 +68,3 @@ export function chatRoutes(fastify: FastifyInstance) {
         return reply.status(200).send(response);
     });
 }
-
-export default chatRoutes;

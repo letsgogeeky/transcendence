@@ -14,7 +14,10 @@
         "declaration": true,
         "lib": ["es2023"],
         "moduleResolution": "node",
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "noEmit": false,
+        "emitDeclarationOnly": true,
     },
     "include": ["**/*.ts"],
     "exclude": ["node_modules", "**/*.d.ts", "**/*.spec.ts"]
