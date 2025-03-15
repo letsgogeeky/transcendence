@@ -1,7 +1,8 @@
 import Component from '../Component';
 
 export default class Input extends Component {
-    readonly element: HTMLInputElement;
+    inputElement: HTMLInputElement;
+    readonly element: HTMLElement;
 
     constructor(
         label: string,
@@ -11,22 +12,34 @@ export default class Input extends Component {
         placeholder: string | null,
         className: string = '',
     ) {
-        super(className);
-        this.element = document.createElement('input');
-        this.element.textContent = label;
-        this.element.id = id;
-        this.element.type = type;
-        this.element.name = id;
-        this.element.required = required || false;
-        this.element.placeholder = placeholder ?? label;
+        super();
+        this.element = document.createElement('div');
+        this.element.className = 'flex items-center gap-2';
+        this.inputElement = document.createElement('input');
+        this.inputElement.className += className;
+        const labelElement = document.createElement('label');
+        labelElement.htmlFor = id;
+        labelElement.innerText = label;
+        labelElement.className = 'w-40 text-left font-medium whitespace-nowrap';
+        this.inputElement.textContent = label;
+        this.inputElement.id = id;
+        this.inputElement.type = type;
+        this.inputElement.name = id;
+        this.inputElement.required = required || false;
+        this.inputElement.placeholder = placeholder ?? label;
+        this.element.append(labelElement, this.inputElement);
     }
 
     get value(): string {
-        return this.element.value;
+        return this.inputElement.value;
     }
 
     set value(newValue: string | null | undefined) {
-        if (newValue) this.element.value = newValue;
-        else this.element.value = '';
+        if (newValue) this.inputElement.value = newValue;
+        else this.inputElement.value = '';
+    }
+
+    public render(parent: HTMLElement | Component): void {
+        super.render(parent);
     }
 }

@@ -14,10 +14,7 @@ export default class UserSettingsComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'text-center';
-        this.element.style.display = 'flex';
-        this.element.style.flexDirection = 'column';
-        this.element.style.gap = '10px';
+        this.element.className = 'flex flex-col items-center gap-2';
     }
 
     render(parent: HTMLElement) {
