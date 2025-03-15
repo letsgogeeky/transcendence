@@ -1,11 +1,12 @@
-import Component from '../components/Component';
-import FormComponent from '../components/Form/Form';
-import Input from '../components/Form/Input';
-import PhoneInput from '../components/Form/PhoneInput';
-import Select from '../components/Form/Select';
-import sendRequest, { Services } from '../services/send-request';
-import State from '../services/state';
-import ChangePasswordComponent from './password/change-password';
+import Component from '../../components/Component';
+import FormComponent from '../../components/Form/Form';
+import Input from '../../components/Form/Input';
+import PhoneInput from '../../components/Form/PhoneInput';
+import Select from '../../components/Form/Select';
+import sendRequest, { endpoints, Services } from '../../services/send-request';
+import State from '../../services/state';
+import ChangePasswordComponent from '../password/change-password';
+import AvatarUploadComponent from './avatarUpload';
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
@@ -22,7 +23,7 @@ export default class UserSettingsComponent extends Component {
     render(parent: HTMLElement) {
         this.element.innerHTML = '';
         const user = State.getState().getCurrentUser();
-        console.log('user is :' + user);
+        if (!user) return;
 
         const inputStyle = 'border border-gray-300 rounded p-2 w-full';
         const nameInput = new Input(
@@ -51,23 +52,34 @@ export default class UserSettingsComponent extends Component {
             inputStyle,
         );
 
-        nameInput.value = user?.name || '';
-        phoneInput.value = user?.phoneNumber || '';
-        otpMethodInput.value = user?.otpMethod || '';
+        nameInput.value = user.name || '';
+        phoneInput.value = user.phoneNumber || '';
+        otpMethodInput.value = user.otpMethod || '';
         const form = new FormComponent(
             'update',
             [nameInput, phoneInput, otpMethodInput],
             (data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
             this.setUserFromResponse,
         );
-
-        document.createElement('form');
         form.className = 'flex flex-col gap-4 w-64';
+        form.render(this.element);
 
         const title = document.createElement('h1');
-
         this.element.append(title);
-        form.render(this.element);
+
+        const imageContainer = document.createElement('div');
+        const avatar = document.createElement('img');
+        avatar.className = 'w-32 h-32 rounded-full object-cover';
+        avatar.src = endpoints.auth + '/' + user.avatarUrl!;
+        imageContainer.append(avatar);
+        this.element.append(avatar);
+
+        const uploadAvatarForm = new AvatarUploadComponent(
+            null,
+            this.setUserFromResponse.bind(this),
+        );
+        uploadAvatarForm.render(this.element);
+
         const changePasswordForm = new ChangePasswordComponent();
         changePasswordForm.render(this.element);
         super.render(parent);
@@ -76,5 +88,6 @@ export default class UserSettingsComponent extends Component {
     private async setUserFromResponse(data: any): Promise<void> {
         localStorage.setItem('currentUser', JSON.stringify(data || null));
         State.getState().setCurrentUser(data);
+        this.render(this.parent);
     }
 }

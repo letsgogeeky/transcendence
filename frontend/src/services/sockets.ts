@@ -14,6 +14,7 @@ export default class WebSocketService {
 
     private connect(): void {
         console.log('Connecting to WebSocket...');
+        if (!State.getState().getAuthToken()) return;
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {

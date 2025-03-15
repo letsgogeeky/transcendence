@@ -7,7 +7,7 @@ import NotFoundComponent from './pages/notfound';
 import ForgotPasswordComponent from './pages/password/forgot-password';
 import ResetPasswordComponent from './pages/password/reset-password';
 import RegisterComponent from './pages/register';
-import UserSettingsComponent from './pages/settings';
+import UserSettingsComponent from './pages/settings/settings';
 
 export type Route = {
     path: string;
