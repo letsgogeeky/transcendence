@@ -13,7 +13,14 @@ export const endpoints = {
     friends: 'https://localhost:8080',
 };
 
-const noRetryRoutes = ['/login', '/register', '/reset-password'];
+const noRetryRoutes = [
+    '/login',
+    '/register',
+    '/reset-password',
+    '/otp/verify',
+    '/otp/generate',
+    '/refresh',
+];
 
 export async function tryRefresh(): Promise<boolean> {
     let response = await fetch(endpoints.auth + '/refresh', {
@@ -38,9 +45,10 @@ export async function tryRefresh(): Promise<boolean> {
 export async function retryFetch(
     input: RequestInfo | URL,
     init?: RequestInit,
+    noretry?: boolean,
 ): Promise<Response> {
     let response = await fetch(input, init);
-    if (!response.ok && response.status == 401) {
+    if (!noretry && !response.ok && response.status == 401) {
         const refreshSuccess = await tryRefresh();
         if (refreshSuccess) return fetch(input, init);
         else throw Error('Unauthorized');
@@ -68,17 +76,21 @@ export default async function sendRequest(
             break;
     }
     try {
-        let response = await retryFetch(url + path, {
-            method,
-            headers: {
-                'Content-Type': contentType,
-                Authorization: `Bearer ${
-                    token ?? State.getState().getAuthToken()
-                }`,
+        let response = await retryFetch(
+            url + path,
+            {
+                method,
+                headers: {
+                    'Content-Type': contentType,
+                    Authorization: `Bearer ${
+                        token ?? State.getState().getAuthToken()
+                    }`,
+                },
+                body: JSON.stringify(data),
+                credentials: 'include',
             },
-            body: JSON.stringify(data),
-            credentials: 'include',
-        });
+            noRetryRoutes.includes(path),
+        );
         return response;
     } catch (error) {
         throw error;

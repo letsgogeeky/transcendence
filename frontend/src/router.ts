@@ -19,12 +19,6 @@ export type Route = {
 export const routes: Route[] = [
     { path: '/', title: 'Home', component: new HomeComponent(), visible: true },
     {
-        path: '/register',
-        title: 'Register',
-        component: new RegisterComponent(),
-        visible: true,
-    },
-    {
         path: '/profile',
         title: 'My Profile',
         component: new ErrorComponent('my profile'),
@@ -46,7 +40,7 @@ export const routes: Route[] = [
         path: '/login',
         title: 'Login',
         component: new LoginComponent(),
-        visible: true,
+        visible: false,
     },
     {
         path: '/logout',
@@ -65,6 +59,12 @@ export const routes: Route[] = [
         title: 'Password reset',
         component: new ForgotPasswordComponent(),
         visible: false,
+    },
+    {
+        path: '/register',
+        title: 'Sign up',
+        component: new RegisterComponent(),
+        visible: true,
     },
     {
         path: '/reset-password',
