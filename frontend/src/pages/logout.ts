@@ -27,6 +27,7 @@ async function logoutUser(): Promise<void> {
             showToast(ToastState.ERROR, 'An unexpected error occurred');
         }
     }
+    window.history.pushState({ path: '/login' }, '/login', '/login');
 }
 
 export default class LogoutComponent extends Component {

@@ -26,4 +26,10 @@ export default class Navbar extends Component {
             </ul>
         `;
     }
+
+    displayTab(path: string, show: boolean) {
+        const route = this.routes.find((r) => r.path == path);
+        if (route) route.visible = show;
+        this.element.innerHTML = this.createNavList(this.routes);
+    }
 }

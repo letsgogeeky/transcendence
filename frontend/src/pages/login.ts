@@ -64,6 +64,7 @@ export default class LoginComponent extends Component {
                 JSON.stringify(data.user || null),
             );
             State.getState().setCurrentUser(data.user);
+            window.history.pushState({ path: '/' }, '/', '/');
         }
     }
 
