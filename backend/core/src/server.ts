@@ -27,7 +27,7 @@ declare module 'fastify' {
             SSL_PASSPHRASE: string;
         };
         prisma: PrismaClient;
-        chatConnections: Map<string, WebSocket>;
+        connections: Map<string, WebSocket>;
     }
 }
 
@@ -39,7 +39,7 @@ declare module 'fastify' {
 
 // const keyPath = process.env.SSL_KEY_PATH || 'key.pem';
 // const certPath = process.env.SSL_CERT_PATH || 'cert.pem';
-const chatServer = fastify({
+const server = fastify({
     logger: true,
     // https: {
     //     key: fs.readFileSync(keyPath),
@@ -51,24 +51,24 @@ const chatServer = fastify({
 
 const start = async () => {
     try {
-        await chatServer.register(fastifyEnv, options);
-        chatServer.register(fastifyCors, {
-            origin: [chatServer.config.FRONTEND],
+        await server.register(fastifyEnv, options);
+        server.register(fastifyCors, {
+            origin: [server.config.FRONTEND],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Content-Type', 'Authorization'],
         });
-        chatServer.register(fpSqlitePlugin, {
-            dbFilename: chatServer.config.DB_PATH,
+        server.register(fpSqlitePlugin, {
+            dbFilename: server.config.DB_PATH,
             driverSettings: { verbose: true },
         });
-        await chatServer.register(app, options);
-        await chatServer.listen({ port: chatServer.config.PORT });
+        await server.register(app, options);
+        await server.listen({ port: server.config.PORT });
     } catch (err) {
-        chatServer.log.error(err);
+        server.log.error(err);
         process.exit(1);
     }
 };
 
 void start();
 
-export default chatServer;
+export default server;

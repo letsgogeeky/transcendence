@@ -1,10 +1,10 @@
 import fastifyWebsocket from '@fastify/websocket';
-import prismaPlugin from './plugins/prisma.ts';
-import socketConnectionPlugin from './plugins/socketConnection.ts';
+import prismaPlugin from './plugins/prisma.js';
+import socketConnectionPlugin from './plugins/socketConnection.js';
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
-import { chatRoutes } from './routes/ws/chat.ts';
-import chatHistoryRoutes from './routes/http/history.ts';
-import demoRoutes from './routes/http/demo.ts';
+import { chatRoutes } from './routes/ws/chat.js';
+import chatHistoryRoutes from './routes/http/history.js';
+import demoRoutes from './routes/http/demo.js';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import fastifySwagger from '@fastify/swagger';
 import fastifyPlugin from 'fastify-plugin';
