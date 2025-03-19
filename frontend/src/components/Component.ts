@@ -2,9 +2,11 @@ export default abstract class Component {
     abstract element: HTMLElement;
     parent!: HTMLElement;
     className: string;
+    data: any;
 
     constructor(className: string = '') {
         this.className = className;
+        this.data = null;
     }
 
     public render(parent: HTMLElement | Component): void {
@@ -16,6 +18,10 @@ export default abstract class Component {
             parent.appendChild(this.element);
             this.parent = parent;
         }
+    }
+
+    async fetchData() {
+        console.log('fetching data');
     }
 
     disable() {

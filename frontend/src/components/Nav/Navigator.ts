@@ -28,7 +28,7 @@ export default class NavigatorComponent extends Component {
         if (selectedRoute) {
             this.selectedRoute = selectedRoute;
             document.title = selectedRoute.title;
-            selectedRoute.component.render(this.content);
+            this.content.changeSelection(selectedRoute.component);
         } else {
             document.title = 'Page Not found';
             const notFound = new NotFoundComponent();
