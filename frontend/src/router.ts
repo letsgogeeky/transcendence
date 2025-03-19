@@ -3,6 +3,7 @@ import ErrorComponent from './pages/error';
 import HomeComponent from './pages/home';
 import LoginComponent from './pages/login';
 import LoginOtpComponent from './pages/login-2fa';
+import LoginAfterGoogle from './pages/login-google';
 import LogoutComponent from './pages/logout';
 import NotFoundComponent from './pages/notfound';
 import ForgotPasswordComponent from './pages/password/forgot-password';
@@ -41,6 +42,12 @@ export const routes: Route[] = [
         path: '/login',
         title: 'Login',
         component: new LoginComponent(),
+        visible: false,
+    },
+    {
+        path: '/login/google',
+        title: 'Login',
+        component: new LoginAfterGoogle(),
         visible: false,
     },
     {

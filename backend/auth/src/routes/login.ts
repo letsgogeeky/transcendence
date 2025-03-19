@@ -51,11 +51,13 @@ export function loginRoutes(fastify: FastifyInstance) {
             httpOnly: true,
             secure: true,
             sameSite: 'lax',
+            path: '/refresh',
         });
         reply.setCookie('userId', user.id, {
             httpOnly: true,
             secure: true,
             sameSite: 'lax',
+            path: '/socket',
         });
         const newTimestamp = new Date().toISOString();
         await fastify.prisma.user.update({
@@ -99,6 +101,24 @@ export function loginRoutes(fastify: FastifyInstance) {
         return response.data.email;
     }
 
+    fastify.get('/login/google/auth', async function (request, reply) {
+        try {
+            const { access_token } = request.cookies;
+            if (!access_token) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+            const email = await emailFromToken(access_token);
+            const user = await fastify.prisma.user.findFirst({
+                where: { email },
+            });
+            if (!email || !user)
+                return reply.code(403).send({ error: 'Invalid google token' });
+            return successfulLogin(request, reply, user);
+        } catch {
+            return reply.code(403).send({ error: 'Invalid google token' });
+        }
+    });
+
     fastify.get('/login/google/callback', async function (request, reply) {
         const { token } =
             await fastify.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(
@@ -114,13 +134,13 @@ export function loginRoutes(fastify: FastifyInstance) {
                 status: 'redirect_signup',
                 error: 'No account found with this Google email. Please sign up first.',
             });
-        if (user.googleLinkedAccount)
-            return successfulLogin(request, reply, user);
-        else
-            return reply.send({
-                status: 'password_required',
-                googleToken: token.access_token,
-            });
+        reply.setCookie('access_token', token.access_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            path: '/login/google/auth',
+        });
+        reply.redirect(`${fastify.config.FRONTEND}/login/google`);
     });
 
     fastify.post<{ Body: Static<typeof LoginDto> }>(
@@ -145,31 +165,31 @@ export function loginRoutes(fastify: FastifyInstance) {
         },
     );
 
-    fastify.post<{ Body: Static<typeof LinkGoogleDto> }>(
-        '/login/link-google',
-        {
-            schema: {
-                body: LinkGoogleDto,
-            },
-        },
-        async (request, reply) => {
-            const { password, googleToken } = request.body;
-            const email = await emailFromToken(googleToken);
-            console.log(email);
-            const user = await fastify.prisma.user.findFirst({
-                where: { email },
-            });
-            if (!user) throw Error('Invalid credential combination');
-            const isCorrect = await fastify.bcrypt.compare(
-                password,
-                user?.password || '',
-            );
-            if (!isCorrect) throw Error('Invalid credential combination');
-            await fastify.prisma.user.update({
-                where: { email },
-                data: { googleLinkedAccount: 1 },
-            });
-            return successfulLogin(request, reply, user);
-        },
-    );
+    // fastify.post<{ Body: Static<typeof LinkGoogleDto> }>(
+    //     '/login/link-google',
+    //     {
+    //         schema: {
+    //             body: LinkGoogleDto,
+    //         },
+    //     },
+    //     async (request, reply) => {
+    //         const { password, googleToken } = request.body;
+    //         const email = await emailFromToken(googleToken);
+    //         console.log(email);
+    //         const user = await fastify.prisma.user.findFirst({
+    //             where: { email },
+    //         });
+    //         if (!user) throw Error('Invalid credential combination');
+    //         const isCorrect = await fastify.bcrypt.compare(
+    //             password,
+    //             user?.password || '',
+    //         );
+    //         if (!isCorrect) throw Error('Invalid credential combination');
+    //         await fastify.prisma.user.update({
+    //             where: { email },
+    //             data: { googleLinkedAccount: 1 },
+    //         });
+    //         return successfulLogin(request, reply, user);
+    //     },
+    // );
 }

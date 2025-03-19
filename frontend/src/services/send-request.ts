@@ -20,6 +20,7 @@ const noRetryRoutes = [
     '/otp/verify',
     '/otp/generate',
     '/refresh',
+    '/login/google/auth',
 ];
 
 export async function tryRefresh(): Promise<boolean> {
