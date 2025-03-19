@@ -5,6 +5,7 @@ import Input from './Input';
 import Select from './Select';
 
 type FormInput = Input | Select;
+type SuccessCallback = ((data: any) => Promise<void>) | ((data: any) => void);
 
 export default class FormComponent extends Component {
     readonly element: HTMLFormElement;
@@ -16,7 +17,7 @@ export default class FormComponent extends Component {
         label: string,
         inputs: FormInput[],
         submitCallback: ((data: any) => Promise<Response>) | null,
-        successCallback: ((data: any) => Promise<void>) | null = null,
+        successCallback: SuccessCallback | null = null,
     ) {
         super();
         this.element = document.createElement('form');
@@ -55,7 +56,7 @@ export default class FormComponent extends Component {
 
     public static showNotification(
         submitCallback: ((data: any) => Promise<Response>) | null,
-        successCallback: ((data: any) => Promise<void>) | null = null,
+        successCallback: SuccessCallback | null = null,
     ): (data: any) => Promise<void> {
         return async function (data: any) {
             {
@@ -66,7 +67,7 @@ export default class FormComponent extends Component {
                     if (!response!.ok) {
                         throw new Error(`Error: ${responseBody.error}`);
                     }
-                    if (successCallback) successCallback(responseBody);
+                    if (successCallback) await successCallback(responseBody);
                     showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
                 } catch (error) {
                     if (error instanceof Error) {

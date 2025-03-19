@@ -4,6 +4,7 @@ import Input from '../components/Form/Input';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import ErrorComponent from './error';
+import LoginComponent from './login';
 
 export default class LoginOtpComponent extends Component {
     readonly element: HTMLElement;
@@ -24,6 +25,8 @@ export default class LoginOtpComponent extends Component {
     }
 
     async fetchData() {
+        if (State.getState().getCurrentUser()?.otpMethod == 'AUTHENTICATOR')
+            return 'authenticator';
         const generated = await sendRequest(
             '/otp/generate',
             'POST',
@@ -42,15 +45,6 @@ export default class LoginOtpComponent extends Component {
         } else if (this.data.error) {
             const error = new ErrorComponent(this.data.error);
             error.render(this.element);
-        } else if (this.data.otpAuthUrl) {
-            const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(
-                this.data.otpAuthUrl,
-            )}`;
-            const imageContainer = document.createElement('div');
-            const qrCodeImage = document.createElement('img');
-            qrCodeImage.src = qrCodeUrl;
-            imageContainer.append(qrCodeImage);
-            this.element.append(qrCodeImage);
         } else {
             const codeInput = new Input(
                 'Verification code',
@@ -64,24 +58,11 @@ export default class LoginOtpComponent extends Component {
                 [codeInput],
                 (data) =>
                     sendRequest('/otp/verify', 'POST', data, Services.AUTH),
-                this.setUserFromResponse,
+                LoginComponent.setUserFromResponse,
             );
             form.className = 'flex flex-col gap-4 w-64';
             form.render(this.element);
         }
         super.render(parent);
-    }
-
-    private async setUserFromResponse(data: any): Promise<void> {
-        localStorage.setItem('authToken', data.authToken);
-        State.getState().setAuthToken(data.authToken);
-        if (data.user) {
-            localStorage.setItem(
-                'currentUser',
-                JSON.stringify(data.user || null),
-            );
-            State.getState().setCurrentUser(data.user);
-            window.history.pushState({ path: '/' }, '/', '/');
-        }
     }
 }

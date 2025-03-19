@@ -2,17 +2,78 @@ import { LoginLevel, User } from '@prisma/client';
 import { Static, Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { FastifyInstance, FastifyReply } from 'fastify';
-import { FastifyRequest } from 'fastify/types/request';
 
 export const LoginDto = Type.Object({
     email: Type.String({ format: 'email' }),
     password: Type.String(),
 });
 
-export const LinkGoogleDto = Type.Object({
-    password: Type.String(),
-    googleToken: Type.String(),
-});
+export async function successfulLogin(
+    fastify: FastifyInstance,
+    reply: FastifyReply,
+    user: User,
+    complete: boolean | null = false,
+) {
+    const authToken = fastify.jwt.sign(
+        {
+            id: user.id,
+            loginLevel:
+                user.otpMethod && !complete
+                    ? LoginLevel.CREDENTIALS
+                    : LoginLevel.FULL,
+        },
+        { expiresIn: '10m', key: fastify.config.SECRET },
+    );
+    console.log(
+        'gave them  a token that si complete? ' + user.otpMethod && !complete
+            ? 'LoginLevel.CREDENTIALS'
+            : 'LoginLevel.FULL',
+    );
+    const refreshToken = fastify.jwt.sign(
+        { id: user.id },
+        { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
+    );
+    reply.setCookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/refresh',
+    });
+    reply.setCookie('userId', user.id, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/socket',
+    });
+    const newTimestamp = new Date().toISOString();
+    await fastify.prisma.user.update({
+        where: { id: user.id },
+        data: {
+            lastLogin: newTimestamp,
+        },
+    });
+    if (user.otpMethod && !complete)
+        reply.send({
+            authToken,
+            userId: user.id,
+            message: '2FA required',
+            otpMethod: user.otpMethod,
+        });
+    else
+        return reply.send({
+            status: 'success',
+            authToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                isValidated: user.emailValidated,
+                avatarUrl: user.avatarUrl,
+                name: user.name,
+                otpMethod: user.otpMethod,
+                phoneNumber: user.phoneNumber,
+            },
+        });
+}
 
 export function loginRoutes(fastify: FastifyInstance) {
     fastify.setErrorHandler(function (error, request, reply) {
@@ -29,66 +90,6 @@ export function loginRoutes(fastify: FastifyInstance) {
             });
     });
 
-    async function successfulLogin(
-        request: FastifyRequest,
-        reply: FastifyReply,
-        user: User,
-    ) {
-        const authToken = fastify.jwt.sign(
-            {
-                id: user.id,
-                loginLevel: user.otpMethod
-                    ? LoginLevel.CREDENTIALS
-                    : LoginLevel.FULL,
-            },
-            { expiresIn: '10m', key: fastify.config.SECRET },
-        );
-        const refreshToken = fastify.jwt.sign(
-            { id: user.id },
-            { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
-        );
-        reply.setCookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            path: '/refresh',
-        });
-        reply.setCookie('userId', user.id, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            path: '/socket',
-        });
-        const newTimestamp = new Date().toISOString();
-        await fastify.prisma.user.update({
-            where: { id: user.id },
-            data: {
-                lastLogin: newTimestamp,
-            },
-        });
-        if (user.otpMethod)
-            reply.send({
-                authToken,
-                userId: user.id,
-                message: '2FA required',
-                otpMethod: user.otpMethod,
-            });
-        else
-            return reply.send({
-                status: 'success',
-                authToken,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    isValidated: user.emailValidated,
-                    avatarUrl: user.avatarUrl,
-                    name: user.name,
-                    otpMethod: user.otpMethod,
-                    phoneNumber: user.phoneNumber,
-                },
-            });
-    }
-
     async function emailFromToken(token: string) {
         const config = {
             url: 'https://www.googleapis.com/oauth2/v2/userinfo',
@@ -97,8 +98,15 @@ export function loginRoutes(fastify: FastifyInstance) {
                 Authorization: 'Bearer ' + token,
             },
         };
-        const response = await axios<{ email: string }>(config);
-        return response.data.email;
+        const response = await axios<{
+            email: string;
+            name: string;
+        }>(config);
+        console.log(response.data);
+        return {
+            email: response.data.email,
+            name: response.data.name,
+        };
     }
 
     fastify.get('/login/google/auth', async function (request, reply) {
@@ -107,33 +115,70 @@ export function loginRoutes(fastify: FastifyInstance) {
             if (!access_token) {
                 return reply.code(401).send({ error: 'Unauthorized' });
             }
-            const email = await emailFromToken(access_token);
+            reply.clearCookie('oauth2-redirect-state', { path: '/login' });
+            const { email } = await emailFromToken(access_token);
             const user = await fastify.prisma.user.findFirst({
                 where: { email },
             });
             if (!email || !user)
                 return reply.code(403).send({ error: 'Invalid google token' });
-            return successfulLogin(request, reply, user);
+            return successfulLogin(fastify, reply, user);
         } catch {
             return reply.code(403).send({ error: 'Invalid google token' });
         }
     });
+
+    function incrementLastDigit(str: string): number {
+        const match = str.match(/\d(?=\D*$)/); // Find the last digit before non-digits or end of string
+        const lastDigit = match ? parseInt(match[0], 10) : 0;
+        return lastDigit + 1;
+    }
+
+    async function registerGoogleUser(email: string, name: string) {
+        try {
+            await fastify.prisma.user.create({
+                data: {
+                    email,
+                    password: '',
+                    emailVerificationToken: '',
+                    name,
+                    registrationDate: new Date().toISOString(),
+                    emailValidated: 1,
+                    googleLinkedAccount: 1,
+                    avatarUrl: 'images/default.jpg',
+                },
+            });
+        } catch (error) {
+            console.error(error);
+            await fastify.prisma.user.create({
+                data: {
+                    email,
+                    password: '',
+                    emailVerificationToken: '',
+                    name: name + incrementLastDigit(name),
+                    registrationDate: new Date().toISOString(),
+                    emailValidated: 1,
+                    googleLinkedAccount: 1,
+                    avatarUrl: 'images/default.jpg',
+                },
+            });
+        }
+
+        console.log(email);
+    }
 
     fastify.get('/login/google/callback', async function (request, reply) {
         const { token } =
             await fastify.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(
                 request,
             );
-        const email = await emailFromToken(token.access_token);
+        console.log(token);
+        const { email, name } = await emailFromToken(token.access_token);
 
         const user = await fastify.prisma.user.findFirst({
             where: { email },
         });
-        if (!user)
-            return reply.code(200).send({
-                status: 'redirect_signup',
-                error: 'No account found with this Google email. Please sign up first.',
-            });
+        if (!user) await registerGoogleUser(email, name);
         reply.setCookie('access_token', token.access_token, {
             httpOnly: true,
             secure: true,
@@ -156,40 +201,11 @@ export function loginRoutes(fastify: FastifyInstance) {
                 where: { email },
             });
             if (!user) throw Error('User not found');
-            const isCorrect = await fastify.bcrypt.compare(
-                password,
-                user.password,
-            );
+            const isCorrect =
+                password &&
+                (await fastify.bcrypt.compare(password, user.password));
             if (!isCorrect) throw Error('Invalid credential combination');
-            return successfulLogin(request, reply, user);
+            return successfulLogin(fastify, reply, user);
         },
     );
-
-    // fastify.post<{ Body: Static<typeof LinkGoogleDto> }>(
-    //     '/login/link-google',
-    //     {
-    //         schema: {
-    //             body: LinkGoogleDto,
-    //         },
-    //     },
-    //     async (request, reply) => {
-    //         const { password, googleToken } = request.body;
-    //         const email = await emailFromToken(googleToken);
-    //         console.log(email);
-    //         const user = await fastify.prisma.user.findFirst({
-    //             where: { email },
-    //         });
-    //         if (!user) throw Error('Invalid credential combination');
-    //         const isCorrect = await fastify.bcrypt.compare(
-    //             password,
-    //             user?.password || '',
-    //         );
-    //         if (!isCorrect) throw Error('Invalid credential combination');
-    //         await fastify.prisma.user.update({
-    //             where: { email },
-    //             data: { googleLinkedAccount: 1 },
-    //         });
-    //         return successfulLogin(request, reply, user);
-    //     },
-    // );
 }
