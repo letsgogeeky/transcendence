@@ -10,7 +10,6 @@ export function logoutRoutes(fastify: FastifyInstance) {
             600,
         );
         res.clearCookie('access_token', { path: '/login/google/auth' });
-        res.clearCookie('oauth2-redirect-state', { path: '/login' });
         res.clearCookie('refreshToken', { path: '/refresh' });
         res.clearCookie('userId', { path: '/socket' });
 

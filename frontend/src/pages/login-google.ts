@@ -1,6 +1,6 @@
 import Component from '../components/Component';
 import sendRequest, { Services } from '../services/send-request';
-import State from '../services/state';
+import LoginComponent from './login';
 
 export default class LoginAfterGoogleComponent extends Component {
     readonly element: HTMLElement;
@@ -19,15 +19,7 @@ export default class LoginAfterGoogleComponent extends Component {
             Services.AUTH,
         );
         const responseBody = await generated.json();
-        localStorage.setItem('responseBody', responseBody.authToken);
-        State.getState().setAuthToken(responseBody.authToken);
-        if (responseBody.otpMethod) {
-            window.history.pushState(
-                { path: '/login/2fa' },
-                '/login/2fa',
-                '/login/2fa',
-            );
-        } else window.history.pushState({ path: '/' }, '/', '/');
+        LoginComponent.loginCallback(responseBody);
         return responseBody;
     }
 }

@@ -40,7 +40,7 @@ export default class LoginComponent extends Component {
             'login',
             [emailInput, passwordInput],
             (data) => sendRequest('/login', 'POST', data, Services.AUTH),
-            this.loginCallback.bind(this),
+            LoginComponent.loginCallback,
         );
 
         form.className = 'flex flex-col gap-4 w-64';
@@ -62,15 +62,27 @@ export default class LoginComponent extends Component {
         loginWithGoogle.render(this.element);
     }
 
-    private async loginCallback(data: any): Promise<void> {
-        localStorage.setItem('authToken', data.authToken);
-        State.getState().setAuthToken(data.authToken);
+    static loginCallback(data: any): void {
+        LoginComponent.setUserFromResponse(data);
         if (data.otpMethod) {
             window.history.pushState(
                 { path: '/login/2fa' },
                 '/login/2fa',
                 '/login/2fa',
             );
+        }
+    }
+
+    static setUserFromResponse(data: any): void {
+        localStorage.setItem('authToken', data.authToken);
+        State.getState().setAuthToken(data.authToken);
+        if (data.user) {
+            localStorage.setItem(
+                'currentUser',
+                JSON.stringify(data.user || null),
+            );
+            State.getState().setCurrentUser(data.user);
+            window.history.pushState({ path: '/' }, '/', '/');
         }
     }
 }

@@ -90,10 +90,19 @@ export function userRoutes(fastify: FastifyInstance) {
                 }),
                 otpMethod: request.body.otpMethod,
             };
+            const existingUser = await fastify.prisma.user.findUnique({
+                where: { id: request.user },
+                select: { otpMethod: true },
+            });
             const usr = await fastify.prisma.user.update({
                 where: { id: request.user },
                 data: {
                     ...newData,
+                    hasQrCode:
+                        existingUser?.otpMethod == newData.otpMethod &&
+                        existingUser?.otpMethod == OtpMethod.AUTHENTICATOR
+                            ? 1
+                            : 0,
                 },
                 select: {
                     id: true,

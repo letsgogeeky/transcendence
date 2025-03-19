@@ -56,7 +56,7 @@ export default class UserSettingsComponent extends Component {
             'update',
             [nameInput, phoneInput, otpMethodInput],
             (data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
-            this.setUserFromResponse,
+            this.setUserFromResponse.bind(this),
         );
         form.className = 'flex flex-col gap-4 w-64';
         form.render(this.element);
@@ -82,9 +82,44 @@ export default class UserSettingsComponent extends Component {
         super.render(parent);
     }
 
+    private showImageDialog(imageUrl: string) {
+        let dialog = document.createElement('dialog');
+        dialog.innerHTML = `<img src="${imageUrl}" style="max-width:100%; height:auto;">
+                            <button id="close-btn">Close</button>`;
+
+        document.body.appendChild(dialog);
+        dialog.showModal();
+        dialog.querySelector('#close-btn')?.addEventListener('click', () => {
+            dialog.close();
+            dialog.remove();
+        });
+    }
+
     private async setUserFromResponse(data: any): Promise<void> {
         localStorage.setItem('currentUser', JSON.stringify(data || null));
         State.getState().setCurrentUser(data);
+
+        if (data.otpMethod == 'AUTHENTICATOR') {
+            console.log('generate`!!');
+            const data = await this.generateOtpUrl();
+            if (data.otpAuthUrl) {
+                const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(
+                    data.otpAuthUrl,
+                )}`;
+                this.showImageDialog(qrCodeUrl);
+            }
+        }
         this.render(this.parent);
+    }
+
+    async generateOtpUrl() {
+        const generated = await sendRequest(
+            '/otp/generate',
+            'POST',
+            null,
+            Services.AUTH,
+        );
+        const responseBody = await generated.json();
+        return responseBody;
     }
 }
