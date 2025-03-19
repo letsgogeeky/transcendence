@@ -176,6 +176,7 @@ export function otpRoutes(fastify: FastifyInstance) {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'strict',
+                path: '/refresh',
             });
             res.status(200).send({
                 authToken,
