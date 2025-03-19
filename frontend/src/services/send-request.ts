@@ -87,7 +87,7 @@ export default async function sendRequest(
                         token ?? State.getState().getAuthToken()
                     }`,
                 },
-                body: JSON.stringify(data),
+                ...(method !== 'GET' && { body: JSON.stringify(data) }),
                 credentials: 'include',
             },
             noRetryRoutes.includes(path),

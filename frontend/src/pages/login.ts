@@ -1,8 +1,9 @@
+import Button from '../components/Button';
 import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
-import sendRequest, { Services } from '../services/send-request';
+import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
 
 export default class LoginComponent extends Component {
@@ -48,63 +49,28 @@ export default class LoginComponent extends Component {
         container.append(title);
         this.element = container;
         form.render(this.element);
-        const lorgotPasswordLink = new LinkComponent(
+        const forgotPasswordLink = new LinkComponent(
             'Forgot my password',
             '/forgot-password',
         );
-        lorgotPasswordLink.render(this.element);
-    }
+        forgotPasswordLink.render(this.element);
 
-    private async setUserFromResponse(data: any): Promise<void> {
-        localStorage.setItem('authToken', data.authToken);
-        State.getState().setAuthToken(data.authToken);
-        if (data.user) {
-            localStorage.setItem(
-                'currentUser',
-                JSON.stringify(data.user || null),
-            );
-            State.getState().setCurrentUser(data.user);
-            window.history.pushState({ path: '/' }, '/', '/');
-        }
+        const loginWithGoogle = new Button(
+            'Log in with google',
+            () => (window.location.href = endpoints.auth + '/login/google'),
+        );
+        loginWithGoogle.render(this.element);
     }
 
     private async loginCallback(data: any): Promise<void> {
-        this.setUserFromResponse(data);
+        localStorage.setItem('authToken', data.authToken);
+        State.getState().setAuthToken(data.authToken);
         if (data.otpMethod) {
-            const generated = await sendRequest(
-                '/otp/generate',
-                'POST',
-                null,
-                Services.AUTH,
+            window.history.pushState(
+                { path: '/login/2fa' },
+                '/login/2fa',
+                '/login/2fa',
             );
-            const responseBody = await generated.json();
-            this.element.innerHTML = '';
-            if (responseBody.otpAuthUrl) {
-                const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(
-                    responseBody.otpAuthUrl,
-                )}`;
-                const imageContainer = document.createElement('div');
-                const qrCodeImage = document.createElement('img');
-                qrCodeImage.src = qrCodeUrl;
-                imageContainer.append(qrCodeImage);
-                this.element.append(qrCodeImage);
-            }
-            const codeInput = new Input(
-                'Verification code',
-                'text',
-                'token',
-                true,
-                '6 digit code',
-            );
-            const form = new FormComponent(
-                'Send code',
-                [codeInput],
-                (data) =>
-                    sendRequest('/otp/verify', 'POST', data, Services.AUTH),
-                this.setUserFromResponse,
-            );
-            form.className = 'flex flex-col gap-4 w-64';
-            form.render(this.element);
         }
     }
 }
