@@ -39,7 +39,7 @@ declare module 'fastify' {
     interface FastifyInstance {
         config: {
             GOOGLE_PASS: string;
-            PORT: number;
+            AUTH_PORT: number;
             DB_PATH: string;
             SECRET: string;
             REFRESH_SECRET: string;
@@ -120,7 +120,7 @@ const start = async () => {
             },
             startRedirectPath: '/login/google',
             callbackUri: (req) =>
-                `${req.protocol}://${req.hostname}:${app.config.PORT}/login/google/callback`,
+                `${req.protocol}://${req.hostname}:${app.config.AUTH_PORT}/login/google/callback`,
         });
         app.register(connectionsPlugin);
         app.register(SocketRoutes);
@@ -131,7 +131,7 @@ const start = async () => {
         app.register(otpRoutes);
         app.register(protectedOtpRoutes);
 
-        await app.listen({ port: app.config.PORT });
+        await app.listen({ port: app.config.AUTH_PORT, host: '0.0.0.0' });
     } catch (err) {
         app.log.error(err);
         process.exit(1);
