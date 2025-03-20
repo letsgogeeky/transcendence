@@ -48,6 +48,7 @@ export function protectedOtpRoutes(fastify: FastifyInstance) {
                     where: { id: req.user },
                     data: {
                         otpMethod: method,
+                        hasQrCode: 0,
                     },
                 });
             res.send({ otpMethod: method });

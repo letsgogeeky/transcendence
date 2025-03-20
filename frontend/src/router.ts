@@ -1,21 +1,89 @@
-type Route = { path: string, component: () => Promise<HTMLElement>; title: string };
+import Component from './components/Component';
+import ErrorComponent from './pages/error';
+import HomeComponent from './pages/home';
+import LoginComponent from './pages/login';
+import LoginOtpComponent from './pages/login-2fa';
+import LoginAfterGoogle from './pages/login-google';
+import LogoutComponent from './pages/logout';
+import NotFoundComponent from './pages/notfound';
+import ForgotPasswordComponent from './pages/password/forgot-password';
+import ResetPasswordComponent from './pages/password/reset-password';
+import RegisterComponent from './pages/register';
+import UserSettingsComponent from './pages/settings/settings';
 
-const routes: Route[] = [
-    { path: "/", component: () => import("./pages/home").then(c => c.renderHome()), title: "Orca's Home"},
-    { path: "*", component: () => import("./pages/notfound").then(c => c.renderNotFound()), title: "Sorry!" },
-]
+export type Route = {
+    path: string;
+    title: string;
+    component: Component;
+    visible: boolean;
+};
 
-
-export async function navigateTo(hash: string) {
-    const route = routes.find(r => r.path == hash) || routes.find(r => r.path === "*");
-    if (route) {
-        const component = await route.component();
-        document.getElementById("app")!.innerHTML = "";
-        document.getElementById("app")?.appendChild(component);
-    }
-}
-
-export function setupRouter() {
-    window.addEventListener("hashchange", () => navigateTo(location.hash.slice(1) || "/"));
-    navigateTo(location.hash.slice(1) || "/");
-}
+export const routes: Route[] = [
+    { path: '/', title: 'Home', component: new HomeComponent(), visible: true },
+    // {
+    //     path: '/profile',
+    //     title: 'My Profile',
+    //     component: new ErrorComponent('my profile'),
+    //     visible: true,
+    // },
+    {
+        path: '/users',
+        title: 'Users',
+        component: new ErrorComponent('users'),
+        visible: true,
+    },
+    {
+        path: '/error',
+        title: 'Error',
+        component: new NotFoundComponent(),
+        visible: false,
+    },
+    {
+        path: '/login',
+        title: 'Login',
+        component: new LoginComponent(),
+        visible: false,
+    },
+    {
+        path: '/login/google',
+        title: 'Login',
+        component: new LoginAfterGoogle(),
+        visible: false,
+    },
+    {
+        path: '/login/2fa',
+        title: 'Login verification code',
+        component: new LoginOtpComponent(),
+        visible: false,
+    },
+    {
+        path: '/logout',
+        title: 'Logout',
+        component: new LogoutComponent(),
+        visible: false,
+    },
+    {
+        path: '/settings',
+        title: 'User settings',
+        component: new UserSettingsComponent(),
+        visible: false,
+    },
+    {
+        path: '/forgot-password',
+        title: 'Password reset',
+        component: new ForgotPasswordComponent(),
+        visible: false,
+    },
+    {
+        path: '/register',
+        title: 'Sign up',
+        component: new RegisterComponent(),
+        visible: true,
+    },
+    {
+        path: '/reset-password',
+        title: 'Password reset',
+        component: new ResetPasswordComponent(),
+        visible: false,
+    },
+];
