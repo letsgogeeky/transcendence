@@ -58,6 +58,7 @@
     ```json
     {
         "type": "paddle",
+        "match_id": "123",
         "data": {
             "user_id": "123",
             "x": 100,
@@ -69,6 +70,7 @@
     ```json
     {
         "type": "ball",
+        "match_id": "123",
         "data": {
             "user_id": "123",
             "x": 100,
@@ -81,6 +83,7 @@
     ```json
     {
         "type": "score",
+        "match_id": "123",
         "data": {
             "scoring_user_id": "123",
             "scored_user_id": "456",
@@ -92,6 +95,7 @@
     ```json
     {
         "type": "leave_match",
+        "match_id": "123",
         "data": {
             "user_id": "123"
         }
@@ -100,6 +104,7 @@
     ```json
     {
         "type": "join_match",
+        "match_id": "123",
         "data": {
             "user_id": "123"
         }
