@@ -1,10 +1,11 @@
-import { LoginLevel, OtpMethod } from '@prisma/client';
+import { OtpMethod } from '@prisma/client';
 import { Static, Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { FastifyInstance } from 'fastify';
 import * as OTPAuth from 'otpauth';
 import speakeasy from 'speakeasy';
 import credentialAuthCheck from '../plugins/credentialAuth.js';
+import { successfulLogin } from './login.js';
 
 export const OtpVerifyDto = Type.Object({
     token: Type.String(),
@@ -93,23 +94,31 @@ export function otpRoutes(fastify: FastifyInstance) {
                     error: 'No user with that id exists',
                 });
             }
+            if (!user.otpMethod)
+                return res.status(403).send({
+                    error: 'OTP generation is not allowed for this user.',
+                });
             const { otpAuthUrl, code, secret } = generateSecret();
+            if (user.otpMethod == OtpMethod.AUTHENTICATOR && user.hasQrCode)
+                return res
+                    .status(200)
+                    .send({ message: 'QR code already sent' });
             await fastify.prisma.user.update({
                 where: { id: req.user },
                 data: {
                     otpBase32: secret.base32,
                 },
             });
-            if (!user.otpMethod)
-                return res.status(403).send({
-                    error: 'OTP generation is not allowed for this user.',
-                });
             if (user.otpMethod == OtpMethod.SMS) {
                 await sendSms(user.phoneNumber!, code, fastify);
                 res.send({ message: 'SMS sent' });
-            } else if (user.otpMethod == OtpMethod.AUTHENTICATOR)
+            } else if (user.otpMethod == OtpMethod.AUTHENTICATOR) {
+                await fastify.prisma.user.update({
+                    where: { id: req.user },
+                    data: { hasQrCode: 1 },
+                });
                 return res.send({ otpAuthUrl });
-            else {
+            } else {
                 await fastify.transporter.sendMail({
                     from: '"noreply transcendence" <noreply.transcendence2025@gmail.com>',
                     to: user.email,
@@ -137,6 +146,7 @@ export function otpRoutes(fastify: FastifyInstance) {
             const user = await fastify.prisma.user.findUnique({
                 where: { id: req.user },
             });
+            console.log(user);
             const message = "Token is invalid or user doesn't exist";
             if (!user) {
                 return res.status(401).send({
@@ -150,36 +160,16 @@ export function otpRoutes(fastify: FastifyInstance) {
                 digits: 6,
                 secret: user.otpBase32!,
             });
+            console.log('after totp');
             const delta = totp.validate({ token });
+            console.log('delta');
+            console.log(delta);
             if (delta === null) {
                 return res.status(401).send({
                     message,
                 });
             }
-            fastify.cache.set(
-                req.headers['authorization']!.replace('Bearer ', ''),
-                1,
-                600,
-            );
-            const authToken = fastify.jwt.sign(
-                {
-                    id: user.id,
-                    loginLevel: LoginLevel.FULL,
-                },
-                { expiresIn: '10m', key: fastify.config.SECRET },
-            );
-            const refreshToken = fastify.jwt.sign(
-                { id: user.id },
-                { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
-            );
-            res.setCookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-            });
-            res.status(200).send({
-                authToken,
-            });
+            return successfulLogin(fastify, res, user, true);
         },
     );
 }

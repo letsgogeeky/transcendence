@@ -24,6 +24,7 @@ import { logoutRoutes } from './routes/logout.js';
 import { protectedOtpRoutes } from './routes/protected-2fa.js';
 import { refreshRoutes } from './routes/refresh.js';
 import { registerRoutes } from './routes/register.js';
+import { resetPasswordRoutes } from './routes/reset-password.js';
 import { SocketRoutes } from './routes/socket.js';
 import { userRoutes } from './routes/user.js';
 import { usersRoutes } from './routes/users.js';
@@ -69,7 +70,6 @@ const app = fastify({
     https: {
         key: fs.readFileSync(keyPath),
         cert: fs.readFileSync(certPath),
-        passphrase: process.env.SSL_PASSPHRASE,
     },
 });
 const start = async () => {
@@ -77,8 +77,9 @@ const start = async () => {
         await app.register(fastifyEnv, options);
         app.register(fastifyCors, {
             origin: [app.config.FRONTEND],
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true,
         });
         app.register(fastifyWebsocket);
         app.register(myCachePlugin);
@@ -105,7 +106,7 @@ const start = async () => {
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(registerRoutes);
-
+        app.register(resetPasswordRoutes);
         app.register(loginRoutes);
         app.register(oauthPlugin, {
             name: 'googleOAuth2',
