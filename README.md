@@ -11,6 +11,15 @@
 
 ### Pong Platform user journeys and description
 
+#### Platform pages
+- SignIn
+- SignUp
+- Profile (Match history, Name, Avatar)
+- Home (Queue up for a match, See online friends and players)
+- Match (Play against AI, Same machine player, OR remote players)
+- Chat (See chat history, see history of specific chat with a specific player, send and see messages)
+- Search (can search other players and add them as friends or view their profile)
+
 #### User / Player and Friend Management
 - User can sign up with email and password
 - User can sign in with email and password
