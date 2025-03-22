@@ -1,0 +1,11 @@
+PORT=8082
+DB_PATH=./prisma/db/example.db
+SSL_KEY_PATH=./key.pem
+SSL_CERT_PATH=./cert.pem
+SSL_PASSPHRASE=<pick a password you like>
+FRONTEND=http://localhost:3000
+
+# DATABASE_URL is relative to prisma/schema.prisma
+DATABASE_URL="file:./db/example.db"
+
+UPLOAD_DIR="../core/uploads"
