@@ -1,4 +1,4 @@
-import { LoginLevel } from '@prisma/client';
+import { FriendRequestStatus, LoginLevel } from '@prisma/client';
 import { FastifyInstance } from 'fastify';
 
 interface SocketData {
@@ -22,11 +22,32 @@ export function SocketRoutes(fastify: FastifyInstance) {
         return id;
     }
 
-    function notifyEveryone(
+    // function notifyEveryone(
+    //     userId: string,
+    //     messageStr: string,
+    //     value: string,
+    // ): void {
+    //     const message = JSON.stringify({
+    //         type: 'STATUS_CHANGE',
+    //         data: {
+    //             message: messageStr,
+    //             id: userId,
+    //             value,
+    //         },
+    //     });
+    //     fastify.connections.forEach((client, key) => {
+    //         if (client.readyState === client.OPEN && userId != key) {
+    //             client.send(message);
+    //             console.log('message sent to ' + key);
+    //         }
+    //     });
+    // }
+
+    async function notifyFriends(
         userId: string,
         messageStr: string,
         value: string,
-    ): void {
+    ): Promise<void> {
         const message = JSON.stringify({
             type: 'STATUS_CHANGE',
             data: {
@@ -35,10 +56,28 @@ export function SocketRoutes(fastify: FastifyInstance) {
                 value,
             },
         });
+        const ids = [...fastify.connections.keys()];
+        const friends = await fastify.prisma.friends.findMany({
+            where: {
+                AND: [
+                    {
+                        OR: [{ sender: userId }, { receiver: userId }],
+                    },
+                    { status: FriendRequestStatus.ACCEPTED },
+                    {
+                        OR: [
+                            { sender: { in: ids } },
+                            { receiver: { in: ids } },
+                        ],
+                    },
+                ],
+            },
+            select: { id: true },
+        });
         fastify.connections.forEach((client, key) => {
+            if (!friends.find((id) => id.id === key)) return;
             if (client.readyState === client.OPEN && userId != key) {
                 client.send(message);
-                console.log('message sent to ' + key);
             }
         });
     }
@@ -59,14 +98,25 @@ export function SocketRoutes(fastify: FastifyInstance) {
                     const id = verifyToken(data.token);
                     if (id) {
                         fastify.connections.set(id, socket);
-                        notifyEveryone(id, 'User is online', 'LOGIN');
+                        notifyFriends(id, 'User is online', 'LOGIN').catch(
+                            (error) => {
+                                console.error(
+                                    'Error in notifying friends:',
+                                    error,
+                                );
+                            },
+                        );
                     }
                 }
             });
             socket.on('close', () => {
                 if (fastify.connections.get(userId!)) {
                     fastify.connections.delete(userId!);
-                    notifyEveryone(userId!, 'User logged out', 'LOGOUT');
+                    notifyFriends(userId!, 'User logged out', 'LOGOUT').catch(
+                        (error) => {
+                            console.error('Error in notifying friends:', error);
+                        },
+                    );
                 }
             });
             socket.on('error', (err) => {

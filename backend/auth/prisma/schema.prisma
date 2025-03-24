@@ -40,3 +40,15 @@ model User {
   @@map(name: "users")
 
 }
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Friends {
+  id                String    @id @default(uuid()) 
+  sender                  String
+  receiver                String
+  status                FriendRequestStatus
+}
