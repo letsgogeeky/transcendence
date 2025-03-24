@@ -19,6 +19,7 @@ import myCachePlugin from './plugins/myCache.js';
 import prismaPlugin from './plugins/prisma.js';
 import emailPlugin from './plugins/sendEmail.js';
 import { otpRoutes } from './routes/2fa.js';
+import { friendRequestsRoutes } from './routes/friends.js';
 import { loginRoutes } from './routes/login.js';
 import { logoutRoutes } from './routes/logout.js';
 import { protectedOtpRoutes } from './routes/protected-2fa.js';
@@ -108,6 +109,7 @@ const start = async () => {
         app.register(registerRoutes);
         app.register(resetPasswordRoutes);
         app.register(loginRoutes);
+        app.register(friendRequestsRoutes);
         app.register(oauthPlugin, {
             name: 'googleOAuth2',
             scope: ['email', 'profile'],
