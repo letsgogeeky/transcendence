@@ -56,7 +56,7 @@ export async function retryFetch(
             Authorization: `Bearer ${refreshSuccess}`,
         };
         if (refreshSuccess) return fetch(input, init);
-        else throw Error('Unauthorized');
+        else window.history.pushState({ path: '/login' }, '', '/login');
     }
     return response;
 }

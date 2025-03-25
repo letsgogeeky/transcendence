@@ -30,7 +30,20 @@ export default class WebSocketService {
 
         this.socket.addEventListener('message', (event) => {
             console.log('Received message:', event.data);
-            showToast(ToastState.NOTIFICATION, JSON.parse(event.data).message);
+            const data = JSON.parse(event.data);
+            if (data.type == 'CONFLICT') {
+                showToast(
+                    ToastState.ERROR,
+                    'You are already signed in from a different tab',
+                    0,
+                );
+                this.reconnectAttempts = 11;
+                document.title += ' (Offline)';
+            } else
+                showToast(
+                    ToastState.NOTIFICATION,
+                    JSON.parse(event.data).message,
+                );
         });
 
         this.socket.addEventListener('error', (event) => {

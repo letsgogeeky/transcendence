@@ -100,7 +100,10 @@ export function usersRoutes(fastify: FastifyInstance) {
                 (req: Friends) =>
                     req.sender == user.id || req.receiver == user.id,
             );
-            return { user, request: req };
+            return {
+                user: { ...user, isOnline: fastify.connections.has(user.id) },
+                request: req,
+            };
         });
         reply.send(usersWithRelations);
     });

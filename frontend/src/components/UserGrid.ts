@@ -3,6 +3,7 @@ import AvatarImage from './AvatarImage';
 import Button from './Button';
 import Component from './Component';
 import LinkComponent from './Link';
+import createStatusPill from './StatusPill';
 
 export default class UserGridComponent extends Component {
     readonly element: HTMLElement;
@@ -10,12 +11,14 @@ export default class UserGridComponent extends Component {
     title: string;
     actions: { callback: (id: string) => void; label: string }[];
     data: any[];
+    showOnlineStatus: boolean;
 
     constructor(
         label: string,
         users: any[],
         data: any[] = [],
         actions: { callback: (id: string) => void; label: string }[] = [],
+        showOnlineStatus: boolean = false,
         className: string = 'py-6',
     ) {
         super(className);
@@ -24,6 +27,7 @@ export default class UserGridComponent extends Component {
         this.data = data.length ? data : [...users];
         this.title = label;
         this.actions = actions;
+        this.showOnlineStatus = showOnlineStatus;
     }
 
     private displayUser(
@@ -39,6 +43,10 @@ export default class UserGridComponent extends Component {
             endpoints.auth + '/' + user.avatarUrl!,
             `/profile?userId=${user.id}`,
         );
+        if (this.showOnlineStatus)
+            avatar.element.appendChild(
+                createStatusPill(user.isOnline ? 'online' : 'offline'),
+            );
 
         const gridContainer = document.createElement('div');
         gridContainer.className = 'w-full text-center';
