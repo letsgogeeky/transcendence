@@ -54,11 +54,19 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
             const friendRequests = await fastify.prisma.friends.findMany({
                 where: {
                     AND: [
-                        {
-                            OR: [{ receiver: request.user }],
-                        },
+                        { receiver: request.user },
                         { status: FriendRequestStatus.PENDING },
                     ],
+                },
+                include: {
+                    senderUser: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            avatarUrl: true,
+                        },
+                    },
                 },
             });
             reply.send(friendRequests);
@@ -131,7 +139,7 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
                     error: 'Unauthorized to take this action on request.',
                 });
             let result;
-            const socket = fastify.connections.get(friendRequest.receiver);
+            const socket = fastify.connections.get(friendRequest.sender);
             if (action == 'accept') {
                 result = await fastify.prisma.friends.update({
                     where: { id: requestId, receiver: request.user },

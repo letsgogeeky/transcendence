@@ -6,6 +6,7 @@ export default class Button extends Component {
     constructor(label: string, onClick: () => void, className: string = '') {
         super(className);
         this.element = document.createElement('button');
+        this.element.className += className;
         this.element.textContent = label;
         this.element.addEventListener('click', () => {
             console.log(`Button "${label}" clicked`);
