@@ -86,6 +86,18 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
         return !sameRequest && !reverseRequest;
     }
 
+    function notify(
+        fastify: FastifyInstance,
+        senderId: string,
+        receiverId: string,
+        message: string,
+    ) {
+        const receiverSocket = fastify.connections.get(receiverId);
+        const senderSocket = fastify.connections.get(senderId);
+        if (receiverSocket) receiverSocket.send(message);
+        if (senderSocket) senderSocket.send(message);
+    }
+
     fastify.post<{ Body: Static<typeof newFriendRequst> }>(
         '/friend-requests',
         {
@@ -111,14 +123,12 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
                 },
             });
             const message = JSON.stringify({
-                type: 'FRIEND_REQUEST_INCOMING',
-                data: {
-                    message: 'New Friend Request',
-                    data: friendRequest,
-                },
+                type: 'FRIEND_REQUEST',
+                message: 'New Friend Request',
+                data: friendRequest,
             });
-            const socket = fastify.connections.get(receiverId);
-            if (socket) socket.send(message);
+
+            notify(fastify, senderId, receiverId, message);
             reply.send(friendRequest);
         },
     );
@@ -127,8 +137,13 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
         '/friend-requests/:requestId/:action',
         async (request, reply) => {
             const { requestId, action } = request.params;
-            const friendRequest = await fastify.prisma.friends.findUnique({
-                where: { id: requestId, receiver: request.user },
+            const friendRequest = await fastify.prisma.friends.findFirst({
+                where: {
+                    OR: [
+                        { id: requestId, receiver: request.user },
+                        { id: requestId, sender: request.user },
+                    ],
+                },
             });
             if (
                 !friendRequest ||
@@ -139,34 +154,46 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
                     error: 'Unauthorized to take this action on request.',
                 });
             let result;
-            const socket = fastify.connections.get(friendRequest.sender);
             if (action == 'accept') {
                 result = await fastify.prisma.friends.update({
                     where: { id: requestId, receiver: request.user },
                     data: { status: FriendRequestStatus.ACCEPTED },
                 });
                 const message = JSON.stringify({
-                    type: 'FRIEND_REQUEST_ACCEPTED',
+                    type: 'FRIEND_REQUEST',
+                    message: 'Friend Request accepted',
                     data: {
-                        message: 'Friend Request acceptrd',
-                        data: friendRequest,
+                        ...friendRequest,
+                        status: FriendRequestStatus.ACCEPTED,
                     },
                 });
-                if (socket) socket.send(message);
+                notify(
+                    fastify,
+                    friendRequest.sender,
+                    friendRequest.receiver,
+                    message,
+                );
             } else if (action == 'delete') {
                 const message = JSON.stringify({
-                    type: 'FRIEND_REQUEST_DELETED',
-                    data: {
-                        message: 'Friend Request deleted',
-                        data: friendRequest,
+                    type: 'FRIEND_REQUEST',
+                    message: 'Friend Request deleted',
+                    data: { ...friendRequest, status: 'DELETED' },
+                });
+                reply.send(friendRequest);
+                result = await fastify.prisma.friends.deleteMany({
+                    where: {
+                        OR: [
+                            { id: requestId, receiver: request.user },
+                            { id: requestId, sender: request.user },
+                        ],
                     },
                 });
-                if (socket) socket.send(message);
-                reply.send(friendRequest);
-
-                result = await fastify.prisma.friends.delete({
-                    where: { id: requestId, receiver: request.user },
-                });
+                notify(
+                    fastify,
+                    friendRequest.sender,
+                    friendRequest.receiver,
+                    message,
+                );
             } else
                 return reply.code(400).send({
                     error: 'Bad request. Invalid action',

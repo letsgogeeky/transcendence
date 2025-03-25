@@ -32,8 +32,8 @@ export default class State {
         window.dispatchEvent(new Event('userChange'));
     }
 
-    public getAuthSocket(): WebSocketService | null {
-        return this.authSocket;
+    public getAuthSocket(): WebSocket | null | undefined {
+        return this.authSocket?.socket;
     }
 
     public getCurrentUser(): MyUser | null {
