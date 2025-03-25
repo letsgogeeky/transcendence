@@ -12,6 +12,7 @@ export function logoutRoutes(fastify: FastifyInstance) {
         res.clearCookie('access_token', { path: '/login/google/auth' });
         res.clearCookie('refreshToken', { path: '/refresh' });
         res.clearCookie('userId', { path: '/socket' });
+        res.clearCookie('userName', { path: '/socket' });
 
         res.send({ message: 'Logged out' });
         fastify.connections.get(req.user)?.terminate();

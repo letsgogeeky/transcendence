@@ -108,6 +108,7 @@ const start = async () => {
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
         app.register(registerRoutes);
         app.register(resetPasswordRoutes);
+        app.register(connectionsPlugin);
         app.register(loginRoutes);
         app.register(friendRequestsRoutes);
         app.register(oauthPlugin, {
@@ -124,7 +125,6 @@ const start = async () => {
             callbackUri: (req) =>
                 `${req.protocol}://${req.hostname}:${app.config.AUTH_PORT}/login/google/callback`,
         });
-        app.register(connectionsPlugin);
         app.register(SocketRoutes);
         app.register(refreshRoutes);
         app.register(usersRoutes);

@@ -4,7 +4,7 @@ import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 
-async function logoutUser(): Promise<void> {
+export async function logoutUser(): Promise<void> {
     try {
         const response = await sendRequest(
             '/logout',
@@ -27,7 +27,8 @@ async function logoutUser(): Promise<void> {
             showToast(ToastState.ERROR, 'An unexpected error occurred');
         }
     }
-    window.history.pushState({ path: '/login' }, '/login', '/login');
+    State.getState().reset();
+    window.history.pushState({ path: '/login' }, '', '/login');
 }
 
 export default class LogoutComponent extends Component {

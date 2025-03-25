@@ -51,4 +51,10 @@ export default class State {
         }
         return State.instance;
     }
+
+    public reset() {
+        this.user = null;
+        this.authToken = null;
+        localStorage.clear();
+    }
 }

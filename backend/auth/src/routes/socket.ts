@@ -22,41 +22,17 @@ export function SocketRoutes(fastify: FastifyInstance) {
         return id;
     }
 
-    // function notifyEveryone(
-    //     userId: string,
-    //     messageStr: string,
-    //     value: string,
-    // ): void {
-    //     const message = JSON.stringify({
-    //         type: 'STATUS_CHANGE',
-    //         data: {
-    //             message: messageStr,
-    //             id: userId,
-    //             value,
-    //         },
-    //     });
-    //     fastify.connections.forEach((client, key) => {
-    //         if (client.readyState === client.OPEN && userId != key) {
-    //             client.send(message);
-    //             console.log('message sent to ' + key);
-    //         }
-    //     });
-    // }
-
     async function notifyFriends(
         userId: string,
         messageStr: string,
         value: string,
     ): Promise<void> {
         const message = JSON.stringify({
-            type: 'STATUS_CHANGE',
-            data: {
-                message: messageStr,
-                id: userId,
-                value,
-            },
+            type: value,
+            message: messageStr,
+            id: userId,
         });
-        const ids = [...fastify.connections.keys()];
+        console.log('notify friends');
         const friends = await fastify.prisma.friends.findMany({
             where: {
                 AND: [
@@ -64,22 +40,21 @@ export function SocketRoutes(fastify: FastifyInstance) {
                         OR: [{ sender: userId }, { receiver: userId }],
                     },
                     { status: FriendRequestStatus.ACCEPTED },
-                    {
-                        OR: [
-                            { sender: { in: ids } },
-                            { receiver: { in: ids } },
-                        ],
-                    },
                 ],
             },
-            select: { id: true },
+            select: { sender: true, receiver: true },
         });
-        fastify.connections.forEach((client, key) => {
-            if (!friends.find((id) => id.id === key)) return;
-            if (client.readyState === client.OPEN && userId != key) {
+        const friendIds = friends.map((friendReq) =>
+            friendReq.receiver == userId
+                ? friendReq.sender
+                : friendReq.receiver,
+        );
+        for (const [key, client] of fastify.connections.entries()) {
+            if (!friendIds.includes(key)) return;
+            if (userId != key) {
                 client.send(message);
             }
-        });
+        }
     }
 
     fastify.route({
@@ -89,34 +64,42 @@ export function SocketRoutes(fastify: FastifyInstance) {
             reply.send({ message: 'WebSocket endpoint' });
         },
         wsHandler: (socket, req) => {
-            const { userId } = req.cookies;
-            console.log('WebSocket Connected!');
+            const { userId, userName } = req.cookies;
             socket.on('message', (message: string) => {
                 console.log('Received:' + message);
                 const data = JSON.parse(message) as SocketData;
                 if (data.type == 'AUTH') {
                     const id = verifyToken(data.token);
                     if (id) {
+                        console.log('id is ' + id);
+                        console.log([...fastify.connections.keys()]);
+                        if (fastify.connections.has(id)) {
+                            const message = { type: 'CONFLICT' };
+                            const oldSocket = fastify.connections.get(id);
+                            oldSocket!.send(JSON.stringify(message));
+                            oldSocket!.close();
+                        }
                         fastify.connections.set(id, socket);
-                        notifyFriends(id, 'User is online', 'LOGIN').catch(
-                            (error) => {
-                                console.error(
-                                    'Error in notifying friends:',
-                                    error,
-                                );
-                            },
-                        );
+                        notifyFriends(
+                            id,
+                            userName + ' is online',
+                            'LOGIN',
+                        ).catch((error) => {
+                            console.error('Error in notifying friends:', error);
+                        });
                     }
                 }
             });
             socket.on('close', () => {
                 if (fastify.connections.get(userId!)) {
                     fastify.connections.delete(userId!);
-                    notifyFriends(userId!, 'User logged out', 'LOGOUT').catch(
-                        (error) => {
-                            console.error('Error in notifying friends:', error);
-                        },
-                    );
+                    notifyFriends(
+                        userId!,
+                        userName + ' is offline',
+                        'LOGOUT',
+                    ).catch((error) => {
+                        console.error('Error in notifying friends:', error);
+                    });
                 }
             });
             socket.on('error', (err) => {

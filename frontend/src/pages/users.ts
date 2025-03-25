@@ -62,6 +62,7 @@ export default class UsersPageComponent extends Component {
     }
 
     public render(parent: HTMLElement | Component): void {
+        if (!State.getState()?.getCurrentUser()) return;
         State.getState()
             .getAuthSocket()
             ?.addEventListener('message', (event) => {
@@ -89,8 +90,24 @@ export default class UsersPageComponent extends Component {
                                 : d,
                         );
                     }
-                    this.render(this.parent);
                 }
+
+                if (data.type == 'LOGOUT') {
+                    console.log(JSON.stringify(data));
+                    this.data = this.data.map((d: any) =>
+                        d.user?.id == data.id
+                            ? { ...d, user: { ...d.user, isOnline: false } }
+                            : d,
+                    );
+                } else if (data.type == 'LOGIN') {
+                    console.log(JSON.stringify(data));
+                    this.data = this.data.map((d: any) =>
+                        d.user?.id == data.id
+                            ? { ...d, user: { ...d.user, isOnline: true } }
+                            : d,
+                    );
+                }
+                this.render(this.parent);
             });
 
         this.element.innerHTML = '';
@@ -151,6 +168,7 @@ export default class UsersPageComponent extends Component {
                         label: 'Unfriend',
                     },
                 ],
+                true,
             );
             const pendingReceived = new UserGridComponent(
                 'Pending',

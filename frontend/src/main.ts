@@ -46,8 +46,9 @@ const render = () => {
     });
 
     window.addEventListener('pushstate', (e) => {
-        navigator.changeSelection(new URL(window.location.href).pathname);
-        console.log('Auth token is: ' + State.getState().getAuthToken());
+        const pathName = new URL(window.location.href).pathname;
+        navigator.changeSelection(pathName);
+        if (pathName == '/login') navigator.render(root);
     });
 
     window.addEventListener('userChange', (e) => {
