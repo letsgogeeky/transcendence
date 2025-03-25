@@ -2,7 +2,7 @@ import { showToast, ToastState } from '../components/Toast';
 import State from './state';
 
 export default class WebSocketService {
-    private socket: WebSocket | null = null;
+    public socket: WebSocket | null = null;
     private url: string;
     private reconnectInterval: number = 1000;
     private reconnectAttempts: number = 0;
@@ -30,7 +30,7 @@ export default class WebSocketService {
 
         this.socket.addEventListener('message', (event) => {
             console.log('Received message:', event.data);
-            showToast(ToastState.NOTIFICATION, event.data);
+            showToast(ToastState.NOTIFICATION, JSON.parse(event.data).message);
         });
 
         this.socket.addEventListener('error', (event) => {

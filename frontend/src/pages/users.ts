@@ -25,11 +25,10 @@ export default class UsersPageComponent extends Component {
         this.element = document.createElement('div');
         const errorText = document.createElement('p');
         errorText.textContent = 'users';
-
         this.element.appendChild(errorText);
     }
 
-    static sendFriendRequest(userData: any) {
+    private sendFriendRequest(userData: any) {
         if (!userData.request) {
             const friendRequestData = {
                 receiverId: userData.user.id,
@@ -44,7 +43,7 @@ export default class UsersPageComponent extends Component {
         }
     }
 
-    static acceptRequest(data: any) {
+    private acceptRequest(data: any) {
         sendRequest(
             `/friend-requests/${data.request.id}/accept`,
             'PUT',
@@ -53,7 +52,7 @@ export default class UsersPageComponent extends Component {
         );
     }
 
-    static declineRequest(data: any) {
+    private declineRequest(data: any) {
         sendRequest(
             `/friend-requests/${data.request.id}/delete`,
             'PUT',
@@ -63,6 +62,37 @@ export default class UsersPageComponent extends Component {
     }
 
     public render(parent: HTMLElement | Component): void {
+        State.getState()
+            .getAuthSocket()
+            ?.addEventListener('message', (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type == 'FRIEND_REQUEST') {
+                    if (data.data.status == 'DELETED') {
+                        this.data = this.data.map((d: any) =>
+                            d.request?.id == data.data.id
+                                ? { ...d, request: null }
+                                : d,
+                        );
+                    } else if (data.data.status == 'ACCEPTED') {
+                        this.data = this.data.map((d: any) =>
+                            d.request?.id == data.data.id
+                                ? { ...d, request: data.data }
+                                : d,
+                        );
+                    } else if (data.data.status == 'PENDING') {
+                        this.data = this.data.map((d: any) =>
+                            d.user.id == data.data.sender ||
+                            (d.user.id == data.data.receiver &&
+                                data.data.sender ==
+                                    State.getState().getCurrentUser()!.id)
+                                ? { ...d, request: data.data }
+                                : d,
+                        );
+                    }
+                    this.render(this.parent);
+                }
+            });
+
         this.element.innerHTML = '';
         const userSearchInput = new Input(
             'Search for user',
@@ -117,7 +147,7 @@ export default class UsersPageComponent extends Component {
                 friends,
                 [
                     {
-                        callback: UsersPageComponent.declineRequest,
+                        callback: this.declineRequest,
                         label: 'Unfriend',
                     },
                 ],
@@ -128,11 +158,11 @@ export default class UsersPageComponent extends Component {
                 pendingReceivedReq,
                 [
                     {
-                        callback: UsersPageComponent.acceptRequest,
+                        callback: this.acceptRequest,
                         label: 'Confirm',
                     },
                     {
-                        callback: UsersPageComponent.declineRequest,
+                        callback: this.declineRequest,
                         label: 'Decline',
                     },
                 ],
@@ -141,6 +171,12 @@ export default class UsersPageComponent extends Component {
                 'Pending',
                 pendingSentReq.map((rel: any) => rel.user),
                 pendingSentReq,
+                [
+                    {
+                        callback: this.declineRequest,
+                        label: 'Cancel',
+                    },
+                ],
             );
             const strangers = new UserGridComponent(
                 'People you might know',
@@ -148,7 +184,7 @@ export default class UsersPageComponent extends Component {
                 strangerUsers,
                 [
                     {
-                        callback: UsersPageComponent.sendFriendRequest,
+                        callback: this.sendFriendRequest,
                         label: 'Add Friend',
                     },
                 ],

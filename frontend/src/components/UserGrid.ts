@@ -53,7 +53,9 @@ export default class UserGridComponent extends Component {
         actions.forEach((action) => {
             const actionButton = new Button(
                 action.label,
-                () => action.callback(data),
+                function () {
+                    action.callback(data);
+                },
                 `px-3 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 active:scale-95 transition`,
             );
             gridContainer.appendChild(actionButton.element);
