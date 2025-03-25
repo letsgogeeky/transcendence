@@ -20,9 +20,7 @@ export default abstract class Component {
         }
     }
 
-    async fetchData() {
-        console.log('fetching data');
-    }
+    async fetchData(): Promise<any> {}
 
     disable() {
         if (

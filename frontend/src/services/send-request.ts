@@ -10,7 +10,6 @@ export enum Services {
 export const endpoints = {
     auth: 'https://localhost:8081',
     authSocket: 'wss://localhost:8081/socket/',
-    friends: 'https://localhost:8080',
 };
 
 const noRetryRoutes = [
@@ -70,9 +69,6 @@ export default async function sendRequest(
     switch (service) {
         case Services.AUTH:
             url = endpoints.auth;
-            break;
-        case Services.FRIENDS:
-            url = endpoints.friends;
             break;
         default:
             break;

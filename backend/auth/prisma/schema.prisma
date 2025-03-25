@@ -37,6 +37,8 @@ model User {
   otpBase32   String?
   loginLevel LoginLevel  @default(NONE) //just so that prisma generates LoginLevel enum correctly.
 
+  sentRequests    Friends[] @relation("SenderRelation")
+  receivedRequests Friends[] @relation("ReceiverRelation")
   @@map(name: "users")
 
 }
@@ -51,4 +53,6 @@ model Friends {
   sender                  String
   receiver                String
   status                FriendRequestStatus
+  senderUser   User @relation("SenderRelation", fields: [sender], references: [id])
+  receiverUser User @relation("ReceiverRelation", fields: [receiver], references: [id])
 }
