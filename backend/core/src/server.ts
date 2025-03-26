@@ -24,7 +24,6 @@ declare module 'fastify' {
             FRONTEND: string;
             SSL_KEY_PATH: string;
             SSL_CERT_PATH: string;
-            SSL_PASSPHRASE: string;
         };
         prisma: PrismaClient;
         connections: Map<string, WebSocket>;
@@ -44,7 +43,6 @@ const server = fastify({
     // https: {
     //     key: fs.readFileSync(keyPath),
     //     cert: fs.readFileSync(certPath),
-    //     passphrase: process.env.SSL_PASSPHRASE,
     // },
 });
 

@@ -22,7 +22,6 @@ declare module 'fastify' {
             FRONTEND: string;
             SSL_KEY_PATH: string;
             SSL_CERT_PATH: string;
-            SSL_PASSPHRASE: string;
         };
         prisma: PrismaClient;
         chatConnections: Map<string, WebSocket>;

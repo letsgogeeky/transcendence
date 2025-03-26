@@ -10,7 +10,7 @@ import fastifySwagger from '@fastify/swagger';
 import fastifyPlugin from 'fastify-plugin';
 
 const swaggerOptions = {
-    routePrefix: '/docs',
+    routePrefix: '/chat/docs',
     swagger: {
         info: {
             title: 'Chat API',
@@ -25,7 +25,7 @@ const swaggerOptions = {
 };
 
 const swaggerUiOptions = {
-    routePrefix: '/docs',
+    routePrefix: '/chat/docs',
     uiConfig: {
         docExpansion: 'full' as const,
         deepLinking: true as const,
@@ -55,7 +55,7 @@ export const app = fastifyPlugin((chatServer: FastifyInstance, _options: Fastify
             
     chatServer.register(fastifySwagger, swaggerOptions);
     chatServer.register(fastifySwaggerUi, swaggerUiOptions);
-    chatServer.register(demoRoutes, { prefix: '/demo' });
-    chatServer.register(chatHistoryRoutes, { prefix: '/history' });
+    chatServer.register(demoRoutes, { prefix: '/chat/demo' });
+    chatServer.register(chatHistoryRoutes, { prefix: '/chat/history' });
     chatServer.register(chatRoutes, { prefix: '/chat' });
 });
