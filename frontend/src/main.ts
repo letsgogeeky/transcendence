@@ -18,7 +18,6 @@ const render = () => {
         : null;
     if (authToken && !State.getState().getAuthToken()) {
         State.getState().setAuthToken(authToken);
-        console.log('Auth token is: ' + State.getState().getAuthToken());
     }
     if (!State.getState().getCurrentUser()) {
         State.getState().setCurrentUser(currentUser);
@@ -53,8 +52,6 @@ const render = () => {
 
     window.addEventListener('userChange', (e) => {
         const user = State.getState().getCurrentUser();
-        console.log('user changed it it');
-        console.log(user);
         if (user) {
             navigator.displayTab('/register', false);
             navigator.displayTab('/logout', true);
@@ -75,6 +72,8 @@ const render = () => {
                 } catch (error) {}
             }),
         );
+        console.log('should rerender');
+        navigator.render(root);
     });
 };
 

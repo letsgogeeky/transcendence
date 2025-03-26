@@ -9,12 +9,14 @@ export default class WebSocketService {
 
     constructor(url: string) {
         this.url = url;
+        console.log('CONSTRUCTOR');
         this.connect();
     }
 
     private connect(): void {
         console.log('Connecting to WebSocket...');
         if (!State.getState().getAuthToken()) return;
+
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {
@@ -24,7 +26,6 @@ export default class WebSocketService {
                     token: State.getState().getAuthToken(),
                 }),
             );
-            console.log('Connected to WebSocket server');
             this.reconnectAttempts = 0;
         });
 
@@ -39,11 +40,23 @@ export default class WebSocketService {
                 );
                 this.reconnectAttempts = 11;
                 document.title += ' (Offline)';
-            } else
+            } else if (data.type == 'RETRY') {
+                this.reconnect();
+            } else if (data.type == 'SUCCESS') {
+                window.dispatchEvent(new Event('userChange'));
+                document.title = document.title.replace(/ \(Offline\)$/, '');
                 showToast(
                     ToastState.NOTIFICATION,
                     JSON.parse(event.data).message,
                 );
+            } else {
+                showToast(
+                    ToastState.NOTIFICATION,
+                    JSON.parse(event.data).message,
+                );
+            }
+
+            window.dispatchEvent(new Event('userChange'));
         });
 
         this.socket.addEventListener('error', (event) => {

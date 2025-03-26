@@ -13,8 +13,7 @@ export function logoutRoutes(fastify: FastifyInstance) {
         res.clearCookie('refreshToken', { path: '/refresh' });
         res.clearCookie('userId', { path: '/socket' });
         res.clearCookie('userName', { path: '/socket' });
-
         res.send({ message: 'Logged out' });
-        fastify.connections.get(req.user)?.terminate();
+        fastify.connections.get(req.user)?.close();
     });
 }
