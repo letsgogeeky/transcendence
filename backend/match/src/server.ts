@@ -7,14 +7,13 @@ import { WebSocket } from 'ws';
 import fpSqlitePlugin from "fastify-sqlite-typed";
 import fastifyCors from "@fastify/cors";
 import prismaPlugin from "./plugins/prisma.js";
+import fastifyJwt from "@fastify/jwt";
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    avatarUrl: string;
+declare module '@fastify/jwt' {
+    interface FastifyJWT {
+        user: string;
+    }
 }
-
 declare module 'fastify' {
     interface FastifyInstance {
         config: {
@@ -26,15 +25,10 @@ declare module 'fastify' {
             SSL_KEY_PATH: string;
             SSL_CERT_PATH: string;
             SSL_PASSPHRASE: string;
+            SECRET: string;
         };
         prisma: PrismaClient;
         connections: Map<string, WebSocket>;
-    }
-}
-
-declare module 'fastify' {
-    interface FastifyRequest {
-        user?: User;
     }
 }
 
@@ -57,6 +51,9 @@ const start = async () => {
             origin: [server.config.FRONTEND],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Content-Type', 'Authorization'],
+        });
+        server.register(fastifyJwt, {
+            secret: server.config.SECRET,
         });
         await server.register(fpSqlitePlugin, {
             dbFilename: server.config.DB_PATH,

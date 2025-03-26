@@ -55,7 +55,7 @@ export function chatRoutes(app: FastifyInstance) {
                 socket.close();
                 return;
             }
-            app.connections.set(req.user.id, socket);
+            app.connections.set(req.user, socket);
             socket.on('message', (message) => {
                 (async () => {
                     console.log(message);
@@ -71,10 +71,10 @@ export function chatRoutes(app: FastifyInstance) {
                                     participants: true,
                                 },
                             });
-                            const user_ids = match?.participants.map((participant) => participant.userId);
+                            const user_ids = match?.participants.map((participant: { userId: string }) => participant.userId);
                             if (user_ids) {
-                                const clients = user_ids.map((user_id) => app.connections.get(user_id));
-                                clients.forEach(client => {
+                                const clients = user_ids.map((user_id: string) => app.connections.get(user_id));
+                                clients.forEach((client) => {
                                     if (client) {
                                         client.send(JSON.stringify(paddleMove));
                                     }
@@ -94,10 +94,10 @@ export function chatRoutes(app: FastifyInstance) {
                                     participants: true,
                                 },
                             });
-                            const user_ids = match?.participants.map((participant) => participant.userId);
+                            const user_ids = match?.participants.map((participant: { userId: string }) => participant.userId);
                             if (user_ids) {
-                                const clients = user_ids.map((user_id) => app.connections.get(user_id));
-                                clients.forEach(client => {
+                                const clients = user_ids.map((user_id: string) => app.connections.get(user_id));
+                                clients.forEach((client) => {
                                     if (client) {
                                         client.send(JSON.stringify(ballMove));
                                     }
@@ -117,10 +117,10 @@ export function chatRoutes(app: FastifyInstance) {
                                     participants: true,
                                 },
                             });
-                            const user_ids = match?.participants.map((participant) => participant.userId);
+                            const user_ids = match?.participants.map((participant: { userId: string }) => participant.userId);
                             if (user_ids) {
-                                const clients = user_ids.map((user_id) => app.connections.get(user_id));
-                                clients.forEach(client => {
+                                const clients = user_ids.map((user_id: string) => app.connections.get(user_id));
+                                clients.forEach((client) => {
                                     if (client) {
                                         client.send(JSON.stringify(score));
                                     }
@@ -140,10 +140,10 @@ export function chatRoutes(app: FastifyInstance) {
                                     participants: true,
                                 },
                             });
-                            const user_ids = match?.participants.map((participant) => participant.userId);
+                            const user_ids = match?.participants.map((participant: { userId: string }) => participant.userId);
                             if (user_ids) {
-                                const clients = user_ids.map((user_id) => app.connections.get(user_id));
-                                clients.forEach(client => {
+                                const clients = user_ids.map((user_id: string) => app.connections.get(user_id));
+                                clients.forEach((client) => {
                                     if (client) {
                                         client.send(JSON.stringify(joinLeaveMatch));
                                     }
@@ -157,7 +157,7 @@ export function chatRoutes(app: FastifyInstance) {
                         }
                     }
                     else {
-                        console.log(`Received non-string message from ${req.user?.id}`);
+                        console.log(`Received non-string message from ${req.user}`);
                     }
                 })().catch(error => {
                     console.error('Error handling message:', error);
@@ -170,14 +170,14 @@ export function chatRoutes(app: FastifyInstance) {
                     return;
                 }
                 const user = req.user;
-                app.connections.delete(user.id);
+                app.connections.delete(user);
                 // Announce user left the match
                 // get current match that includes the user
                 const match = await app.prisma.match.findFirst({
                     where: {
                         participants: {
                             some: {
-                                userId: user.id,
+                                userId: user,
                             },
                         },
                     },
@@ -186,14 +186,14 @@ export function chatRoutes(app: FastifyInstance) {
                     },
                 });
                 if (match) {
-                    const clients = match.participants.map((participant) => app.connections.get(participant.userId));
-                    clients.forEach(client => {
+                    const clients = match.participants.map((participant: { userId: string }) => app.connections.get(participant.userId));
+                    clients.forEach((client) => {
                         if (client) {
                             client.send(JSON.stringify({
                                 type: messageTypes.JOIN_LEAVE_MATCH,
                                 match_id: match.id,
                                 data: {
-                                    user_id: user.id,
+                                    user_id: user,
                                 },
                             }));
                         }
@@ -202,7 +202,7 @@ export function chatRoutes(app: FastifyInstance) {
                 // TODO: handle game end
                 // Update match if the user was in the middle of a match
 
-                console.log(`User ${req.user.id} disconnected`);
+                console.log(`User ${req.user} disconnected`);
                 socket.close();
                 return;
             }));

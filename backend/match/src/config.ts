@@ -8,6 +8,7 @@ const schema = {
         'SSL_CERT_PATH',
         'SSL_PASSPHRASE',
         'FRONTEND',
+        'SECRET',
     ],
     properties: {
         DB_PATH: { type: 'string' },
@@ -17,6 +18,7 @@ const schema = {
         SSL_CERT_PATH: { type: 'string' },
         SSL_PASSPHRASE: { type: 'string' },
         FRONTEND: { type: 'string' },
+        SECRET: { type: 'string' },
     },
 };
 

@@ -1,13 +1,14 @@
 // endpoints to get match history and match details for a user or a list of users
 
 import { FastifyInstance } from "fastify";
-
+import credentialAuthCheck from "../../plugins/validateToken.js";
 interface HistoryRequestParams {
     userId: string;
     matchId: string;
 }
 
 export default function historyRoutes(app: FastifyInstance) {
+    app.register(credentialAuthCheck);
     app.get<{ Params: HistoryRequestParams }>("/user/:userId", async (request, reply) => {
         const { userId } = request.params;
         const matches = await app.prisma.match.findMany({
