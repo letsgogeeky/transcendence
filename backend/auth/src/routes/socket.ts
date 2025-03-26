@@ -65,21 +65,31 @@ export function SocketRoutes(fastify: FastifyInstance) {
         },
         wsHandler: (socket, req) => {
             const { userId, userName } = req.cookies;
+            if (!userId) socket.terminate();
+
             socket.on('message', (message: string) => {
                 console.log('Received:' + message);
                 const data = JSON.parse(message) as SocketData;
                 if (data.type == 'AUTH') {
                     const id = verifyToken(data.token);
                     if (id) {
-                        console.log('id is ' + id);
-                        console.log([...fastify.connections.keys()]);
-                        if (fastify.connections.has(id)) {
+                        if (fastify.connections.has(userId!)) {
                             const message = { type: 'CONFLICT' };
-                            const oldSocket = fastify.connections.get(id);
+                            const oldSocket = fastify.connections.get(userId!);
                             oldSocket!.send(JSON.stringify(message));
                             oldSocket!.close();
+                            fastify.connections.delete(userId!);
+                            socket.send(JSON.stringify({ type: 'RETRY' }));
+                            return;
                         }
                         fastify.connections.set(id, socket);
+                        const message = {
+                            type: 'SUCCESS',
+                            message: 'Welcome ' + userName,
+                        };
+                        fastify.connections
+                            .get(id)!
+                            .send(JSON.stringify(message));
                         notifyFriends(
                             id,
                             userName + ' is online',
@@ -91,8 +101,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
                 }
             });
             socket.on('close', () => {
-                if (fastify.connections.get(userId!)) {
-                    fastify.connections.delete(userId!);
+                if (fastify.connections.delete(userId!)) {
                     notifyFriends(
                         userId!,
                         userName + ' is offline',
@@ -103,6 +112,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
                 }
             });
             socket.on('error', (err) => {
+                fastify.connections.delete(userId!);
                 console.error('WebSocket Error:', err);
             });
         },
