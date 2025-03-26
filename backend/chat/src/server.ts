@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { WebSocket } from 'ws';
 import fpSqlitePlugin from "fastify-sqlite-typed";
 import fastifyCors from "@fastify/cors";
-
+import fs from 'fs';
 interface User {
     id: string;
     name: string;
@@ -24,7 +24,6 @@ declare module 'fastify' {
             FRONTEND: string;
             SSL_KEY_PATH: string;
             SSL_CERT_PATH: string;
-            SSL_PASSPHRASE: string;
         };
         prisma: PrismaClient;
         chatConnections: Map<string, WebSocket>;
@@ -37,15 +36,14 @@ declare module 'fastify' {
     }
 }
 
-// const keyPath = process.env.SSL_KEY_PATH || 'key.pem';
-// const certPath = process.env.SSL_CERT_PATH || 'cert.pem';
+const keyPath = process.env.SSL_KEY_PATH || 'key.pem';
+const certPath = process.env.SSL_CERT_PATH || 'cert.pem';
 const chatServer = fastify({
     logger: true,
-    // https: {
-    //     key: fs.readFileSync(keyPath),
-    //     cert: fs.readFileSync(certPath),
-    //     passphrase: process.env.SSL_PASSPHRASE,
-    // },
+    https: {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath),
+    },
 });
 
 
@@ -62,7 +60,7 @@ const start = async () => {
             driverSettings: { verbose: true },
         });
         await chatServer.register(app, options);
-        await chatServer.listen({ port: chatServer.config.PORT });
+        await chatServer.listen({ port: chatServer.config.PORT, host: '0.0.0.0' });
     } catch (err) {
         chatServer.log.error(err);
         process.exit(1);

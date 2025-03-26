@@ -9,21 +9,31 @@ run-frontend: build-frontend
 build-auth:
 	docker compose build auth
 
+run:
+	mkdir -p ./uploads
+	mkdir -p ./db
+	docker compose up --build
+
 up:
 	@docker compose -f ./docker-compose.yml up --build -d
 
-down : 
+down: 
 	@docker compose -f ./docker-compose.yml down
 
-stop : 
+stop: 
 	@docker compose -f ./docker-compose.yml stop
 
-start : 
+start: 
 	@docker compose -f ./docker-compose.yml start
 
-status : 
-	docker compose -f ./docker-compose.yml ps
+status:
+	@docker compose -f ./docker-compose.yml ps
 
 clean: stop
+
+generate-certs:
+	openssl genrsa -out certs/server.key 2048
+	openssl req -new -key certs/server.key -out certs/server.csr -subj "/CN=localhost"
+	openssl x509 -req -days 365 -in certs/server.csr -signkey certs/server.key -out certs/server.crt
 
 # docker-compose up -d

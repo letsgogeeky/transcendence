@@ -6,7 +6,6 @@ const schema = {
         'UPLOAD_DIR',
         'SSL_KEY_PATH',
         'SSL_CERT_PATH',
-        'SSL_PASSPHRASE',
         'FRONTEND',
     ],
     properties: {
@@ -15,7 +14,6 @@ const schema = {
         UPLOAD_DIR: { type: 'string' },
         SSL_KEY_PATH: { type: 'string' },
         SSL_CERT_PATH: { type: 'string' },
-        SSL_PASSPHRASE: { type: 'string' },
         FRONTEND: { type: 'string' },
     },
 };
