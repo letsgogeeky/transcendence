@@ -40,3 +40,6 @@ Icon?
 *.srl
 *.csr
 *.crt
+
+uploads/
+db/
