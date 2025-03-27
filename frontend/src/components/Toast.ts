@@ -21,7 +21,8 @@ export function showToast(state: ToastState, message: string, duration = 5000) {
     toast.textContent = message;
     toast.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 ${colors[state]} text-white px-4 py-2 rounded shadow-md transition-opacity opacity-100`;
     document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.remove();
-    }, duration);
+    if (duration)
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
 }

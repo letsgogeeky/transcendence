@@ -64,6 +64,12 @@ export function userRoutes(fastify: FastifyInstance) {
                     emailValidated: true,
                 },
             });
+            reply.setCookie('userName', user.name, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'lax',
+                path: '/socket',
+            });
             reply.send(user);
         },
     );

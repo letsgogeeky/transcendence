@@ -1,3 +1,4 @@
+import AvatarImageComponent from '../../components/AvatarImage';
 import Component from '../../components/Component';
 import FormComponent from '../../components/Form/Form';
 import Input from '../../components/Form/Input';
@@ -64,12 +65,11 @@ export default class UserSettingsComponent extends Component {
         const title = document.createElement('h1');
         this.element.append(title);
 
-        const imageContainer = document.createElement('div');
-        const avatar = document.createElement('img');
-        avatar.className = 'w-32 h-32 rounded-full object-cover';
-        avatar.src = endpoints.auth + '/' + user.avatarUrl!;
-        imageContainer.append(avatar);
-        this.element.append(avatar);
+        const avatar = new AvatarImageComponent(
+            'My Avatar',
+            endpoints.auth + '/' + user.avatarUrl!,
+        );
+        avatar.render(this.element);
 
         const uploadAvatarForm = new AvatarUploadComponent(
             null,

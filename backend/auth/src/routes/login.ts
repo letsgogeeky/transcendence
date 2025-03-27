@@ -24,11 +24,6 @@ export async function successfulLogin(
         },
         { expiresIn: '10m', key: fastify.config.SECRET },
     );
-    console.log(
-        'gave them  a token that si complete? ' + user.otpMethod && !complete
-            ? 'LoginLevel.CREDENTIALS'
-            : 'LoginLevel.FULL',
-    );
     const refreshToken = fastify.jwt.sign(
         { id: user.id },
         { expiresIn: '7d', key: fastify.config.REFRESH_SECRET },
@@ -40,6 +35,12 @@ export async function successfulLogin(
         path: '/refresh',
     });
     reply.setCookie('userId', user.id, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/socket',
+    });
+    reply.setCookie('userName', user.name, {
         httpOnly: true,
         secure: true,
         sameSite: 'lax',

@@ -16,9 +16,39 @@ export default class LoginComponent extends Component {
         container.style.display = 'flex';
         container.style.flexDirection = 'column';
         container.style.gap = '10px';
+        const title = document.createElement('h1');
 
+        container.append(title);
+        this.element = container;
+    }
+
+    static loginCallback(data: any): void {
+        LoginComponent.setUserFromResponse(data);
+        if (data.otpMethod) {
+            window.history.pushState(
+                { path: '/login/2fa' },
+                '/login/2fa',
+                '/login/2fa',
+            );
+        }
+    }
+
+    static setUserFromResponse(data: any): void {
+        localStorage.setItem('authToken', data.authToken);
+        State.getState().setAuthToken(data.authToken);
+        if (data.user) {
+            localStorage.setItem(
+                'currentUser',
+                JSON.stringify(data.user || null),
+            );
+            State.getState().setCurrentUser(data.user);
+            window.history.pushState({ path: '/' }, '', '/');
+        }
+    }
+
+    public render(parent: HTMLElement | Component): void {
+        this.element.innerHTML = '';
         const inputStyle = 'border border-gray-300 rounded p-2 w-full';
-
         const emailInput = new Input(
             'email',
             'email',
@@ -42,12 +72,8 @@ export default class LoginComponent extends Component {
             (data) => sendRequest('/login', 'POST', data, Services.AUTH),
             LoginComponent.loginCallback,
         );
-
         form.className = 'flex flex-col gap-4 w-64';
-        const title = document.createElement('h1');
 
-        container.append(title);
-        this.element = container;
         form.render(this.element);
         const forgotPasswordLink = new LinkComponent(
             'Forgot my password',
@@ -60,29 +86,6 @@ export default class LoginComponent extends Component {
             () => (window.location.href = endpoints.auth + '/login/google'),
         );
         loginWithGoogle.render(this.element);
-    }
-
-    static loginCallback(data: any): void {
-        LoginComponent.setUserFromResponse(data);
-        if (data.otpMethod) {
-            window.history.pushState(
-                { path: '/login/2fa' },
-                '/login/2fa',
-                '/login/2fa',
-            );
-        }
-    }
-
-    static setUserFromResponse(data: any): void {
-        localStorage.setItem('authToken', data.authToken);
-        State.getState().setAuthToken(data.authToken);
-        if (data.user) {
-            localStorage.setItem(
-                'currentUser',
-                JSON.stringify(data.user || null),
-            );
-            State.getState().setCurrentUser(data.user);
-            window.history.pushState({ path: '/' }, '/', '/');
-        }
+        super.render(parent);
     }
 }

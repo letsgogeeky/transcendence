@@ -10,7 +10,6 @@ export enum Services {
 export const endpoints = {
     auth: 'https://localhost:8081',
     authSocket: 'wss://localhost:8081/socket/',
-    friends: 'https://localhost:8080',
 };
 
 const noRetryRoutes = [
@@ -23,8 +22,8 @@ const noRetryRoutes = [
     '/login/google/auth',
 ];
 
-export async function tryRefresh(): Promise<boolean> {
-    if (!State.getState().getAuthToken()) return false;
+export async function tryRefresh(): Promise<string | null> {
+    if (!State.getState().getAuthToken()) return null;
     let response = await fetch(endpoints.auth + '/refresh', {
         method: 'GET',
         headers: {
@@ -35,12 +34,12 @@ export async function tryRefresh(): Promise<boolean> {
     });
 
     if (!response.ok) {
-        return false;
+        return null;
     } else {
         const responseBody = await response.json();
         localStorage.setItem('authToken', responseBody.authToken);
         State.getState().setAuthToken(responseBody.authToken);
-        return true;
+        return responseBody.authToken;
     }
 }
 
@@ -52,8 +51,12 @@ export async function retryFetch(
     let response = await fetch(input, init);
     if (!noretry && !response.ok && response.status == 401) {
         const refreshSuccess = await tryRefresh();
+        init!.headers = {
+            ...init?.headers,
+            Authorization: `Bearer ${refreshSuccess}`,
+        };
         if (refreshSuccess) return fetch(input, init);
-        else throw Error('Unauthorized');
+        else window.history.pushState({ path: '/login' }, '', '/login');
     }
     return response;
 }
@@ -70,9 +73,6 @@ export default async function sendRequest(
     switch (service) {
         case Services.AUTH:
             url = endpoints.auth;
-            break;
-        case Services.FRIENDS:
-            url = endpoints.friends;
             break;
         default:
             break;

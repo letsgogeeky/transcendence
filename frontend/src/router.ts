@@ -1,5 +1,4 @@
 import Component from './components/Component';
-import ErrorComponent from './pages/error';
 import HomeComponent from './pages/home';
 import LoginComponent from './pages/login';
 import LoginOtpComponent from './pages/login-2fa';
@@ -8,8 +7,10 @@ import LogoutComponent from './pages/logout';
 import NotFoundComponent from './pages/notfound';
 import ForgotPasswordComponent from './pages/password/forgot-password';
 import ResetPasswordComponent from './pages/password/reset-password';
+import ProfileComponent from './pages/profile';
 import RegisterComponent from './pages/register';
 import UserSettingsComponent from './pages/settings/settings';
+import UsersPageComponent from './pages/users';
 
 export type Route = {
     path: string;
@@ -20,16 +21,16 @@ export type Route = {
 
 export const routes: Route[] = [
     { path: '/', title: 'Home', component: new HomeComponent(), visible: true },
-    // {
-    //     path: '/profile',
-    //     title: 'My Profile',
-    //     component: new ErrorComponent('my profile'),
-    //     visible: true,
-    // },
+    {
+        path: '/profile',
+        title: 'User profile',
+        component: new ProfileComponent(),
+        visible: false,
+    },
     {
         path: '/users',
         title: 'Users',
-        component: new ErrorComponent('users'),
+        component: new UsersPageComponent(),
         visible: true,
     },
     {
