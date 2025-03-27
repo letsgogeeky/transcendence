@@ -14,6 +14,7 @@ export default function demoRoutes(app: FastifyInstance) {
             data: {
                 gameType: "Pong",
                 userId: user1.id,
+                status: "completed",
                 createdAt: new Date(2024, 1, 1),
                 updatedAt: new Date(2024, 1, 1),
             },
@@ -36,6 +37,7 @@ export default function demoRoutes(app: FastifyInstance) {
             data: {
                 gameType: "Pong",
                 userId: user1.id,
+                status: "completed",
                 participants: {
                     create: [
                         {

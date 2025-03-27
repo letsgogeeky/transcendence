@@ -6,6 +6,9 @@ import fastifySwagger from '@fastify/swagger';
 import fastifyPlugin from 'fastify-plugin';
 import demoRoutes from './routes/http/demo.js';
 import historyRoutes from './routes/http/history.js';
+import { gameRoutes } from './routes/ws/game.js';
+import { tournamentRoutes } from './routes/http/tournament.js';
+
 const swaggerOptions = {
     routePrefix: '/docs',
     swagger: {
@@ -38,4 +41,6 @@ export const app = fastifyPlugin((server: FastifyInstance, _options: FastifyPlug
     // TODO: Add routes here
     server.register(demoRoutes, { prefix: '/demo' });
     server.register(historyRoutes, { prefix: '/history' });
+    server.register(gameRoutes, { prefix: '/game' });
+    server.register(tournamentRoutes, { prefix: '/tournament' });
 });

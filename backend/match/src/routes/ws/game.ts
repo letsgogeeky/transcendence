@@ -1,4 +1,4 @@
-// a websocket route for chat
+// a websocket route for game
 
 import { FastifyInstance } from "fastify";
 
@@ -41,12 +41,12 @@ const messageTypes = {
     JOIN_LEAVE_MATCH: 'join_leave_match',
 }
 
-export function chatRoutes(app: FastifyInstance) {
+export function gameRoutes(app: FastifyInstance) {
     app.route({
         method: 'GET',
         url: '/',
         handler: (request, reply) => {
-            reply.send('Chat WebSocket!');
+            reply.send('Game WebSocket!');
         },
         wsHandler: (socket, req) => {
             console.log('WebSocket Connected!');

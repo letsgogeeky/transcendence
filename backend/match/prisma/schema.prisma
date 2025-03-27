@@ -7,6 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// tournament and matchmaking models
+
+model Tournament {
+  id          String    @id @default(uuid())
+  name        String
+  status      String    // active, inactive, completed
+  options     Json      // { winCondition: "score", winScore: 10 } or { winCondition: "time", winTime: 10 }
+  createdAt   DateTime  @default(now())
+  participants TournamentParticipant[]
+  matches Match[]
+}
+
+model TournamentParticipant {
+  id          String    @id @default(uuid())
+  tournamentId String    // References Tournament from tournament schema
+  userId      String    // References User from auth schema
+  status      String    // active, eliminated, winner
+  createdAt   DateTime  @default(now())
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
+}
+
 
 // a model for the legendary Pong game enabling multiplayer real-time games
 
@@ -14,11 +35,14 @@ model Match {
   id          String    @id @default(uuid())
   userId      String    // References User from auth schema
   gameType    String    // Pong, Tic Tac Toe, etc.
+  status      String    // pending, in progress, completed
+  tournamentId String    // References Tournament from tournament schema
   createdAt   DateTime  @default(now())
   updatedAt   DateTime?  @updatedAt  // nullable
   scores      MatchScore[]
   participants MatchParticipant[]
   gameObjectCoordinates MatchObjectCoordinates[]
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
 }
 
 model MatchParticipant {
