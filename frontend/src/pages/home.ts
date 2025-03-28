@@ -86,9 +86,16 @@ export default class HomeComponent extends Component {
         logoContainer.className = 'flex justify-center items-center flex-1';
 
         const logoImage = document.createElement('img');
-        logoImage.src = '../assets/logo.png';
+        logoImage.src = './assets/PongJamLogo.png';
+		logoImage.className = 'w-full max-w-xs h-auto';
         logoImage.alt = 'Game Logo';
-        logoImage.className = 'max-w-sm'; // Adjust size of the logo
+		this.element.appendChild(logoImage);
+
+		//to verify that the image loaded correctly:
+        // logoImage.className = 'max-w-sm'; // Adjust size of the logo
+		logoImage.onerror = function() {
+			console.error("Image failed to load");
+		};
 
         // Buttons section
         const buttonContainer = document.createElement('div');
@@ -100,7 +107,9 @@ export default class HomeComponent extends Component {
         const signInButton = new Button('Sign In', () => { console.log('Sign In clicked'); });
         signInButton.element.className = 'border-2 border-white text-white py-2 px-4 rounded-lg shadow-md';
 
-        buttonContainer.append(loginButton.render(this), signInButton.render(this));
+		loginButton.render(this);
+		signInButton.render(this);
+        // buttonContainer.append(loginButton.render(this), signInButton.render(this));
 
         // Copyright section
         const copyright = document.createElement('p');
