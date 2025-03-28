@@ -69,7 +69,9 @@ export default class HomeComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'min-h-screen w-full bg-gradient-to-r from-black to-purple-900 flex flex-col';
+        this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col';
+		// this.element.className = 'w-full h-screen bg-gradient-to-r from-black via-purple-500 to-purple-700';
+
 
         // Top bar
         const topBar = document.createElement('div');

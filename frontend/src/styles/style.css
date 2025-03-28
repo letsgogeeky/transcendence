@@ -5,3 +5,9 @@
 .custom-gradient {
     background: linear-gradient(to right, black 20%, #4c1d95 80%);
 }
+
+html, body {
+    height: 100%; /* Ensure full viewport height */
+    margin: 0;    /* Remove any default margin */
+    padding: 0;   /* Remove any default padding */
+}
