@@ -56,11 +56,15 @@ const render = () => {
             navigator.displayTab('/register', false);
             navigator.displayTab('/logout', true);
             navigator.displayTab('/settings', true);
+            navigator.displayTab('/create-tournament', true);
+            navigator.displayTab('/tournament', true);
         }
         if (!user) {
             navigator.displayTab('/register', true);
             navigator.displayTab('/logout', false);
             navigator.displayTab('/settings', false);
+            navigator.displayTab('/create-tournament', false);
+            navigator.displayTab('/tournament', false);
         }
         document.querySelectorAll('#app [href^="/"]').forEach((el) =>
             el.addEventListener('click', (evt) => {

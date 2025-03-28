@@ -1,7 +1,8 @@
 import Component from '../Component';
 
 export default class Select extends Component {
-    readonly element: HTMLSelectElement;
+    selectElement: HTMLSelectElement;
+    readonly element: HTMLElement;
 
     constructor(
         label: string,
@@ -10,34 +11,42 @@ export default class Select extends Component {
         required: boolean = false,
         className: string = '',
     ) {
-        super(className);
-        this.element = document.createElement('select');
-        this.element.id = id;
-        this.element.name = id;
-        this.element.required = required;
-
+        super();
+        this.element = document.createElement('div');
+        this.element.className = 'flex items-center gap-2';
+        const labelElement = document.createElement('label');
+        labelElement.htmlFor = id;
+        labelElement.innerText = label;
+        labelElement.className = 'w-40 text-left font-medium whitespace-nowrap';
+        this.element.append(labelElement);
+        this.selectElement = document.createElement('select');
+        this.selectElement.id = id;
+        this.selectElement.name = id;
+        this.selectElement.required = required;
+        this.selectElement.className += className;
         options.forEach(({ value, text }) => {
             const option = document.createElement('option');
             option.value = value;
             option.textContent = text;
-            this.element.appendChild(option);
+            this.selectElement.appendChild(option);
         });
+        this.element.append(this.selectElement);
     }
 
     get value(): string {
-        return this.element.value;
+        return this.selectElement.value;
     }
 
     set value(newValue: string | null | undefined) {
         if (
             newValue &&
-            Array.from(this.element.options).some(
+            Array.from(this.selectElement.options).some(
                 (opt) => opt.value === newValue,
             )
         ) {
-            this.element.value = newValue;
+            this.selectElement.value = newValue;
         } else {
-            this.element.selectedIndex = 0;
+            this.selectElement.selectedIndex = 0;
         }
     }
 }

@@ -5,4 +5,5 @@ COPY . .
 RUN npm i  && \
     npx prisma generate  && \
     npx tsc
+RUN npx prisma db push
 CMD npm run start

@@ -5,8 +5,7 @@ import credentialAuthCheck from '../../plugins/validateToken.js';
 
 interface TournamentOptions {
     winCondition: string; // score or time
-    winScore: number | null;
-    winTime: number | null;
+    limit: number;
 }
 
 interface TournamentPayload {
@@ -16,7 +15,7 @@ interface TournamentPayload {
 }
 
 export function tournamentRoutes(app: FastifyInstance) {
-    app.register(credentialAuthCheck);
+    // app.register(credentialAuthCheck);
     app.get('/', async (request, reply) => {
         // get all tournaments
         const tournaments = await app.prisma.tournament.findMany({
@@ -76,8 +75,7 @@ export function tournamentRoutes(app: FastifyInstance) {
                     options: {
                         type: 'object', properties: {
                             winCondition: { type: 'string' },
-                            winScore: { type: 'number' },
-                            winTime: { type: 'number' },
+                            limit: { type: 'number' },
                         },
                         required: ['winCondition'],
                     },
@@ -89,12 +87,12 @@ export function tournamentRoutes(app: FastifyInstance) {
     async (request, reply) => {
         // create a tournament
         const { name, options, participants } = request.body as TournamentPayload;
-        if (options.winCondition === 'score' && !options.winScore) {
+        if (options.winCondition === 'score' && !options.limit) {
                 return reply.status(400).send({
                     message: 'Win score is required for score-based tournaments',
                 });
             }
-            if (options.winCondition === 'time' && !options.winTime) {
+            if (options.winCondition === 'time' && !options.limit) {
                 return reply.status(400).send({
                     message: 'Win time is required for time-based tournaments',
                 });
@@ -110,8 +108,7 @@ export function tournamentRoutes(app: FastifyInstance) {
                     name: name,
                     options: {
                         winCondition: options.winCondition,
-                        winScore: options.winScore || null,
-                        winTime: options.winTime || null,
+                        limit: options.limit,
                     },
                     status: 'active',
                     participants: {
