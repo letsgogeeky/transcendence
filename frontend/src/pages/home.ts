@@ -78,7 +78,7 @@ export default class HomeComponent extends Component {
 
 		const image = document.createElement('img');
 		image.src = './assets/background_elem.png';  // Replace with the actual path to your transparent image
-		image.className = 'w-full h-auto object-cover';  // Adjust width and height accordingly
+		image.className = 'w-full h-[300px] object-cover';  // Set width to full, height to fixed value (e.g., 200px)
 		image.style.opacity = '0.6';
 		image.alt = 'Background Image';
 		backgroundImage.appendChild(image);
@@ -92,7 +92,7 @@ export default class HomeComponent extends Component {
 
 		// Logo section
 		const logoContainer = document.createElement('div');
-		logoContainer.className = 'flex justify-center items-center w-full mb-14'; // Adds spacing below the logo
+		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
 
 		const logoImage = document.createElement('img');
 		logoImage.src = './assets/PongJamLogo.png';
