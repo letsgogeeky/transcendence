@@ -74,11 +74,11 @@ export default class HomeComponent extends Component {
 
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
-		backgroundImage.className = 'absolute top-1/2 left-0 transform -translate-y-1/2 w-auto h-auto';  // Ensures it's centered vertically and left
+		backgroundImage.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and left
 
 		const image = document.createElement('img');
 		image.src = './assets/background_elem.png';  // Replace with the actual path to your transparent image
-		image.className = 'w-auto h-auto';  // Adjust width and height accordingly
+		image.className = 'w-full h-auto object-cover';  // Adjust width and height accordingly
 		image.style.opacity = '0.6';
 		image.alt = 'Background Image';
 		backgroundImage.appendChild(image);
@@ -92,13 +92,13 @@ export default class HomeComponent extends Component {
 
 		// Logo section
 		const logoContainer = document.createElement('div');
-		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
+		logoContainer.className = 'flex justify-center items-center w-full mb-14'; // Adds spacing below the logo
 
 		const logoImage = document.createElement('img');
 		logoImage.src = './assets/PongJamLogo.png';
 		// logoImage.className = 'w-full max-w-3xl h-auto object-contain'; // 30% bigger with max-w-lg
 		// logoImage.className = 'w-full max-w-lg h-auto object-contain scale-[1.4]'; // 140% size
-		logoImage.className = 'w-full max-w-[500px] h-auto object-contain scale-[1.4]';
+		logoImage.className = 'w-full max-w-[500px] h-auto object-contain scale-[1.6]';
 
 
 		logoImage.alt = 'Game Logo';
