@@ -72,29 +72,19 @@ export default class HomeComponent extends Component {
         this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col';
 		// this.element.className = 'w-full h-screen bg-gradient-to-r from-black via-purple-500 to-purple-700';
 
+		// Logo section
+		const logoContainer = document.createElement('div');
+		logoContainer.className = 'flex justify-center items-center h-full w-full'; // Ensure full screen coverage
 
-        // // Top bar
-        const topBar = document.createElement('div');
-        topBar.className = 'flex justify-between items-center p-4 bg-black bg-opacity-60 text-white';
+		const logoImage = document.createElement('img');
+		logoImage.src = './assets/PongJamLogo.png';
+		logoImage.className = 'w-full max-w-lg h-auto object-contain'; // 30% bigger with max-w-lg
+		logoImage.alt = 'Game Logo';
+		logoContainer.appendChild(logoImage);
 
-        const homeButton = this.createNavButton('Home', '/');
-        const howToPlayButton = this.createNavButton('How to Play', '/how-to-play');
-        const aboutButton = this.createNavButton('About', '/about');
+		this.element.appendChild(logoContainer);
 
-        topBar.append(homeButton, howToPlayButton, aboutButton);
-
-        // Logo section
-        const logoContainer = document.createElement('div');
-        logoContainer.className = 'flex justify-center items-center flex-1';
-
-        const logoImage = document.createElement('img');
-        logoImage.src = './assets/PongJamLogo.png';
-		logoImage.className = 'w-full max-w-xs h-auto';
-        logoImage.alt = 'Game Logo';
-		this.element.appendChild(logoImage);
-
-		//to verify that the image loaded correctly:
-        // logoImage.className = 'max-w-sm'; // Adjust size of the logo
+		// Verify if image fails to load
 		logoImage.onerror = function() {
 			console.error("Image failed to load");
 		};
@@ -108,7 +98,7 @@ export default class HomeComponent extends Component {
 			console.log('Navigating to /login');
 			window.location.href = '/login';
 		});
-		loginButton.element.className = 'bg-white text-purple-900 py-2 px-4 rounded-lg shadow-md';
+		loginButton.element.className = 'border-2 border-white bg-white text-purple-900 py-2 px-4 rounded-lg shadow-md';
 
 		// Sign Up Button
 		const signInButton = new Button('Sign Up', () => { 
@@ -124,11 +114,11 @@ export default class HomeComponent extends Component {
 
         // Copyright section
         const copyright = document.createElement('p');
-        copyright.className = 'text-white text-sm text-left p-4';
+        copyright.className = 'text-white text-sm text-center p-20';
         copyright.textContent = '© 2025 PongJam. All rights reserved.';
 
         // Append all sections
-        this.element.append(topBar, logoContainer, buttonContainer, copyright);
+        this.element.append(logoContainer, buttonContainer, copyright);
     }
 
     private createNavButton(text: string, path: string): HTMLButtonElement {
