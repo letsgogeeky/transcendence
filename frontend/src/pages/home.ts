@@ -73,7 +73,7 @@ export default class HomeComponent extends Component {
 		// this.element.className = 'w-full h-screen bg-gradient-to-r from-black via-purple-500 to-purple-700';
 
 
-        // Top bar
+        // // Top bar
         const topBar = document.createElement('div');
         topBar.className = 'flex justify-between items-center p-4 bg-black bg-opacity-60 text-white';
 
@@ -99,19 +99,28 @@ export default class HomeComponent extends Component {
 			console.error("Image failed to load");
 		};
 
-        // Buttons section
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'flex justify-center space-x-4 mt-8';
+		// Buttons section
+		const buttonContainer = document.createElement('div');
+		buttonContainer.className = 'flex justify-center space-x-4 mt-8';
 
-        const loginButton = new Button('Log In', () => { console.log('Log In clicked'); });
-        loginButton.element.className = 'bg-white text-purple-900 py-2 px-4 rounded-lg shadow-md';
+		// Log In Button
+		const loginButton = new Button('Log In', () => { 
+			console.log('Navigating to /login');
+			window.location.href = '/login';
+		});
+		loginButton.element.className = 'bg-white text-purple-900 py-2 px-4 rounded-lg shadow-md';
 
-        const signInButton = new Button('Sign Up', () => { console.log('Sign In clicked'); });
-        signInButton.element.className = 'border-2 border-white text-white py-2 px-4 rounded-lg shadow-md';
+		// Sign Up Button
+		const signInButton = new Button('Sign Up', () => { 
+			console.log('Navigating to /register');
+			window.location.href = '/register';
+		});
+		signInButton.element.className = 'border-2 border-white text-white py-2 px-4 rounded-lg shadow-md';
 
+		// Render buttons
 		loginButton.render(this);
 		signInButton.render(this);
-        // buttonContainer.append(loginButton.render(this), signInButton.render(this));
+
 
         // Copyright section
         const copyright = document.createElement('p');
