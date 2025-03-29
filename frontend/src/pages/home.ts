@@ -67,65 +67,71 @@ export default class HomeComponent extends Component {
     readonly element: HTMLElement;
 
     constructor() {
-        super();
-        this.element = document.createElement('div');
-        this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col';
-		// this.element.className = 'w-full h-screen bg-gradient-to-r from-black via-purple-500 to-purple-700';
+		super();
+
+		this.element = document.createElement('div');
+		this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col items-center justify-center';
+
+		// Logo and Button Wrapper
+		const contentContainer = document.createElement('div');
+		contentContainer.className = 'flex flex-col items-center';
 
 		// Logo section
 		const logoContainer = document.createElement('div');
-		logoContainer.className = 'flex justify-center items-center h-full w-full'; // Ensure full screen coverage
+		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
 
 		const logoImage = document.createElement('img');
 		logoImage.src = './assets/PongJamLogo.png';
-		logoImage.className = 'w-full max-w-lg h-auto object-contain'; // 30% bigger with max-w-lg
+		// logoImage.className = 'w-full max-w-3xl h-auto object-contain'; // 30% bigger with max-w-lg
+		// logoImage.className = 'w-full max-w-lg h-auto object-contain scale-[1.4]'; // 140% size
+		logoImage.className = 'w-full max-w-[500px] h-auto object-contain scale-[1.4]';
+
+
 		logoImage.alt = 'Game Logo';
 		logoContainer.appendChild(logoImage);
 
-		this.element.appendChild(logoContainer);
-
-		// Verify if image fails to load
 		logoImage.onerror = function() {
 			console.error("Image failed to load");
 		};
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex justify-center space-x-4 mt-8';
+		buttonContainer.className = 'flex justify-center space-x-8 mt-16';
 
 		// Log In Button
 		const loginButton = new Button('Log In', () => { 
 			console.log('Navigating to /login');
 			window.location.href = '/login';
 		});
-		loginButton.element.className = 'border-2 border-white bg-white text-purple-900 py-2 px-4 rounded-lg shadow-md';
+		loginButton.element.className = 'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg shadow-md';
 
 		// Sign Up Button
 		const signInButton = new Button('Sign Up', () => { 
 			console.log('Navigating to /register');
 			window.location.href = '/register';
 		});
-		signInButton.element.className = 'border-2 border-white text-white py-2 px-4 rounded-lg shadow-md';
+		signInButton.element.className = 'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg shadow-md';
 
-		// Render buttons
-		loginButton.render(this);
-		signInButton.render(this);
+		// Append buttons to the container
+		buttonContainer.appendChild(loginButton.element);
+		buttonContainer.appendChild(signInButton.element);
 
+		contentContainer.append(logoContainer, buttonContainer);
 
-        // Copyright section
-        const copyright = document.createElement('p');
-        copyright.className = 'text-white text-sm text-center p-20';
-        copyright.textContent = '© 2025 PongJam. All rights reserved.';
+		// Copyright section
+		const copyright = document.createElement('p');
+		copyright.className = 'text-white text-xs absolute bottom-4 left-4'; // Always at the bottom left
+		copyright.textContent = '© 2025 PongJam. All rights reserved.';
 
-        // Append all sections
-        this.element.append(logoContainer, buttonContainer, copyright);
-    }
+		// Append everything to main element
+		this.element.append(contentContainer, copyright);
+	}
 
-    private createNavButton(text: string, path: string): HTMLButtonElement {
-        const button = document.createElement('button');
-        button.className = 'text-white hover:text-purple-300 p-2';
-        button.textContent = text;
-        button.onclick = () => { window.location.href = path; };
-        return button;
-    }
+	private createNavButton(text: string, path: string): HTMLButtonElement {
+		const button = document.createElement('button');
+		button.className = 'text-white hover:text-purple-300 p-2';
+		button.textContent = text;
+		button.onclick = () => { window.location.href = path; };
+		return button;
+	}
 }

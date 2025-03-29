@@ -24,7 +24,7 @@ export default class Navbar extends Component {
 		this.routes.forEach((route) => {
 			if (route.visible) {
 				const li = document.createElement('li');
-				li.className = 'text-xs hover:text-purple-400 transition duration-300'; // ⬅️ Changed from text-lg to text-sm
+				li.className = 'text-md hover:text-purple-400 transition duration-300'; // ⬅️ Changed from text-lg to text-sm
 	
 				const a = document.createElement('a');
 				a.href = route.path;
