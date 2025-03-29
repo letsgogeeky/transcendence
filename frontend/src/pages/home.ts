@@ -106,7 +106,7 @@ export default class HomeComponent extends Component {
         const loginButton = new Button('Log In', () => { console.log('Log In clicked'); });
         loginButton.element.className = 'bg-white text-purple-900 py-2 px-4 rounded-lg shadow-md';
 
-        const signInButton = new Button('Sign In', () => { console.log('Sign In clicked'); });
+        const signInButton = new Button('Sign Up', () => { console.log('Sign In clicked'); });
         signInButton.element.className = 'border-2 border-white text-white py-2 px-4 rounded-lg shadow-md';
 
 		loginButton.render(this);
