@@ -72,6 +72,20 @@ export default class HomeComponent extends Component {
 		this.element = document.createElement('div');
 		this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col items-center justify-center';
 
+		// Set the background image section
+		const backgroundImage = document.createElement('div');
+		backgroundImage.className = 'absolute top-1/2 left-0 transform -translate-y-1/2 w-auto h-auto';  // Ensures it's centered vertically and left
+
+		const image = document.createElement('img');
+		image.src = './assets/background_elem.png';  // Replace with the actual path to your transparent image
+		image.className = 'w-auto h-auto';  // Adjust width and height accordingly
+		image.style.opacity = '0.6';
+		image.alt = 'Background Image';
+		backgroundImage.appendChild(image);
+
+		// Append the background image container
+		this.element.appendChild(backgroundImage);
+
 		// Logo and Button Wrapper
 		const contentContainer = document.createElement('div');
 		contentContainer.className = 'flex flex-col items-center';
