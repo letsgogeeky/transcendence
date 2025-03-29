@@ -134,7 +134,7 @@ export default class HomeComponent extends Component {
 
 		// Copyright section
 		const copyright = document.createElement('p');
-		copyright.className = 'text-white text-xs absolute bottom-4 left-4'; // Always at the bottom left
+		copyright.className = 'text-white text-xs absolute bottom-4 left-1/2 transform -translate-x-1/2'; // Always at the bottom left
 		copyright.textContent = '© 2025 PongJam. All rights reserved.';
 
 		// Append everything to main element
