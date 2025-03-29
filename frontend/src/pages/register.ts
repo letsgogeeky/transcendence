@@ -17,7 +17,7 @@ export default class RegisterComponent extends Component {
         welcomeImage.src = './assets/welcome_img.jpg';  // Replace with your actual image path
         welcomeImage.alt = 'Welcome Image';
         // welcomeImage.className = 'w-full max-w-[700px] h-auto mb-8'; // Adjust the size of the image
-        welcomeImage.className = 'w-full max-w-[700px] h-auto mb-8 rounded-lg'; // Add 'rounded-lg' to give rounded edges
+        welcomeImage.className = 'w-full max-w-[600px] h-auto mb-8 rounded-lg'; // Add 'rounded-lg' to give rounded edges
 
 		container.appendChild(welcomeImage);
 
@@ -29,9 +29,6 @@ export default class RegisterComponent extends Component {
 
         // Input Fields Styling
 		const inputStyle = 'border border-[#8E2C62] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#4B1F2B] opacity-60'; 
-
-
-		// const inputStyle = 'border border-gray-300 rounded p-2 w-80 mb-4 bg-purple-100'; // Light purple-gray background
 
         // Email, Name, and Password Inputs
         const emailInput = new Input(
@@ -70,18 +67,12 @@ export default class RegisterComponent extends Component {
         // Add form to container
         form.render(container);
 
-        // // "JOIN" button
-        // const joinButton = document.createElement('button');
-        // joinButton.textContent = 'JOIN';
-        // joinButton.className = 'bg-white text-purple-900 font-bold text-xl py-2 px-6 rounded-lg shadow-md hover:bg-gray-100 mt-6'; // Button styling
-        // joinButton.onclick = () => form.submit(); // Submit the form when clicked
-        // container.appendChild(joinButton);
-
         // Already have an account? Link
         const loginLink = new LinkComponent(
-            'Already have an account? Log in',
+            'Already have an account? LOG IN',
             '/login',
         );
+		loginLink.element.className = 'text-[#8E2C62] font-bold mt-6';
         loginLink.render(container);
 
         this.element = container; // Set the final element
