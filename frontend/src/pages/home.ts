@@ -70,7 +70,8 @@ export default class HomeComponent extends Component {
 		super();
 
 		this.element = document.createElement('div');
-		this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col items-center justify-center';
+		// this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col items-center justify-center';
+		this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col';
 
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
@@ -86,9 +87,17 @@ export default class HomeComponent extends Component {
 		// Append the background image container
 		this.element.appendChild(backgroundImage);
 
+		// Check window size and conditionally load the GIF
+		this.loadGifBasedOnScreenSize();
+
+		// Listen for window resize events to update the GIF visibility dynamically
+		window.addEventListener('resize', () => {
+			this.loadGifBasedOnScreenSize();
+		});
+
 		// Logo and Button Wrapper
 		const contentContainer = document.createElement('div');
-		contentContainer.className = 'flex flex-col items-center';
+		contentContainer.className = ' absolute left-60 top-1/2 transform -translate-y-1/2'; // Centered vertically, left side';
 
 		// Logo section
 		const logoContainer = document.createElement('div');
@@ -99,8 +108,6 @@ export default class HomeComponent extends Component {
 		// logoImage.className = 'w-full max-w-3xl h-auto object-contain'; // 30% bigger with max-w-lg
 		// logoImage.className = 'w-full max-w-lg h-auto object-contain scale-[1.4]'; // 140% size
 		logoImage.className = 'w-full max-w-[500px] h-auto object-contain scale-[1.4]';
-
-
 		logoImage.alt = 'Game Logo';
 		logoContainer.appendChild(logoImage);
 
@@ -140,6 +147,31 @@ export default class HomeComponent extends Component {
 		// Append everything to main element
 		this.element.append(contentContainer, copyright);
 	}
+
+	private loadGifBasedOnScreenSize() {
+        // Check if the window width is larger than a certain threshold (e.g., 1024px for wide screens)
+        const isWideScreen = window.innerWidth >= 1600;  // Adjust the threshold based on your preference
+
+        let gifContainer = document.getElementById('gif-container');
+        if (isWideScreen && !gifContainer) {
+            // Only load the GIF if it's not already loaded
+            gifContainer = document.createElement('div');
+            gifContainer.id = 'gif-container';
+            gifContainer.className = 'absolute right-0 top-1/2 transform -translate-y-1/2';
+
+            const gifImage = document.createElement('img');
+            gifImage.src = './assets/home_gif.gif'; // Replace with the path to your GIF
+            gifImage.alt = 'Right Side GIF';
+			gifImage.style.width = '300%';  // Adjust the percentage as per the screen size
+			gifImage.style.height = 'auto';
+            gifContainer.appendChild(gifImage);
+
+            this.element.appendChild(gifContainer);
+        } else if (!isWideScreen && gifContainer) {
+            // Remove the GIF container if the screen is smaller than the threshold
+            gifContainer.remove();
+        }
+    }
 
 	private createNavButton(text: string, path: string): HTMLButtonElement {
 		const button = document.createElement('button');
