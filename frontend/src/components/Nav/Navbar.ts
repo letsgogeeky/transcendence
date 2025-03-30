@@ -29,7 +29,18 @@ export default class Navbar extends Component {
 				const a = document.createElement('a');
 				a.href = route.path;
 				a.textContent = route.title;
-				
+				// a.className = 'block';
+				// if (route.title != 'Home')
+			
+				// if (route.title != 'Sign Up') {
+				// 	// Create Image Element for the Home Icon
+				// 	const img = document.createElement('img');
+				// 	img.src = `./assets/icons/${route.title.toLowerCase()}.png`; // Assuming icons are named like 'home.png', 'about.png'
+				// 	img.alt = route.title;
+				// 	img.className = 'w-10 h-8'; // Adjust the size as needed
+	
+				// 	a.appendChild(img);
+				// }
 				li.appendChild(a);
 				ul.appendChild(li);
 			}
