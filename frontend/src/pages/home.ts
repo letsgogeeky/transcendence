@@ -1,68 +1,6 @@
 import Button from '../components/Button';
 import Component from '../components/Component';
 
-// export default class HomeComponent extends Component {
-//     readonly element: HTMLElement;
-
-//     constructor() {
-//         // super();
-//         // this.element = document.createElement('div');
-//         // this.element.className = 'text-center';
-//         // const title = document.createElement('h1');
-//         // title.className = 'text-2xl font-bold';
-//         // title.textContent = "Welcome to The Orca's PONG";
-//         // const description = document.createElement('p');
-//         // description.className = 'text-gray-600';
-//         // description.textContent = 'Welcome to the home page buddy!';
-//         // let count = 0;
-//         // const counter = document.createElement('p');
-//         // counter.className = 'mt-4 text-lg font-semibold';
-//         // counter.textContent = `Counter: ${count}`;
-
-//         // const incrementButton = new Button('Increase', () => {
-//         //     console.log(`incrementing ${count}`);
-//         //     count++;
-//         //     counter.textContent = `Counter: ${count + 5}`;
-//         // });
-//         this.element.append(title, description, counter);
-//         incrementButton.render(this);
-//     }
-// }
-
-// export default class HomeComponent extends Component {
-//     readonly element: HTMLElement;
-
-//     constructor() {
-//         super();
-//         this.element = document.createElement('div');
-//         // this.element.className = 'min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-black to-purple-700 text-blue-400';
-// 		this.element.className = 'min-h-screen w-full flex flex-col items-center justify-center custom-gradient';
-
-//         const title = document.createElement('h1');
-//         title.className = 'text-2xl font-bold';
-//         title.textContent = "Welcome to The Orca's PONG";
-
-//         const description = document.createElement('p');
-//         description.className = 'text-lg text-gray-400';
-//         description.textContent = 'Welcome to the home page buddy!';
-
-//         let count = 0;
-//         const counter = document.createElement('p');
-//         counter.className = 'mt-4 text-lg font-semibold';
-//         counter.textContent = `Counter: ${count}`;
-
-//         const incrementButton = new Button('Increase', () => {
-//             console.log(`incrementing ${count}`);
-//             count++;
-//             counter.textContent = `Counter: ${count + 5}`;
-//         });
-
-//         this.element.append(title, description, counter);
-//         incrementButton.render(this);
-//     }
-// }
-
-
 export default class HomeComponent extends Component {
     readonly element: HTMLElement;
 
@@ -110,10 +48,7 @@ export default class HomeComponent extends Component {
 
 		const logoImage = document.createElement('img');
 		logoImage.src = './assets/PongJamLogo.png';
-		// logoImage.className = 'w-full max-w-3xl h-auto object-contain'; // 30% bigger with max-w-lg
-		// logoImage.className = 'w-full max-w-lg h-auto object-contain scale-[1.4]'; // 140% size
-		logoImage.className = 'w-full max-w-[500px] h-auto object-contain scale-[1.6]';
-
+		logoImage.className = 'w-full max-w-[400px] h-auto object-contain scale-[1.6]';
 
 		logoImage.alt = 'Game Logo';
 		logoContainer.appendChild(logoImage);
