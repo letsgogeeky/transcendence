@@ -131,14 +131,14 @@ export default class HomeComponent extends Component {
 			console.log('Navigating to /login');
 			window.location.href = '/login';
 		});
-		loginButton.element.className = 'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg shadow-md';
+		loginButton.element.className = 'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]';
 
 		// Sign Up Button
 		const signInButton = new Button('Sign Up', () => { 
 			console.log('Navigating to /register');
 			window.location.href = '/register';
 		});
-		signInButton.element.className = 'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg shadow-md';
+		signInButton.element.className = 'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#200246]';
 
 		// Append buttons to the container
 		buttonContainer.appendChild(loginButton.element);
