@@ -33,7 +33,7 @@ export default class ForgotPasswordComponent extends Component {
         const welcomeBackImage = document.createElement('img');
         welcomeBackImage.src = './assets/forgetful.gif';  // Replace with your actual image path
         welcomeBackImage.alt = 'Forgetful Me';
-        welcomeBackImage.className = 'w-full max-w-[600px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
+        welcomeBackImage.className = 'w-full max-w-[500px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
 
 		container.appendChild(welcomeBackImage);
 
