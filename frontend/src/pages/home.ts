@@ -73,7 +73,7 @@ export default class HomeComponent extends Component {
 			console.log('Navigating to /register');
 			window.location.href = '/register';
 		});
-		signInButton.element.className = 'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#200246]';
+		signInButton.element.className = 'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
 
 		// Append buttons to the container
 		buttonContainer.appendChild(loginButton.element);
