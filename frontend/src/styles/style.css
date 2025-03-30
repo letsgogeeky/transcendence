@@ -3,11 +3,42 @@
 @tailwind utilities;
 
 .custom-gradient {
-    background: linear-gradient(to right, black 20%, #4c1d95 80%);
+    background: linear-gradient(to right, black 20%, #200246 80%);
 }
 
 html, body {
     height: 100%; /* Ensure full viewport height */
     margin: 0;    /* Remove any default margin */
     padding: 0;   /* Remove any default padding */
+}
+
+/* Neon text sparkle effect (subtle version) */
+.sparkle-text {
+    text-shadow: 
+        0 0 3px #d3d3d3, 
+        0 0 6px #d3d3d3, 
+        0 0 8px #9b59b6, 
+        0 0 10px #9b59b6, 
+        0 0 15px #9b59b6; /* Lighter purple/gray color */
+    animation: sparkle 2s infinite alternate;
+}
+
+/* Animation to create the sparkle effect */
+@keyframes sparkle {
+    0% {
+        text-shadow: 
+            0 0 3px #d3d3d3, 
+            0 0 6px #d3d3d3, 
+            0 0 8px #9b59b6, 
+            0 0 10px #9b59b6, 
+            0 0 15px #9b59b6;
+    }
+    100% {
+        text-shadow: 
+            0 0 4px #d3d3d3, 
+            0 0 8px #d3d3d3, 
+            0 0 10px #9b59b6, 
+            0 0 12px #9b59b6, 
+            0 0 18px #9b59b6;
+    }
 }

@@ -70,7 +70,7 @@ export default class HomeComponent extends Component {
 		super();
 
 		this.element = document.createElement('div');
-		this.element.className = 'w-full h-screen bg-gradient-to-r from-black to-purple-900 flex flex-col items-center justify-center';
+		this.element.className = 'w-full h-screen flex flex-col items-center justify-center';
 
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
@@ -85,6 +85,20 @@ export default class HomeComponent extends Component {
 
 		// Append the background image container
 		this.element.appendChild(backgroundImage);
+
+		// Set the background gif section
+		const backgroundGif = document.createElement('div');
+		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
+
+		const gif = document.createElement('img');
+		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
+		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
+		gif.style.opacity = '0.4';
+		gif.alt = 'Background Gif';
+		backgroundGif.appendChild(gif);
+
+		// Append the background image container
+		this.element.appendChild(backgroundGif);
 
 		// Logo and Button Wrapper
 		const contentContainer = document.createElement('div');
@@ -110,7 +124,7 @@ export default class HomeComponent extends Component {
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex justify-center space-x-8 mt-16';
+		buttonContainer.className = 'flex justify-center space-x-8 mt-16 relative z-10';
 
 		// Log In Button
 		const loginButton = new Button('Log In', () => { 

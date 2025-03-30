@@ -12,6 +12,19 @@ export default class RegisterComponent extends Component {
         const container = document.createElement('div');
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
+		const backgroundGif = document.createElement('div');
+		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
+
+		const gif = document.createElement('img');
+		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
+		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
+		gif.style.opacity = '0.4';
+		gif.alt = 'Background Gif';
+		backgroundGif.appendChild(gif);
+
+		// Append the background image container
+		container.appendChild(backgroundGif);
+
         // Big welcome image
         const welcomeImage = document.createElement('img');
         welcomeImage.src = './assets/welcome_img.jpg';  // Replace with your actual image path
@@ -22,13 +35,13 @@ export default class RegisterComponent extends Component {
 		container.appendChild(welcomeImage);
 
         // "SIGN UP" text
-        const signUpText = document.createElement('h1');
-        signUpText.textContent = 'SIGN UP';
-        signUpText.className = 'text-[#8E2C62] text-4xl font-bold mb-8';
+		const signUpText = document.createElement('h1');
+		signUpText.textContent = 'SIGN UP';
+		signUpText.className = 'text-[#4D000D] text-4xl font-bold mb-8 sparkle-text relative z-10'; // Adding the custom class
 		container.appendChild(signUpText);
 
         // Input Fields Styling
-		const inputStyle = 'border border-[#8E2C62] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#4B1F2B] opacity-60'; 
+		const inputStyle = 'border border-[#4D000D] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#4B1F2B] opacity-60'; 
 
         // Email, Name, and Password Inputs
         const emailInput = new Input(
@@ -62,7 +75,7 @@ export default class RegisterComponent extends Component {
             [emailInput, nameInput, passwordInput],
             (data) => sendRequest('/register', 'POST', data, Services.AUTH),
         );
-        form.className = 'flex flex-col gap-4 w-80'; // Form styling
+        form.className = 'flex flex-col gap-4 w-80 relative z-10'; // Form styling
 
         // Add form to container
         form.render(container);
@@ -72,7 +85,7 @@ export default class RegisterComponent extends Component {
             'Already have an account? LOG IN',
             '/login',
         );
-		loginLink.element.className = 'text-[#8E2C62] font-bold mt-6';
+		loginLink.element.className = 'text-[#4D000D] font-bold mt-6 relative z-10';
         loginLink.render(container);
 
         this.element = container; // Set the final element

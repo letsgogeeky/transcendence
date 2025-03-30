@@ -14,6 +14,19 @@ export default class LoginComponent extends Component {
         const container = document.createElement('div');
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
+		const backgroundGif = document.createElement('div');
+		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
+
+		const gif = document.createElement('img');
+		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
+		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
+		gif.style.opacity = '0.4';
+		gif.alt = 'Background Gif';
+		backgroundGif.appendChild(gif);
+
+		// Append the background image container
+		container.appendChild(backgroundGif);
+
         // Big welcome image
         const welcomeBackImage = document.createElement('img');
         welcomeBackImage.src = './assets/welcome_back.jpg';  // Replace with your actual image path
@@ -50,7 +63,7 @@ export default class LoginComponent extends Component {
             (data) => sendRequest('/login', 'POST', data, Services.AUTH),
 			LoginComponent.loginCallback,
         );
-        form.className = 'flex flex-col gap-4 w-80 mt-6'; // Form styling
+        form.className = 'flex flex-col gap-4 w-80 mt-6 relative z-10'; // Form styling
 
         // Add form to container
         form.render(container);
@@ -60,7 +73,7 @@ export default class LoginComponent extends Component {
             '/forgot-password',
         );
         forgotPasswordLink.render(container);
-		forgotPasswordLink.element.className = 'text-[#FFB6C1] italic mt-3';
+		forgotPasswordLink.element.className = 'text-[#FFB6C1] italic mt-3 relative z-10';
 
 		// Container for the text and button
 		const alternativeContainer = document.createElement('div');
@@ -77,7 +90,7 @@ export default class LoginComponent extends Component {
 			() => (window.location.href = endpoints.auth + '/login/google'),
 		);
 		// loginWithGoogle.element.className = 'text-[#007bff] font-bold border border-[#007bff] bg-[#00FFFF] py-2 px-4 rounded-lg';
-		loginWithGoogle.element.className = `w-60 border-2 border-[#007bff] text-[#007bff] text-xl font-bold py-2 rounded-lg shadow-[0_0_15px_#00FFFF] opacity-60' hover:bg-white hover:text-purple-900 mt-4`;
+		loginWithGoogle.element.className = `w-60 border-2 border-[#007bff] text-[#007bff] text-xl font-bold py-2 rounded-lg shadow-[0_0_15px_#00FFFF] opacity-60' hover:bg-white hover:text-purple-900 mt-4 relative z-10`;
 
 		// Append both to the container
 		alternativeContainer.appendChild(alternativeText);

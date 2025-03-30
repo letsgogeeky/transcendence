@@ -16,6 +16,19 @@ export default class ForgotPasswordComponent extends Component {
 		const container = document.createElement('div');
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
+		const backgroundGif = document.createElement('div');
+		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
+
+		const gif = document.createElement('img');
+		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
+		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
+		gif.style.opacity = '0.4';
+		gif.alt = 'Background Gif';
+		backgroundGif.appendChild(gif);
+
+		// Append the background image container
+		container.appendChild(backgroundGif);
+
         // Big welcome image
         const welcomeBackImage = document.createElement('img');
         welcomeBackImage.src = './assets/forgetful.gif';  // Replace with your actual image path
@@ -41,7 +54,7 @@ export default class ForgotPasswordComponent extends Component {
         );
 
         document.createElement('form');
-		this.form.className = 'items-center flex flex-col gap-4 w-80 mt-6';
+		this.form.className = 'items-center flex flex-col gap-4 w-80 mt-6 relative z-10';
 
         const title = document.createElement('h1');
         title.textContent = 'It \'s OK! We got you! 😉';
