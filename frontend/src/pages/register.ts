@@ -30,7 +30,7 @@ export default class RegisterComponent extends Component {
         welcomeImage.src = './assets/welcome_img.jpg';  // Replace with your actual image path
         welcomeImage.alt = 'Welcome Image';
         // welcomeImage.className = 'w-full max-w-[700px] h-auto mb-8'; // Adjust the size of the image
-        welcomeImage.className = 'w-full max-w-[600px] h-auto mb-8 rounded-lg'; // Add 'rounded-lg' to give rounded edges
+        welcomeImage.className = 'w-full max-w-[400px] h-auto mb-8 rounded-lg'; // Add 'rounded-lg' to give rounded edges
 
 		container.appendChild(welcomeImage);
 

@@ -31,7 +31,7 @@ export default class LoginComponent extends Component {
         const welcomeBackImage = document.createElement('img');
         welcomeBackImage.src = './assets/welcome_back.jpg';  // Replace with your actual image path
         welcomeBackImage.alt = 'Welcome Image';
-        welcomeBackImage.className = 'w-full max-w-[400px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
+        welcomeBackImage.className = 'w-full max-w-[300px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
 
 		container.appendChild(welcomeBackImage);
 
@@ -73,7 +73,7 @@ export default class LoginComponent extends Component {
             '/forgot-password',
         );
         forgotPasswordLink.render(container);
-		forgotPasswordLink.element.className = 'text-[#FFB6C1] italic mt-3 relative z-10';
+		forgotPasswordLink.element.className = 'text-[#FFB6C1] italic mt-2 relative z-10';
 
 		// Container for the text and button
 		const alternativeContainer = document.createElement('div');
@@ -82,7 +82,7 @@ export default class LoginComponent extends Component {
 		// "Alternatively:" text
 		const alternativeText = document.createElement('span');
 		alternativeText.textContent = 'Alternatively:';
-		alternativeText.className = 'text-[#00FFFF] text-xl py-2 mt-4 mr-4'; // Adjust spacing with margin
+		alternativeText.className = 'text-[#00FFFF] text-xl py-2 mr-4'; // Adjust spacing with margin
 
 		// "Log In with Google" Button
 		const loginWithGoogle = new Button(
@@ -90,7 +90,7 @@ export default class LoginComponent extends Component {
 			() => (window.location.href = endpoints.auth + '/login/google'),
 		);
 		// loginWithGoogle.element.className = 'text-[#007bff] font-bold border border-[#007bff] bg-[#00FFFF] py-2 px-4 rounded-lg';
-		loginWithGoogle.element.className = `w-60 border-2 border-[#007bff] text-[#007bff] text-xl font-bold py-2 rounded-lg shadow-[0_0_15px_#00FFFF] opacity-60' hover:bg-white hover:text-purple-900 mt-4 relative z-10`;
+		loginWithGoogle.element.className = `w-60 border-2 border-[#007bff] text-[#007bff] text-xl font-bold py-2 rounded-lg shadow-[0_0_15px_#00FFFF] opacity-60' hover:bg-white hover:text-purple-900 relative z-10`;
 
 		// Append both to the container
 		alternativeContainer.appendChild(alternativeText);
