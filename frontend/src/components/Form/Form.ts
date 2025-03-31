@@ -24,7 +24,8 @@ export default class FormComponent extends Component {
         const submitButton = new Button(
             label,
             () => {},
-            `px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 active:scale-95 transition`,
+			`w-40 border-2 border-white text-white text-2xl font-bold py-2 px-4 rounded-lg shadow-md hover:bg-white hover:text-purple-900 mt-2 mx-auto`,
+            // `px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 active:scale-95 transition`,
         );
         submitButton.element.type = 'submit';
         this.inputs = inputs;

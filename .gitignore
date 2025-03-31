@@ -33,13 +33,15 @@ Icon?
 # TypeScript
 *.tsbuildinfo
 
-
 # env
 .env
 *.key
 *.srl
 *.csr
 *.crt
+
+# manually created files
+frontend/src/pages/login_before.ts
 
 uploads/
 db/

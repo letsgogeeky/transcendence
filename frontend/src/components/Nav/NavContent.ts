@@ -7,7 +7,7 @@ export default class NavContent extends Component {
     constructor(id: string, childComponent: Component) {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'w-full max-w-lg';
+        this.element.className = 'w-full h-full';
         this.element.id = id + '-nav-content';
         this.childComponent = childComponent;
     }
