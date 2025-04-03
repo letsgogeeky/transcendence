@@ -18,12 +18,12 @@ export default class HomeComponent extends Component {
         const counter = document.createElement('p');
         counter.className = 'mt-4 text-lg font-semibold';
         counter.textContent = `Counter: ${count}`;
-
+        const buttonStyle = 'bg-blue-500 text-white px-4 py-2 rounded-md';
         const incrementButton = new Button('Increase', () => {
             console.log(`incrementing ${count}`);
             count++;
             counter.textContent = `Counter: ${count + 5}`;
-        });
+        }, buttonStyle);
         this.element.append(title, description, counter);
         incrementButton.render(this);
     }

@@ -24,6 +24,22 @@ services:
         networks:
             - app-network
 
+    match:
+        build:
+            context: ./backend/match
+            dockerfile: Dockerfile
+        image: match
+        ports:
+            - '8082:8082'
+        networks:
+            - app-network
+        volumes:
+            - ./db:/app/db
+            - ./uploads:/app/uploads
+            - ./certs:/app/certs
+            - ./backend/match/src:/app/src
+        env_file: './.env'
+
     frontend:
         build:
             context: ./frontend

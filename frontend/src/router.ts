@@ -1,4 +1,5 @@
 import Component from './components/Component';
+import CreateTournamentComponent from './pages/create-tournament';
 import HomeComponent from './pages/home';
 import LoginComponent from './pages/login';
 import LoginOtpComponent from './pages/login-2fa';
@@ -10,6 +11,7 @@ import ResetPasswordComponent from './pages/password/reset-password';
 import ProfileComponent from './pages/profile';
 import RegisterComponent from './pages/register';
 import UserSettingsComponent from './pages/settings/settings';
+import TournamentComponent from './pages/tournament';
 import UsersPageComponent from './pages/users';
 
 export type Route = {
@@ -85,6 +87,24 @@ export const routes: Route[] = [
         path: '/reset-password',
         title: 'Password reset',
         component: new ResetPasswordComponent(),
+        visible: false,
+    },
+    {
+        path: '/create-tournament',
+        title: 'Create Tournament',
+        component: new CreateTournamentComponent(),
+        visible: false,
+    },
+    {
+        path: '/tournament',
+        title: 'Tournament',
+        component: new TournamentComponent(),
+        visible: false,
+    },
+    {
+        path: '/tournament/:id',
+        title: 'Tournament',
+        component: new TournamentComponent(),
         visible: false,
     },
 ];

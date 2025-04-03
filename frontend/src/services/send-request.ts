@@ -5,11 +5,14 @@ export enum Services {
     CHAT,
     GAME,
     FRIENDS,
+    TOURNAMENTS,
+    MATCH,
 }
 
 export const endpoints = {
     auth: 'https://localhost:8081',
     authSocket: 'wss://localhost:8081/socket/',
+    match: 'https://localhost:8082',
 };
 
 const noRetryRoutes = [
@@ -73,6 +76,9 @@ export default async function sendRequest(
     switch (service) {
         case Services.AUTH:
             url = endpoints.auth;
+            break;
+        case Services.TOURNAMENTS || Services.MATCH:
+            url = endpoints.match;
             break;
         default:
             break;
