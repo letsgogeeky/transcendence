@@ -101,10 +101,4 @@ export const routes: Route[] = [
         component: new TournamentComponent(),
         visible: false,
     },
-    {
-        path: '/tournament/:id',
-        title: 'Tournament',
-        component: new TournamentComponent(),
-        visible: false,
-    },
 ];

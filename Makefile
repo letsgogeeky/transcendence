@@ -11,6 +11,8 @@ build-auth:
 
 up:
 	@docker compose -f ./docker-compose.yml up --build -d
+	@docker compose -f ./docker-compose.yml exec auth npx prisma db push
+	@docker compose -f ./docker-compose.yml exec match npx prisma db push
 
 down : 
 	@docker compose -f ./docker-compose.yml down

@@ -29,6 +29,8 @@ services:
             - ./certs:/app/certs
             - ./backend/match/src:/app/src
         env_file: './.env'
+        environment:
+            - DATABASE_URL=file:/app/db/match.db
 
     frontend:
         build:

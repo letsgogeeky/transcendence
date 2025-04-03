@@ -125,6 +125,49 @@ export function tournamentRoutes(app: FastifyInstance) {
             });
         },
     );
+    // add participant to a tournament
+    app.post('/:id/add-player', {
+        schema: {
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string' },
+                },
+            },
+            body: {
+                type: 'object',
+                properties: {
+                    playerId: { type: 'string' },
+                },
+            },
+        },
+    },
+    async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const { playerId } = request.body as { playerId: string };
+        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+                participants: true,
+                matches: true,
+            } });
+            if (!tournament) {
+                return reply.status(404).send({
+                    message: 'Tournament not found',
+                });
+            }
+        const tournamentParticipant = {
+            tournamentId: tournament.id,
+            userId: playerId,
+            status: 'active',
+        }
+        await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
+        const updatedTournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+                participants: true,
+                matches: true,
+            } });
+        return reply.status(200).send({
+            tournament: updatedTournament,
+        });
+    });
     // start a tournament
     app.post('/:id/start', {
         schema: {

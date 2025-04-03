@@ -39,7 +39,7 @@ export default class CreateTournamentComponent extends Component {
 
     static async createTournamentCallback(data: any): Promise<void> {
         console.log('Create Tournament Callback', data);
-        window.location.href = '/tournament/' + data.id;
+        window.history.pushState({}, '', '/tournament?tournamentId=' + data.tournament.id);
     }
 
     public render(parent: HTMLElement | Component): void {
