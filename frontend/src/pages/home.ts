@@ -163,6 +163,20 @@ export default class HomeComponent extends Component {
 		singlePlayerButton.element.style.width = 'auto'; // Prevents squishing
 		singlePlayerButton.element.style.height = 'auto'; // Adjusts dynamically
 		singlePlayerButton.element.style.webkitTextStroke = '1.5px #20A4D6'; // Thinner light blue outline
+		singlePlayerButton.element.style.border = '3px solid transparent'; // Invisible border by default
+		singlePlayerButton.element.style.transition = 'all 0.3s'; // Smooth transition for hover effect
+		
+		// Hover effect for Single Player button
+		singlePlayerButton.element.addEventListener('mouseenter', () => {
+			singlePlayerButton.element.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'; // Black with 30% opacity
+			singlePlayerButton.element.style.borderColor = '#20A4D6'; // Light blue border on hover
+			singlePlayerButton.element.style.borderWidth = '3px'; // Set border thickness
+		});
+		singlePlayerButton.element.addEventListener('mouseleave', () => {
+			singlePlayerButton.element.style.backgroundColor = ''; // Remove background on mouse leave
+			singlePlayerButton.element.style.borderColor = 'transparent'; // Remove border on mouse leave
+			singlePlayerButton.element.style.borderWidth = '3px'; // Keep border thickness
+		});
 
 		// MULTIPLE PLAYERS - Pink Border
 		const multiplayerButton = new Button('MULTIPLE PLAYERS', () => {
@@ -177,6 +191,20 @@ export default class HomeComponent extends Component {
 		multiplayerButton.element.style.width = 'auto';
 		multiplayerButton.element.style.height = 'auto';
 		multiplayerButton.element.style.webkitTextStroke = '1.5px #FF69B4'; // Thinner pink outline
+		multiplayerButton.element.style.border = '3px solid transparent'; // Invisible border by default
+		multiplayerButton.element.style.transition = 'all 0.3s'; // Smooth transition for hover effect
+
+		// Hover effect for Multiplayer button
+		multiplayerButton.element.addEventListener('mouseenter', () => {
+			multiplayerButton.element.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+			multiplayerButton.element.style.borderColor = '#FF69B4'; // Pink border on hover
+			multiplayerButton.element.style.borderWidth = '3px'; // Set border thickness
+		});
+		multiplayerButton.element.addEventListener('mouseleave', () => {
+			multiplayerButton.element.style.backgroundColor = '';
+			multiplayerButton.element.style.borderColor = 'transparent'; // Remove border on mouse leave
+			multiplayerButton.element.style.borderWidth = '3px'; // Keep border thickness
+		});
 
 		// TOURNAMENT - Yellow Border
 		const tournamentButton = new Button('TOURNAMENT', () => {
@@ -191,7 +219,20 @@ export default class HomeComponent extends Component {
 		tournamentButton.element.style.width = 'auto';
 		tournamentButton.element.style.height = 'auto';
 		tournamentButton.element.style.webkitTextStroke = '1.5px #FFCC00'; // Thinner yellow outline
+		tournamentButton.element.style.border = '3px solid transparent'; // Invisible border by default
+		tournamentButton.element.style.transition = 'all 0.3s'; // Smooth transition for hover effect
 
+		// Hover effect for Tournament button
+		tournamentButton.element.addEventListener('mouseenter', () => {
+			tournamentButton.element.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+			tournamentButton.element.style.borderColor = '#FFCC00'; // Yellow border on hover
+			tournamentButton.element.style.borderWidth = '3px'; // Set border thickness
+		});
+		tournamentButton.element.addEventListener('mouseleave', () => {
+			tournamentButton.element.style.backgroundColor = '';
+			tournamentButton.element.style.borderColor = 'transparent'; // Remove border on mouse leave
+			tournamentButton.element.style.borderWidth = '3px'; // Keep border thickness
+		});
 		// // First row: Single Player & Multiplayer
 		// const upperButtons = document.createElement('div');
 		// upperButtons.className = 'flex justify-center space-x-8';
