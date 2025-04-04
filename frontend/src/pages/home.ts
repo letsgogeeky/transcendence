@@ -149,7 +149,6 @@ export default class HomeComponent extends Component {
 		// buttonContainer.className = 'flex flex-col items-center space-y-6 relative z-10';
 		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
 
-
 		// SINGLE PLAYER - Light Blue Border
 		const singlePlayerButton = new Button('      SINGLE PLAYER', () => {
 			console.log('Navigating to /singlegame');
@@ -233,15 +232,7 @@ export default class HomeComponent extends Component {
 			tournamentButton.element.style.borderColor = 'transparent'; // Remove border on mouse leave
 			tournamentButton.element.style.borderWidth = '3px'; // Keep border thickness
 		});
-		// // First row: Single Player & Multiplayer
-		// const upperButtons = document.createElement('div');
-		// upperButtons.className = 'flex justify-center space-x-8';
 
-		// // Add both buttons inside this row
-		// upperButtons.appendChild(singlePlayerButton.element);
-		// upperButtons.appendChild(multiplayerButton.element);
-
-		// // Add everything to the button container
 		// buttonContainer.appendChild(upperButtons);
 		buttonContainer.appendChild(singlePlayerButton.element);
 		buttonContainer.appendChild(multiplayerButton.element);
