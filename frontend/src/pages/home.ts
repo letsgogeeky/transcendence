@@ -137,7 +137,7 @@ export default class HomeComponent extends Component {
 		
 		const playGif = document.createElement('img');
 		playGif.src = './assets/play.gif';
-		playGif.className = 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-8 mx-auto';
+		playGif.className = 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto';
 
 		playGif.alt = 'Game Logo';
 		logoContainer.appendChild(playGif);
@@ -146,7 +146,8 @@ export default class HomeComponent extends Component {
 		// const buttonContainer = document.createElement('div');
 		// buttonContainer.className = 'flex justify-center space-x-8 relative z-10';
 		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex flex-col items-center space-y-6 relative z-10';
+		// buttonContainer.className = 'flex flex-col items-center space-y-6 relative z-10';
+		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
 
 
 		// SINGLE PLAYER - Light Blue Border
@@ -191,16 +192,18 @@ export default class HomeComponent extends Component {
 		tournamentButton.element.style.height = 'auto';
 		tournamentButton.element.style.webkitTextStroke = '1.5px #FFCC00'; // Thinner yellow outline
 
-		// First row: Single Player & Multiplayer
-		const upperButtons = document.createElement('div');
-		upperButtons.className = 'flex justify-center space-x-8';
+		// // First row: Single Player & Multiplayer
+		// const upperButtons = document.createElement('div');
+		// upperButtons.className = 'flex justify-center space-x-8';
 
-		// Add both buttons inside this row
-		upperButtons.appendChild(singlePlayerButton.element);
-		upperButtons.appendChild(multiplayerButton.element);
+		// // Add both buttons inside this row
+		// upperButtons.appendChild(singlePlayerButton.element);
+		// upperButtons.appendChild(multiplayerButton.element);
 
-		// Add everything to the button container
-		buttonContainer.appendChild(upperButtons);
+		// // Add everything to the button container
+		// buttonContainer.appendChild(upperButtons);
+		buttonContainer.appendChild(singlePlayerButton.element);
+		buttonContainer.appendChild(multiplayerButton.element);
 		buttonContainer.appendChild(tournamentButton.element);
 
 		// Append all visual sections in order
