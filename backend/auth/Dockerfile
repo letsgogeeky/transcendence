@@ -5,4 +5,5 @@ COPY . .
 RUN npm i  && \
     npx prisma generate  && \
     npx tsc
-CMD npm run start
+
+CMD ["npm", "run", "start"]

@@ -19,6 +19,7 @@
 - Match (Play against AI, Same machine player, OR remote players)
 - Chat (See chat history, see history of specific chat with a specific player, send and see messages)
 - Search (can search other players and add them as friends or view their profile)
+- Tournaments (View tournaments, join a tournament, create a tournament)
 
 #### User / Player and Friend Management
 - User can sign up with email and password
@@ -53,6 +54,14 @@
     - Other player on the same device using different keyboard keys
     - AI (pre-defined level of difficulty)
     - Other players on different devices (using the same keyboard keys)
+
+#### Tournaments
+- User can create a tournament
+- User can join a tournament
+- User can leave a tournament
+- User can view other users' tournament history
+- User can view other users' tournament stats
+- User can view other users' tournament achievements
 
 #### In-Game socket communication
 - User can send paddle move to the server
