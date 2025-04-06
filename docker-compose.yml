@@ -13,6 +13,8 @@ services:
             - ./uploads:/app/uploads
             - ./db:/app/db
         env_file: './.env'
+        environment:
+            - DATABASE_URL=file:/app/db/auth.db
 
     match:
         build:

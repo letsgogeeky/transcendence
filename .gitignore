@@ -33,7 +33,6 @@ Icon?
 # TypeScript
 *.tsbuildinfo
 
-
 # env
 .env
 *.key
@@ -43,3 +42,8 @@ Icon?
 
 uploads/
 db/
+# manually created files
+frontend/src/pages/login_before.ts
+
+# db content
+db/*.db

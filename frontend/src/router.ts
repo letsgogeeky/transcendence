@@ -15,15 +15,20 @@ import TournamentComponent from './pages/tournament';
 import UsersPageComponent from './pages/users';
 
 export type Route = {
-    path: string;
-    title: string;
-    component: Component;
-    visible: boolean;
+    path: string; // what follows in the url after the "http://localhost:3000/"
+    title: string; // just a human-readable title for the route.
+    component: Component; // the actual component that gets rendered when the path is visited
+    visible: boolean; // controls whether the route appears in navigation menus.
+	//  * 			- If visible: true -> it might be listed in a navigation bar.
+	//  * 			- If visible: false, the page still exists and can be visited manually (by typing the URL), but it won’t be shown in menus.
 };
 
 export const routes: Route[] = [
+	//The home page (/) is mapped to HomeComponent, meaning that when a user 
+	// first opens the website at /, the HomeComponent is rendered:
     { path: '/', title: 'Home', component: new HomeComponent(), visible: true },
-    {
+	// Fills the array, with elements of type "Route", defined above, as object of the 4 variables:
+	{
         path: '/profile',
         title: 'User profile',
         component: new ProfileComponent(),
