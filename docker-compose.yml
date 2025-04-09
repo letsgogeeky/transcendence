@@ -34,6 +34,24 @@ services:
         environment:
             - DATABASE_URL=file:/app/db/match.db
 
+    chat:
+        build:
+            context: ./backend/chat
+            dockerfile: Dockerfile
+        image: chat
+        ports:
+            - '8083:8083'
+        networks:
+            - app-network
+        volumes:
+            - ./db:/app/db
+            - ./uploads:/app/uploads
+            - ./certs:/app/certs
+            - ./backend/chat/src:/app/src
+        env_file: './.env'
+        environment:
+            - DATABASE_URL=file:/app/db/chat.db
+
     frontend:
         build:
             context: ./frontend
