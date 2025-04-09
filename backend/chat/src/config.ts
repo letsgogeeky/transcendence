@@ -1,22 +1,22 @@
 const schema = {
     type: 'object',
     required: [
-        'DB_PATH',
-        'PORT',
+        'CHAT_DB_PATH',
+        'CHAT_PORT',
         'UPLOAD_DIR',
         'SSL_KEY_PATH',
         'SSL_CERT_PATH',
-        'SSL_PASSPHRASE',
         'FRONTEND',
+        'SECRET',
     ],
     properties: {
-        DB_PATH: { type: 'string' },
-        PORT: { type: 'number' },
+        CHAT_DB_PATH: { type: 'string' },
+        CHAT_PORT: { type: 'number' },
         UPLOAD_DIR: { type: 'string' },
         SSL_KEY_PATH: { type: 'string' },
         SSL_CERT_PATH: { type: 'string' },
-        SSL_PASSPHRASE: { type: 'string' },
         FRONTEND: { type: 'string' },
+        SECRET: { type: 'string' },
     },
 };
 

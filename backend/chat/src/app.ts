@@ -37,22 +37,6 @@ export const app = fastifyPlugin((chatServer: FastifyInstance, _options: Fastify
     chatServer.register(fastifyWebsocket);
     chatServer.register(prismaPlugin);
     chatServer.register(socketConnectionPlugin);
-    // Add a hook to add the user to the request from auth service
-        // app.addHook('preHandler', async (request, reply) => {
-        //     const user = await fetch(`${process.env.AUTH_SERVICE_URL}/user`, {
-        //         headers: {
-        //             Authorization: request.headers.authorization || '',
-        //         },
-        //     });
-        //     if (!user.ok) {
-        //         return await reply.status(401).send({ message: 'Unauthorized' });
-        //     }
-        //     const userJson = await user.json();
-        //     if (userJson) {
-        //         request.user = userJson as User;
-        //     }
-        // });
-            
     chatServer.register(fastifySwagger, swaggerOptions);
     chatServer.register(fastifySwaggerUi, swaggerUiOptions);
     chatServer.register(demoRoutes, { prefix: '/demo' });
