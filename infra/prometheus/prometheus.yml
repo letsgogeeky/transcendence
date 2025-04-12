@@ -1,0 +1,63 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    dns_sd_configs:
+      - names: ['node-exporter']
+        type: 'A'
+        port: 9100
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'container'
+
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 3s
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth:8081']
+    metrics_path: '/metrics'
+    dns_sd_configs:
+      - names: ['auth']
+        type: 'A'
+        port: 8081
+
+  - job_name: 'match-service'
+    static_configs:
+      - targets: ['match:8082']
+    metrics_path: '/metrics'
+    dns_sd_configs:
+      - names: ['match']
+        type: 'A'
+        port: 8082
+
+  # - job_name: 'chat-service'
+  #   static_configs:
+  #     - targets: ['chat:8083']
+  #   metrics_path: '/metrics'
+  #   dns_sd_configs:
+  #     - names: ['chat']
+  #       type: 'A'
+  #       port: 8083
+
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']
+    metrics_path: '/metrics' 
+    scheme: 'https'

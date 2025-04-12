@@ -82,7 +82,7 @@ services:
         networks:
             - app-network
         ports:
-            - '81:80'
+            - '80:80'
             - '443:443'
         environment:
             - NGINX_HOST=0.0.0.0
@@ -96,6 +96,60 @@ services:
             - match
             - chat
             - frontend
+
+    nginx-exporter:
+        image: nginx/nginx-prometheus-exporter
+        ports:
+            - '9113:9113'
+        networks:
+            - app-network
+        command: 
+            - '-nginx.scrape-uri=http://nginx/status'
+        depends_on:
+            - nginx
+
+    node-exporter:
+        image: prom/node-exporter
+        ports:
+            - '9100:9100'
+        networks:
+            - app-network
+        command:
+            - '--collector.container'
+            - '--collector.container.labels'
+            - '--collector.container.labels-to-include=container_label_com_docker_compose_service'
+
+    prometheus:
+        image: prom/prometheus
+        ports:
+            - '9090:9090'
+        networks:
+            - app-network
+        volumes:
+            - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+        depends_on:
+            - node-exporter
+            - nginx-exporter
+            - auth
+            - match
+            - chat
+
+    grafana:
+        image: grafana/grafana
+        ports:
+            - '3001:3000'
+        networks:
+            - app-network
+        volumes:
+            - ./infra/grafana/provisioning:/etc/grafana/provisioning
+            - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
+        depends_on:
+            - prometheus
 
 networks:
     app-network:

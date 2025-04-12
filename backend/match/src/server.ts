@@ -9,6 +9,7 @@ import fastifyCors from "@fastify/cors";
 import prismaPlugin from "./plugins/prisma.js";
 import fastifyJwt from "@fastify/jwt";
 import fs from 'fs';
+import metrics from 'fastify-metrics';
 declare module '@fastify/jwt' {
     interface FastifyJWT {
         user: string;
@@ -61,6 +62,10 @@ const start = async () => {
             driverSettings: { verbose: true },
         });
         server.register(prismaPlugin);
+        await server.register(metrics, {
+            endpoint: '/metrics',
+            name: 'match_service_metrics',
+        });
         await server.register(app, options);
         await server.listen({ port: server.config.MATCH_PORT, host: '0.0.0.0' });
     } catch (err) {
