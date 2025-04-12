@@ -66,6 +66,7 @@ export function tournamentRoutes(app: FastifyInstance) {
         });
     });
 
+    // create a tournament
     app.post('/', {
         schema: {
             body: {
@@ -222,4 +223,28 @@ export function tournamentRoutes(app: FastifyInstance) {
             });
         },
     );
+
+    // leave a tournament
+    app.post('/:id/leave', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const { userId } = request.body as { userId: string };
+        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+            participants: true,
+        } });
+        if (!tournament) {
+            return reply.status(404).send({
+                message: 'Tournament not found',
+            });
+        }
+        const tournamentParticipant = await app.prisma.tournamentParticipant.findFirst({ where: { tournamentId: id, userId: userId } });
+        if (!tournamentParticipant) {
+            return reply.status(404).send({
+                message: 'Participant not found',
+            });
+        }
+        await app.prisma.tournamentParticipant.delete({ where: { id: tournamentParticipant.id } });
+        return reply.status(200).send({
+            message: 'Participant left tournament',
+        });
+    });
 }
