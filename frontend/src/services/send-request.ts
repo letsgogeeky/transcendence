@@ -10,9 +10,10 @@ export enum Services {
 }
 
 export const endpoints = {
-    auth: 'https://localhost:8081',
-    authSocket: 'wss://localhost:8081/socket/',
-    match: 'https://localhost:8082',
+    auth: '/auth',
+    authSocket: '/auth/socket/',
+    match: '/match',
+    chat: '/chat',
 };
 
 const noRetryRoutes = [

@@ -9,8 +9,10 @@ import fastifySwaggerUi from '@fastify/swagger-ui';
 import fastifySwagger from '@fastify/swagger';
 import fastifyPlugin from 'fastify-plugin';
 
+const prefix = '/chat';
+
 const swaggerOptions = {
-    routePrefix: '/chat/docs',
+    routePrefix: prefix + '/docs',
     swagger: {
         info: {
             title: 'Chat API',
@@ -25,7 +27,7 @@ const swaggerOptions = {
 };
 
 const swaggerUiOptions = {
-    routePrefix: '/chat/docs',
+    routePrefix: prefix + '/docs',
     uiConfig: {
         docExpansion: 'full' as const,
         deepLinking: true as const,
@@ -34,12 +36,12 @@ const swaggerUiOptions = {
 } as const;
 
 export const app = fastifyPlugin((chatServer: FastifyInstance, _options: FastifyPluginOptions) => {
-    chatServer.register(fastifyWebsocket);
+    chatServer.register(fastifyWebsocket, { prefix });
     chatServer.register(prismaPlugin);
-    chatServer.register(socketConnectionPlugin);
+    chatServer.register(socketConnectionPlugin, { prefix });
     chatServer.register(fastifySwagger, swaggerOptions);
     chatServer.register(fastifySwaggerUi, swaggerUiOptions);
-    chatServer.register(demoRoutes, { prefix: '/chat/demo' });
-    chatServer.register(chatHistoryRoutes, { prefix: '/chat/history' });
-    chatServer.register(chatRoutes, { prefix: '/chat' });
+    chatServer.register(demoRoutes, { prefix: prefix + '/demo' });
+    chatServer.register(chatHistoryRoutes, { prefix: prefix + '/history' });
+    chatServer.register(chatRoutes, { prefix: prefix });
 });
