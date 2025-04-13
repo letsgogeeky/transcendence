@@ -1,5 +1,22 @@
 # Transcendence on steroids
 
+## How to run
+- To start the platform, run `make up`
+- To stop the platform, run `make down`
+- To restart the platform, run `make restart`
+- To check the logs, run `make logs`
+
+## Navigate to the platform
+- The platform is available at `https://localhost`
+- Grafana is available at `http://localhost:3001`
+- Prometheus is available at `http://localhost:9090`
+- Node Exporter is available at `http://localhost:9100/metrics`
+- Nginx Exporter is available at `http://localhost:9113/metrics`
+
+## API Documentation
+- Chat API docs is available at `http://localhost/chat/docs`
+- Match API docs is available at `http://localhost/match/docs`
+
 ### User Journey
 ![User Journey](docs/user-journey.png)
 
