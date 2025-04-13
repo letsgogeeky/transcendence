@@ -2,6 +2,7 @@ import Component from '../../components/Component';
 import FormComponent from '../../components/Form/Form';
 import Input from '../../components/Form/Input';
 import sendRequest, { Services } from '../../services/send-request';
+import { loadBackgroundGif } from '../../styles/background'
 
 export default class ForgotPasswordComponent extends Component {
     readonly element: HTMLElement;
@@ -16,18 +17,8 @@ export default class ForgotPasswordComponent extends Component {
 		const container = document.createElement('div');
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
-		const backgroundGif = document.createElement('div');
-		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
-
-		const gif = document.createElement('img');
-		gif.src = './assets/transparent_pong.gif';
-		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
-		gif.style.opacity = '0.4';
-		gif.alt = 'Background Gif';
-		backgroundGif.appendChild(gif);
-
-		// Append the background image container
-		container.appendChild(backgroundGif);
+		//adds the background pong gif 
+		container.appendChild(loadBackgroundGif());
 
         // Big welcome image
         const welcomeBackImage = document.createElement('img');

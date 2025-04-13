@@ -1,6 +1,7 @@
 import Button from '../components/Button';
 import Component from '../components/Component';
 import State, { MyUser } from '../services/state';
+import { loadBackgroundGif } from '../styles/background'
 
 export default class HomeComponent extends Component {
     readonly element: HTMLElement;
@@ -30,9 +31,6 @@ export default class HomeComponent extends Component {
 
 	private buildLoggedOutUI() {
 
-		// this.element = document.createElement('div');
-		// this.element.className = 'w-full h-screen flex flex-col items-center justify-center';
-
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
 		backgroundImage.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and left
@@ -43,23 +41,11 @@ export default class HomeComponent extends Component {
 		image.style.opacity = '0.6';
 		image.alt = 'Background Image';
 		backgroundImage.appendChild(image);
-
 		// Append the background image container
 		this.element.appendChild(backgroundImage);
 
 		// Set the background gif section
-		const backgroundGif = document.createElement('div');
-		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
-
-		const gif = document.createElement('img');
-		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
-		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
-		gif.style.opacity = '0.4';
-		gif.alt = 'Background Gif';
-		backgroundGif.appendChild(gif);
-
-		// Append the background image container
-		this.element.appendChild(backgroundGif);
+		this.element.appendChild(loadBackgroundGif());
 
 		// Logo and Button Wrapper
 		const contentContainer = document.createElement('div');
@@ -113,18 +99,7 @@ export default class HomeComponent extends Component {
 
 	private buildLoggedInUI() {
 
-		const backgroundGif = document.createElement('div');
-		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
-
-		const gif = document.createElement('img');
-		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
-		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
-		gif.style.opacity = '0.4';
-		gif.alt = 'Background Gif';
-		backgroundGif.appendChild(gif);
-
-		// Append the background image container
-		this.element.appendChild(backgroundGif);
+		this.element.appendChild(loadBackgroundGif());
 
 		const contentContainer = document.createElement('div');
 		contentContainer.className = 'flex flex-col items-center';
