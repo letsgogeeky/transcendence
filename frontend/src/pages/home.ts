@@ -84,20 +84,18 @@ export default class HomeComponent extends Component {
 		const buttonContainer = document.createElement('div');
 		buttonContainer.className = 'flex justify-center space-x-8 mt-16 relative z-10';
 
-		// Log In Button
-		const loginButton = new Button('Log In', () => { 
-			console.log('Navigating to /login');
-			window.location.href = '/login';
-		});
-		loginButton.element.className = 'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]';
-
-		// Sign Up Button
-		const signInButton = new Button('Sign Up', () => { 
-			console.log('Navigating to /register');
-			window.location.href = '/register';
-		});
-		signInButton.element.className = 'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
-
+		const loginButton = new Button(
+			'Log In',
+			() => (window.location.href = '/login'),
+			'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]'
+		);
+		
+		const signInButton = new Button(
+			'Sign Up',
+			() => (window.location.href = '/register'),
+			'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]'
+		);
+		
 		// Append buttons to the container
 		buttonContainer.appendChild(loginButton.element);
 		buttonContainer.appendChild(signInButton.element);
@@ -149,10 +147,11 @@ export default class HomeComponent extends Component {
 		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
 
 		// SINGLE PLAYER - Light Blue Border
-		const singlePlayerButton = new Button('      SINGLE PLAYER', () => {
-			console.log('Navigating to /singlegame');
-			window.location.href = '/singlegame';
-		});
+		const singlePlayerButton = new Button(
+			'      SINGLE PLAYER',
+			() => (window.location.href = '/singlegame')
+		);
+		
 		singlePlayerButton.element.style.fontFamily = '"Impact", "Arial Black", sans-serif'; // Impact is thicker
 		singlePlayerButton.element.style.fontWeight = '900'; // Ensures max boldness
 		singlePlayerButton.element.style.color = 'black'; // White inside
@@ -177,10 +176,10 @@ export default class HomeComponent extends Component {
 		});
 
 		// MULTIPLE PLAYERS - Pink Border
-		const multiplayerButton = new Button('MULTIPLE PLAYERS', () => {
-			console.log('Navigating to /multiplayer');
-			window.location.href = '/multiplayer';
-		});
+		const multiplayerButton = new Button(
+			'MULTIPLE PLAYERS',
+			() => (window.location.href = '/multiplayer')
+		);
 		multiplayerButton.element.style.fontFamily = '"Impact", "Arial Black", sans-serif';
 		multiplayerButton.element.style.fontWeight = '900';
 		multiplayerButton.element.style.color = 'black';
@@ -205,10 +204,10 @@ export default class HomeComponent extends Component {
 		});
 
 		// TOURNAMENT - Yellow Border
-		const tournamentButton = new Button('TOURNAMENT', () => {
-			console.log('Navigating to /tournament');
-			window.location.href = '/tournament';
-		});
+		const tournamentButton = new Button(
+			'TOURNAMENT',
+			() => (window.location.href = '/create-tournament')
+		);
 		tournamentButton.element.style.fontFamily = '"Impact", "Arial Black", sans-serif';
 		tournamentButton.element.style.fontWeight = '900';
 		tournamentButton.element.style.color = 'black';
@@ -249,11 +248,11 @@ export default class HomeComponent extends Component {
 		this.element.append(contentContainer, copyright);
 	}	
 
-	private createNavButton(text: string, path: string): HTMLButtonElement {
-		const button = document.createElement('button');
-		button.className = 'text-white hover:text-purple-300 p-2';
-		button.textContent = text;
-		button.onclick = () => { window.location.href = path; };
-		return button;
-	}
+	// private createNavButton(text: string, path: string): HTMLButtonElement {
+	// 	const button = document.createElement('button');
+	// 	// button.className = 'text-white hover:text-purple-300 p-2';
+	// 	button.textContent = text;
+	// 	button.onclick = () => { window.location.href = path; };
+	// 	return button;
+	// }
 }
