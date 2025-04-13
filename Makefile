@@ -18,9 +18,12 @@ up:
 	@docker compose -f ./docker-compose.yml up --build -d
 	@docker compose -f ./docker-compose.yml exec auth npx prisma db push
 	@docker compose -f ./docker-compose.yml exec match npx prisma db push
+	@docker compose -f ./docker-compose.yml exec chat npx prisma db push
 
 down: 
 	@docker compose -f ./docker-compose.yml down
+
+restart: down up
 
 stop: 
 	@docker compose -f ./docker-compose.yml stop
@@ -30,6 +33,9 @@ start:
 
 status:
 	@docker compose -f ./docker-compose.yml ps
+
+log:
+	@docker compose -f ./docker-compose.yml logs -f
 
 clean: stop
 
