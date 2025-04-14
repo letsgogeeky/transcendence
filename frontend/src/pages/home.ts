@@ -1,4 +1,4 @@
-import Button from '../components/Button';
+import Button from '../components/button';
 import Component from '../components/Component';
 import State, { MyUser } from '../services/state';
 import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'

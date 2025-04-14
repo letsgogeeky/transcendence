@@ -1,4 +1,4 @@
-import Button from '../components/Button';
+import Button from '../components/button';
 import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';

@@ -1,4 +1,4 @@
-import Button from '../components/Button';
+import Button from '../components/button';
 import Component from '../components/Component';
 
 export default class NotFoundComponent extends Component {

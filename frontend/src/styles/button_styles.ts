@@ -1,4 +1,4 @@
-import Button from '../components/Button';
+import Button from '../components/button';
 
 export function createStyledButton(label: string, url: string, strokeColor: string): HTMLButtonElement {
 	const button = new Button(label, () => (window.location.href = url));
