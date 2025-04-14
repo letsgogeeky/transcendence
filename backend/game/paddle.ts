@@ -22,7 +22,7 @@ export class Paddle {
 		this.aggregate.body.disablePreStep = false;
 		this.box.material = material;
 		this.speed = 0.15;
-		this.player = true;
+		this.player = false;
 		this.startPos = this.box.position.clone();
 		this.limit = 5;
 		this.disposed = false;

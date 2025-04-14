@@ -14,15 +14,15 @@ services:
             - ./db:/app/db
         env_file: './.env'
 
-    game:
-        build:
-            context: ./backend/game
-            dockerfile: Dockerfile
-        image: game
-        ports:
-            - '8082:8082'
-        networks:
-            - app-network
+    # game:
+    #     build:
+    #         context: ./backend/game
+    #         dockerfile: Dockerfile
+    #     image: game
+    #     ports:
+    #         - '8083:8083'
+    #     networks:
+    #         - app-network
 
     match:
         build:

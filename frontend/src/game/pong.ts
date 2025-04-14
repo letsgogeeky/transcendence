@@ -1,11 +1,25 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
 
-let sideLength = 20;
+const messageDiv = document.createElement("div");
+messageDiv.innerText = "Waiting for game to start...";
+messageDiv.style.position = "fixed";
+messageDiv.style.top = "50%";
+messageDiv.style.left = "50%";
+messageDiv.style.transform = "translate(-50%, -50%)";
+messageDiv.style.fontSize = "48px";
+messageDiv.style.fontWeight = "bold";
+messageDiv.style.color = "#fff";
+messageDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+messageDiv.style.padding = "20px 40px";
+messageDiv.style.borderRadius = "12px";
+messageDiv.style.zIndex = "1000";
+messageDiv.style.display = "block";
+
+document.body.appendChild(messageDiv);
 
 interface Window {
 	timePassed: number;
-	scoreString: string;
 	game: Game;
 }
 
@@ -29,68 +43,87 @@ let keys: Keys = {
 	r: false
 };
 
-let waitText: HTMLDivElement;
+type GameMessage = {
+    type: string;
+    match_id: string;
+    data: any;
+}
+
+type MeshData = {
+	positions: {
+		position: BABYLON.Vector3;
+		id: string;
+	}[]
+	rotations: {
+		rotation: BABYLON.Quaternion;
+		id: string;
+	}[]
+}
 
 class Game {
 	engine: BABYLON.Engine;
-	scene!: BABYLON.Scene;
+	scene: BABYLON.Scene | undefined;
 	camera!: BABYLON.ArcRotateCamera;
 	ws: WebSocket;
 	canvas: HTMLCanvasElement; 
-	textures: BABYLON.Texture[];
+	textures!: BABYLON.Texture[];
 	players!: number;
+	scoreBoard: Map<string, BABYLON.GUI.TextBlock> = new Map();
+	spectatorMode: boolean = false;
 
 	constructor() {
 		this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-		this.textures = [
-			// new BABYLON.Texture("src/game/ball.png"),
-			// new BABYLON.Texture("src/game/particle.png")
-		]
 		this.engine = new BABYLON.Engine(this.canvas, true);
-		this.ws = new WebSocket('wss://localhost:8082');
+		this.ws = new WebSocket('wss://localhost:8082/game');
 		this.connectWebSocket();
+	
+		const interval = setInterval(() => {
+			if (this.scene) {
+				clearInterval(interval);
+				messageDiv.style.display = "none";
+			}
+		  }, 100);
 	}
 
-	private async createScene(data: string) {
-		this.scene = await BABYLON.LoadSceneAsync("data:" + data, this.engine);
+	private async createScene(sceneString: string) {
+		this.scene?.dispose();
+		this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
+
+		this.textures = [
+			new BABYLON.Texture("src/game/ball.png", this.scene),
+			new BABYLON.Texture("src/game/particle.png", this.scene)
+		]
 
 		const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene);
     	light.intensity = 0.7;
 		this.scene.clearColor = new BABYLON.Color4(0, 0, 0.1, 1);
-
-		this.camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2,
-			2.5 * sideLength / (2 * Math.sin(Math.PI / /*sides*/2)), BABYLON.Vector3.Zero(), this.scene);
-		this.camera.attachControl(this.canvas, true);
-
-		// const ballMaterial = new BABYLON.StandardMaterial("ballMat", this.scene);
-		// ballMaterial.diffuseTexture = this.textures[0];
-		// ballMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
-
-		// this.scene.getMeshByName("ball")!.material = ballMaterial;
-
+		
 		this.players = this.scene.meshes.filter(mesh => mesh.name.includes("paddle")).length;
 
-		console.log(this.players);
+		this.camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2,
+			2.5 * 20 / (2 * Math.sin(Math.PI / this.players)), BABYLON.Vector3.Zero(), this.scene);
+		this.camera.attachControl(this.canvas, true);
+
+		const ballMaterial = new BABYLON.StandardMaterial("ballMat", this.scene);
+		ballMaterial.diffuseTexture = this.textures[0];
+		ballMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
+		this.scene.getMeshByName("ball")!.material = ballMaterial;
 
 		this.scene.registerBeforeRender(() => {	
-			if (keys.up || keys.w) this.ws.send('moveUp');
-			else if (keys.down || keys.s) this.ws.send('moveDown');
+			if (keys.up || keys.w && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'moveUp'}));
+			else if (keys.down || keys.s  && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'moveDown'}));
 			
 			// if (keys.q) window.playerPaddle.turnLeft();
 			// else if (keys.e) window.playerPaddle.turnRight();
-			// else window.playerPaddle.stopTurning();
 	  
 			if (keys.r) window.game.resetCamera();
 	  
 			window.timePassed += window.game.engine.getDeltaTime();
 		  });
 
-		if (this.players > 1) {
-			this.engine.runRenderLoop(() => {
-				this.scene.render();
-			});
-		} else 
-			window.alert("Waiting for other players...");
+		  this.engine.runRenderLoop(() => {
+			  this.scene?.render();
+		  });
 	}
 
 	resetCamera() {
@@ -100,19 +133,25 @@ class Game {
 
 	connectWebSocket() {
 
-		this.ws.onopen = () => {
-			console.log('Connected to game server');
-			this.ws.send('requestScene');
-		};
-
 		this.ws.onmessage = async (event) => {
 			const message = JSON.parse(event.data);
 			switch(message.type) {
 				case 'scene':
-					await this.createScene(message.data);
+					await this.createScene(message.data as string);
 					break;
 				case 'sceneState':
-					this.updateMeshes(message.data);
+					this.updateMeshes(message.data as MeshData);
+					break;
+				case 'playerList':
+					this.createScoreboardUI(message.data as string[]);
+					break;
+				case 'score':
+					this.updateScore(message.data as object);
+					break;
+				case 'gameEnd':
+					window.alert(message.data as string);
+					break;
+				case 'spectator': this.spectatorMode = true;
 					break;
 			}
 		};
@@ -127,20 +166,65 @@ class Game {
 
 	}
 
-	updateMeshes(data: string) {
+	updateMeshes(data: MeshData) {
 		if (this.scene) {
-			const meshUpdates = JSON.parse(data);
-			for (const m of meshUpdates) {
+			for (const p of data.positions) {
 				try {
-					this.scene.getMeshById(m.id)!.position = m.position;
+					this.scene.getMeshById(p.id)!.position = p.position;
+				} catch (error) {
+					console.error('Failed to update mesh:', error);
+				}	
+			} 
+			for (const r of data.rotations) {
+				try {
+					this.scene.getMeshById(r.id)!.rotationQuaternion = r.rotation;
 				} catch (error) {
 					console.error('Failed to update mesh:', error);
 				}	
 			} 
 		}
 	}
-}
 
+	updateScore(data: object) {
+		const playerScores = new Map(Object.entries(data));
+		for (const [name, score] of playerScores.entries()) {
+			const text = this.scoreBoard.get(name);
+			if (text) text.text = `${name}: ${score}`;
+		}
+	}	
+
+	createScoreboardUI(playerList: string[]) {
+		const gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+	
+		const container = new BABYLON.GUI.Rectangle();
+		container.width = "100%";
+		container.height = "60px";
+		container.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+		container.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+		container.thickness = 0;
+		gui.addControl(container);
+	
+		const stackPanel = new BABYLON.GUI.StackPanel();
+		stackPanel.isVertical = false;
+		stackPanel.height = "100%";
+		stackPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+		stackPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+		stackPanel.paddingTop = "10px";
+		stackPanel.spacing = 20;
+		container.addControl(stackPanel);
+	
+		for (const player of playerList) {
+			const playerText = new BABYLON.GUI.TextBlock();
+			playerText.color = "white";
+			playerText.fontSize = 24;
+			playerText.fontStyle = "bold";
+			playerText.resizeToFit = true;;
+			playerText.text = `${player}: ${0}`;
+			stackPanel.addControl(playerText);
+			this.scoreBoard.set(player, playerText);
+		}
+	}
+}
 
 window.addEventListener('DOMContentLoaded', async function() {
 
@@ -169,7 +253,6 @@ window.addEventListener('DOMContentLoaded', async function() {
 	});
 
 	window.addEventListener('resize', function() {
-	if (this.window.game.engine)
-		window.game.engine.resize();
+		window.game.engine?.resize();
 	});
 });
