@@ -24,86 +24,93 @@ export type Route = {
 };
 
 export const routes: Route[] = [
-	//The home page (/) is mapped to HomeComponent, meaning that when a user 
-	// first opens the website at /, the HomeComponent is rendered:
-    { path: '/', title: 'Home', component: new HomeComponent(), visible: true },
-	// Fills the array, with elements of type "Route", defined above, as object of the 4 variables:
+	/** 1) GENERAL PAGES */
+    { 
+		path: '/', // The home page (/) is mapped to HomeComponent, meaning that when a user first opens the website at /, the HomeComponent is rendered:
+		title: 'Home',
+		component: new HomeComponent(),
+		visible: true 
+	},
 	{
-        path: '/profile',
-        title: 'User profile',
-        component: new ProfileComponent(),
-        visible: false,
-    },
-    {
-        path: '/users',
-        title: 'Users',
-        component: new UsersPageComponent(),
-        visible: true,
-    },
-    {
-        path: '/error',
-        title: 'Error',
-        component: new NotFoundComponent(),
-        visible: false,
-    },
-    {
-        path: '/login',
-        title: 'Login',
-        component: new LoginComponent(),
-        visible: false,
-    },
-    {
-        path: '/login/google',
-        title: 'Login',
-        component: new LoginAfterGoogle(),
-        visible: false,
-    },
-    {
-        path: '/login/2fa',
-        title: 'Login verification code',
-        component: new LoginOtpComponent(),
-        visible: false,
-    },
-    {
-        path: '/logout',
-        title: 'Logout',
-        component: new LogoutComponent(),
-        visible: false,
-    },
-    {
-        path: '/settings',
-        title: 'User settings',
-        component: new UserSettingsComponent(),
-        visible: false,
-    },
-    {
-        path: '/forgot-password',
-        title: 'Password reset',
-        component: new ForgotPasswordComponent(),
-        visible: false,
-    },
-    {
-        path: '/register',
-        title: 'Sign up',
-        component: new RegisterComponent(),
-        visible: true,
-    },
-    {
-        path: '/reset-password',
-        title: 'Password reset',
-        component: new ResetPasswordComponent(),
-        visible: false,
-    },
-    {
-        path: '/create-tournament',
-        title: 'Create Tournament',
-        component: new CreateTournamentComponent(),
-        visible: false,
-    },
-    {
-        path: '/tournament',
-        title: 'Tournament',
-        component: new TournamentComponent(),
-        visible: false,
-    },
+		path: '/error',
+		title: 'Error',
+		component: new NotFoundComponent(),
+		visible: false,
+	},
+	/** 2) PAGES BEFORE LOG IN: */
+	{
+		path: '/register',
+		title: 'Sign up',
+		component: new RegisterComponent(),
+		visible: true,
+	},
+	{
+		path: '/login',
+		title: 'Login',
+		component: new LoginComponent(),
+		visible: false,
+	},
+	{
+		path: '/login/google',
+		title: 'Login',
+		component: new LoginAfterGoogle(),
+		visible: false,
+	},
+	{
+		path: '/login/2fa',
+		title: 'Login verification code',
+		component: new LoginOtpComponent(),
+		visible: false,
+	},
+	{
+		path: '/forgot-password',
+		title: 'Password reset',
+		component: new ForgotPasswordComponent(),
+		visible: false,
+	},
+	{
+		path: '/reset-password',
+		title: 'Password reset',
+		component: new ResetPasswordComponent(),
+		visible: false,
+	},
+	/** 3) PAGES AFTER LOG IN: */
+	//	   A. Regarding User(s)
+	{
+		path: '/settings',
+		title: 'User settings',
+		component: new UserSettingsComponent(),
+		visible: false,
+	},
+	{
+		path: '/profile',
+		title: 'User profile',
+		component: new ProfileComponent(),
+		visible: false,
+	},
+	{
+		path: '/users',
+		title: 'Users',
+		component: new UsersPageComponent(),
+		visible: false,
+	},
+	{
+		path: '/logout',
+		title: 'Logout',
+		component: new LogoutComponent(),
+		visible: false,
+	},
+	//	   B. Regarding the Game
+	{
+		path: '/create-tournament',
+		title: 'Create Tournament',
+		component: new CreateTournamentComponent(),
+		visible: false,
+	},
+	{
+		path: '/tournament',
+		title: 'Tournament',
+		component: new TournamentComponent(),
+		visible: false,
+	},
 ];
