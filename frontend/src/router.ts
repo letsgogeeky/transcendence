@@ -46,15 +46,15 @@ export const routes: Route[] = [
 	},
 	/** 2) PAGES BEFORE LOG IN: */
 	{
-		path: '/register',
-		title: 'Sign up',
-		component: new RegisterComponent(),
-		visible: true,
-	},
-	{
 		path: '/login',
 		title: 'Log in',
 		component: new LoginComponent(),
+		visible: true,
+	},
+	{
+		path: '/register',
+		title: 'Sign up',
+		component: new RegisterComponent(),
 		visible: true,
 	},
 	{
