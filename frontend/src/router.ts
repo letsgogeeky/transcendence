@@ -6,6 +6,7 @@ import LoginOtpComponent from './pages/login-2fa';
 import LoginAfterGoogle from './pages/login-google';
 import LogoutComponent from './pages/logout';
 import NotFoundComponent from './pages/notfound';
+import AboutComponent from './pages/about';
 import ForgotPasswordComponent from './pages/password/forgot-password';
 import ResetPasswordComponent from './pages/password/reset-password';
 import ProfileComponent from './pages/profile';
@@ -37,6 +38,12 @@ export const routes: Route[] = [
 		component: new NotFoundComponent(),
 		visible: false,
 	},
+	{
+		path: '/about',
+		title: 'About',
+		component: new AboutComponent(),
+		visible: true,
+	},
 	/** 2) PAGES BEFORE LOG IN: */
 	{
 		path: '/register',
@@ -46,9 +53,9 @@ export const routes: Route[] = [
 	},
 	{
 		path: '/login',
-		title: 'Login',
+		title: 'Log in',
 		component: new LoginComponent(),
-		visible: false,
+		visible: true,
 	},
 	{
 		path: '/login/google',

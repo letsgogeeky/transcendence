@@ -90,13 +90,14 @@ const render = () => {
         const user = State.getState().getCurrentUser();
         if (user) {
             navigator.displayTab('/register', false);
+            navigator.displayTab('/login', false);
             navigator.displayTab('/logout', true);
             navigator.displayTab('/settings', true);
             navigator.displayTab('/create-tournament', true);
             navigator.displayTab('/tournament', true);
         }
         if (!user) {
-            navigator.displayTab('/register', true);
+            // navigator.displayTab('/register', true);
             navigator.displayTab('/logout', false);
             navigator.displayTab('/settings', false);
             navigator.displayTab('/create-tournament', false);
