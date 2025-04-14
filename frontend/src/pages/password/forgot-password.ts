@@ -2,7 +2,7 @@ import Component from '../../components/Component';
 import FormComponent from '../../components/Form/Form';
 import Input from '../../components/Form/Input';
 import sendRequest, { Services } from '../../services/send-request';
-import { loadBackgroundGif } from '../../styles/background'
+import { loadBackgroundGif, loadImage } from '../../styles/background'
 
 export default class ForgotPasswordComponent extends Component {
     readonly element: HTMLElement;
@@ -17,16 +17,10 @@ export default class ForgotPasswordComponent extends Component {
 		const container = document.createElement('div');
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
-		//adds the background pong gif 
+		// adds the background pong gif 
 		container.appendChild(loadBackgroundGif());
-
-        // Big welcome image
-        const welcomeBackImage = document.createElement('img');
-        welcomeBackImage.src = './assets/forgetful.gif';  // Replace with your actual image path
-        welcomeBackImage.alt = 'Forgetful Me';
-        welcomeBackImage.className = 'w-full max-w-[500px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
-
-		container.appendChild(welcomeBackImage);
+		// adds the 'forgetful me' gif
+		container.appendChild(loadImage('forgetful.gif', 'w-full max-w-[500px] h-auto mb-5 rounded-lg', 'Gif for forgetfulness'));
 
         const inputStyle = 'border border-[#FFFF33] border-4 rounded-xl p-2 w-60 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
         const userInput = new Input(

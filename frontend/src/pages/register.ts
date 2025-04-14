@@ -3,7 +3,7 @@ import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
 import sendRequest, { Services } from '../services/send-request';
-import { loadBackgroundGif } from '../styles/background'
+import { loadBackgroundGif, loadImage } from '../styles/background'
 
 export default class RegisterComponent extends Component {
     readonly element: HTMLElement;
@@ -15,15 +15,7 @@ export default class RegisterComponent extends Component {
 
 		//adds the background pong gif 
 		container.appendChild(loadBackgroundGif());
-
-        // Big welcome image
-        const welcomeImage = document.createElement('img');
-        welcomeImage.src = './assets/welcome_img.jpg';  // Replace with your actual image path
-        welcomeImage.alt = 'Welcome Image';
-        // welcomeImage.className = 'w-full max-w-[700px] h-auto mb-8'; // Adjust the size of the image
-        welcomeImage.className = 'w-full max-w-[400px] h-auto mb-8 rounded-lg'; // Add 'rounded-lg' to give rounded edges
-
-		container.appendChild(welcomeImage);
+		container.appendChild(loadImage('welcome_img.jpg', 'w-full max-w-[400px] h-auto mb-8 rounded-lg', 'Welcome Image'));
 
         // "SIGN UP" text
 		const signUpText = document.createElement('h1');

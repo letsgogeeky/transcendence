@@ -5,7 +5,7 @@ import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
 import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
-import { loadBackgroundGif } from '../styles/background'
+import { loadBackgroundGif, loadImage } from '../styles/background'
 
 export default class LoginComponent extends Component {
     readonly element: HTMLElement;
@@ -16,18 +16,9 @@ export default class LoginComponent extends Component {
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
 		container.appendChild(loadBackgroundGif());
+		container.appendChild(loadImage('welcome_back.jpg', 'w-full max-w-[300px] h-auto mb-5 rounded-lg', 'Welcome Image'));
 
-        // Big welcome image
-        const welcomeBackImage = document.createElement('img');
-        welcomeBackImage.src = './assets/welcome_back.jpg';  // Replace with your actual image path
-        welcomeBackImage.alt = 'Welcome Image';
-        welcomeBackImage.className = 'w-full max-w-[300px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
-
-		container.appendChild(welcomeBackImage);
-
-        // Input Fields Styling
 		const inputStyle = 'border border-[#00FFFF] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
-
         // Email, Name, and Password Inputs
         const emailInput = new Input(
             'email',
@@ -46,7 +37,6 @@ export default class LoginComponent extends Component {
             inputStyle,
         );
 
-        // Form
         const form = new FormComponent(
             'LOG IN',
             [emailInput, passwordInput],

@@ -1,7 +1,7 @@
 import Button from '../components/Button';
 import Component from '../components/Component';
 import State, { MyUser } from '../services/state';
-import { loadBackgroundGif } from '../styles/background'
+import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
 
 export default class HomeComponent extends Component {
     readonly element: HTMLElement;
@@ -35,16 +35,11 @@ export default class HomeComponent extends Component {
 		const backgroundImage = document.createElement('div');
 		backgroundImage.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and left
 
-		const image = document.createElement('img');
-		image.src = './assets/background_elem.png';  // Replace with the actual path to your transparent image
-		image.className = 'w-full h-[300px] object-cover';  // Set width to full, height to fixed value (e.g., 200px)
-		image.style.opacity = '0.6';
-		image.alt = 'Background Image';
-		backgroundImage.appendChild(image);
-		// Append the background image container
+		// adds the background transparent decorative stripes:
+		backgroundImage.appendChild(loadImage('background_elem.png', 'w-full h-[300px] object-cover', 'background styling element', 0.6));
 		this.element.appendChild(backgroundImage);
 
-		// Set the background gif section
+		// adds the background gif 
 		this.element.appendChild(loadBackgroundGif());
 
 		// Logo and Button Wrapper
@@ -55,16 +50,7 @@ export default class HomeComponent extends Component {
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
 
-		const logoImage = document.createElement('img');
-		logoImage.src = './assets/PongJamLogo.png';
-		logoImage.className = 'w-full max-w-[400px] h-auto object-contain scale-[1.6]';
-
-		logoImage.alt = 'Game Logo';
-		logoContainer.appendChild(logoImage);
-
-		logoImage.onerror = function() {
-			console.error("Image failed to load");
-		};
+		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[400px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
@@ -88,13 +74,8 @@ export default class HomeComponent extends Component {
 
 		contentContainer.append(logoContainer, buttonContainer);
 
-		// Copyright section
-		const copyright = document.createElement('p');
-		copyright.className = 'text-white text-xs absolute bottom-4 left-1/2 transform -translate-x-1/2'; // Always at the bottom left
-		copyright.textContent = '© 2025 PongJam. All rights reserved.';
-
 		// Append everything to main element
-		this.element.append(contentContainer, copyright);
+		this.element.append(contentContainer, copyrightLine());
 	}
 
 	private buildLoggedInUI() {
@@ -107,18 +88,10 @@ export default class HomeComponent extends Component {
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-10';
 		
-		const playGif = document.createElement('img');
-		playGif.src = './assets/play.gif';
-		playGif.className = 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto';
-
-		playGif.alt = 'Game Logo';
-		logoContainer.appendChild(playGif);
+		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
 		
 		// Buttons section
-		// const buttonContainer = document.createElement('div');
-		// buttonContainer.className = 'flex justify-center space-x-8 relative z-10';
 		const buttonContainer = document.createElement('div');
-		// buttonContainer.className = 'flex flex-col items-center space-y-6 relative z-10';
 		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
 
 		// SINGLE PLAYER - Light Blue Border
@@ -221,13 +194,5 @@ export default class HomeComponent extends Component {
 		
 		// Append to main element
 		this.element.append(contentContainer, copyright);
-	}	
-
-	// private createNavButton(text: string, path: string): HTMLButtonElement {
-	// 	const button = document.createElement('button');
-	// 	// button.className = 'text-white hover:text-purple-300 p-2';
-	// 	button.textContent = text;
-	// 	button.onclick = () => { window.location.href = path; };
-	// 	return button;
-	// }
+	}
 }

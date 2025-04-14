@@ -1,18 +1,32 @@
 import Button from '../components/Button';
 import Component from '../components/Component';
 
-export function createBackgroundImage(src: string, opacity: number, className: string): HTMLElement {
-	const container = document.createElement('div');
-	container.className = className;
+/**
+ * 
+ * @param fileName the name or path of the file inside the directory `frontend/assets/`
+ * @param className the tailwind formatting string that will style the image element
+ * @param altText the "alt text" to be provided if the image fail to load
+ * @param opacity optional - sets the opacity of the image if given
+ * @returns the HTMLImageElement
+ */
+export function loadImage(
+	fileName: string,
+	className: string,
+	altText: string,
+	opacity?: number
+): HTMLImageElement {
+	const image = document.createElement('img');
+	image.src = `./assets/${fileName}`;
+	image.className = className;
+	image.alt = altText;
 
-	const img = document.createElement('img');
-	img.src = src;
-	img.alt = 'Background';
-	img.className = 'w-full object-cover';
-	img.style.opacity = opacity.toString();
-
-	container.appendChild(img);
-	return container;
+	if (opacity !== undefined) {
+		image.style.opacity = opacity.toString();
+	}
+	image.onerror = () => {
+		console.error(`Image "${fileName}" failed to load`);
+	};
+	return image;
 }
 
 export function loadBackgroundGif(): HTMLElement {
@@ -26,4 +40,11 @@ export function loadBackgroundGif(): HTMLElement {
 	gif.alt = 'Background Gif';
 	container.appendChild(gif);
 	return container;
+}
+
+export function copyrightLine(): HTMLElement {
+	const copyright = document.createElement('p');
+	copyright.className = 'text-white text-xs absolute bottom-4 left-1/2 transform -translate-x-1/2'; // Always at the bottom left
+	copyright.textContent = '© 2025 PongJam. All rights reserved.';
+	return copyright;
 }
