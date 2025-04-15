@@ -17,8 +17,9 @@ export async function logoutUser(): Promise<void> {
             throw new Error(`Error: ${responseBody.error}`);
         }
         showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
-        localStorage.clear();
         State.getState().setAuthToken(null);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
         State.getState().setCurrentUser(null);
     } catch (error) {
         if (error instanceof Error) {
