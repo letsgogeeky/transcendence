@@ -12,6 +12,7 @@ services:
             - ./certs:/app/certs
             - ./uploads:/app/uploads
             - ./db:/app/db
+            - ./backend/auth/src:/app/src
         env_file: './.env'
         environment:
             - DATABASE_URL=file:/app/db/auth.db

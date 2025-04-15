@@ -1,9 +1,16 @@
 import { FriendRequestStatus, LoginLevel } from '@prisma/client';
 import { FastifyInstance } from 'fastify';
+import { WebSocket } from 'ws';
+import { FastifyRequest, FastifyReply } from 'fastify';
 
 interface SocketData {
     type: string;
     token?: string;
+}
+
+interface FriendRequest {
+    sender: string;
+    receiver: string;
 }
 
 export function SocketRoutes(fastify: FastifyInstance) {
@@ -44,7 +51,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
             },
             select: { sender: true, receiver: true },
         });
-        const friendIds = friends.map((friendReq) =>
+        const friendIds = friends.map((friendReq: FriendRequest) =>
             friendReq.receiver == userId
                 ? friendReq.sender
                 : friendReq.receiver,
@@ -59,60 +66,69 @@ export function SocketRoutes(fastify: FastifyInstance) {
 
     fastify.route({
         method: 'GET',
-        url: '/socket/',
-        handler: (req, reply) => {
+        url: '/socket',
+        handler: (_req: FastifyRequest, reply: FastifyReply) => {
             reply.send({ message: 'WebSocket endpoint' });
         },
-        wsHandler: (socket, req) => {
-            const { userId, userName } = req.cookies;
-            if (!userId) socket.terminate();
-
+        wsHandler: (socket: WebSocket, _req: FastifyRequest) => {
+            console.log('WebSocket connection established');
             socket.on('message', (message: string) => {
                 console.log('Received:' + message);
-                const data = JSON.parse(message) as SocketData;
+                let data: SocketData;
+                try {
+                    data = JSON.parse(message) as SocketData;
+                } catch (error) {
+                    console.error('Error parsing message:', error);
+                    socket.close();
+                }
                 if (data.type == 'AUTH') {
                     const id = verifyToken(data.token);
                     if (id) {
-                        if (fastify.connections.has(userId!)) {
+                        if (fastify.connections.has(id)) {
                             const message = { type: 'CONFLICT' };
-                            const oldSocket = fastify.connections.get(userId!);
+                            const oldSocket = fastify.connections.get(id);
                             oldSocket!.send(JSON.stringify(message));
                             oldSocket!.close();
-                            fastify.connections.delete(userId!);
+                            fastify.connections.delete(id);
                             socket.send(JSON.stringify({ type: 'RETRY' }));
                             return;
                         }
                         fastify.connections.set(id, socket);
-                        const message = {
-                            type: 'SUCCESS',
-                            message: 'Welcome ' + userName,
-                        };
-                        fastify.connections
-                            .get(id)!
-                            .send(JSON.stringify(message));
-                        notifyFriends(
-                            id,
-                            userName + ' is online',
-                            'LOGIN',
-                        ).catch((error) => {
-                            console.error('Error in notifying friends:', error);
+                        fastify.prisma.user.findUnique({
+                            where: { id },
+                            select: { name: true }
+                        }).then(user => {
+                            if (user) {
+                                const message = {
+                                    type: 'SUCCESS',
+                                    message: 'Welcome ' + user.name,
+                                };
+                                socket.send(JSON.stringify(message));
+                                notifyFriends(
+                                    id,
+                                    user.name + ' is online',
+                                    'LOGIN',
+                                ).catch((error) => {
+                                    console.error('Error in notifying friends:', error);
+                                });
+                            }
+                        }).catch(error => {
+                            console.error('Error finding user:', error);
+                            socket.close();
                         });
+                    } else {
+                        console.log('Invalid token');
+                        socket.close();
                     }
                 }
             });
+
             socket.on('close', () => {
-                if (fastify.connections.delete(userId!)) {
-                    notifyFriends(
-                        userId!,
-                        userName + ' is offline',
-                        'LOGOUT',
-                    ).catch((error) => {
-                        console.error('Error in notifying friends:', error);
-                    });
-                }
+                console.log('WebSocket connection closed');
+                // We don't need to handle cleanup here as the connection is already closed
             });
-            socket.on('error', (err) => {
-                fastify.connections.delete(userId!);
+
+            socket.on('error', (err: Error) => {
                 console.error('WebSocket Error:', err);
             });
         },

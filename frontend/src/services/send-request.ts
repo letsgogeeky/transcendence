@@ -11,7 +11,7 @@ export enum Services {
 
 export const endpoints = {
     auth: '/auth',
-    authSocket: '/auth/socket/',
+    authSocket: '/auth/socket',
     match: '/match',
     chat: '/chat',
 };
@@ -41,7 +41,6 @@ export async function tryRefresh(): Promise<string | null> {
         return null;
     } else {
         const responseBody = await response.json();
-        localStorage.setItem('authToken', responseBody.authToken);
         State.getState().setAuthToken(responseBody.authToken);
         return responseBody.authToken;
     }

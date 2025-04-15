@@ -15,7 +15,7 @@ interface TournamentPayload {
 }
 
 export function tournamentRoutes(app: FastifyInstance) {
-    // app.register(credentialAuthCheck);
+    app.register(credentialAuthCheck);
     app.get('/', async (request, reply) => {
         // get all tournaments
         const tournaments = await app.prisma.tournament.findMany({

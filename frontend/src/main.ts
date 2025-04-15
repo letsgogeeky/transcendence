@@ -88,6 +88,7 @@ const render = () => {
 	 */
     window.addEventListener('userChange', (e) => {
         const user = State.getState().getCurrentUser();
+        console.log('user', user);
         if (user) {
             navigator.displayTab('/register', false);
             navigator.displayTab('/logout', true);
