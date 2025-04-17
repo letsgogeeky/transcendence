@@ -3,13 +3,15 @@ import { Ball } from './ball.js';
 import * as BABYLON from '@babylonjs/core';
 import HavokPhysics from '@babylonjs/havok';
 
+
+
 let sides: number = 2;
 let sideLength: number = 20;
-let polygon: BABYLON.Mesh | undefined;
+let polygon: BABYLON.Mesh;
 let walls: BABYLON.Mesh[] = [];
 let paddleBoxes: BABYLON.Mesh[] = [];
 let paddles: Paddle[];
-let meshes: BABYLON.Mesh[] = [];
+let meshes: BABYLON.Mesh[];
 
 function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): void {
   const points = getRegularPolygonPoints(sides, sideLength);
@@ -22,7 +24,7 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
   paddles.length = 0;
   paddleBoxes.length = 0;
 
-  if (sides !== 2) {
+  if (sides != 2) {
     for (let i = 0; i < points.length; i++) {
       const wall1 = BABYLON.MeshBuilder.CreateBox("wall" + i * 2, { height: sideLength / 4 }, scene);
       const wall2 = BABYLON.MeshBuilder.CreateBox("wall" + i * 2 + 1, { height: sideLength / 4 }, scene);
@@ -68,9 +70,9 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
     walls.push(wall2);
     paddleBoxes.push(paddle1);
     paddleBoxes.push(paddle2);
-	// let obstacle = BABYLON.MeshBuilder.CreateBox("box", { width: 3, height: 3}, scene);
-	// obstacle.rotation.z = Math.PI / 4;
-	// new BABYLON.PhysicsAggregate(obstacle, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
+	let obstacle = BABYLON.MeshBuilder.CreateBox("box", { width: 3, height: 3}, scene);
+	obstacle.rotation.z = Math.PI / 4;
+	new BABYLON.PhysicsAggregate(obstacle, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
   }
   points.push(points[0]);
   polygon = BABYLON.MeshBuilder.CreateLines("polygon", { points }, scene);
@@ -78,7 +80,7 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
   const paddleMaterial = new BABYLON.StandardMaterial("paddleMat", scene);
   paddleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
   for (let i = 0; i < paddleBoxes.length; i++) paddles.push(new Paddle(paddleBoxes[i], paddleMaterial, 
-	paddleBoxes.length > 2 && i <  paddleBoxes.length, scene));
+	paddleBoxes.length > 2, scene));
   if (sides == 2) for (let p of paddles) p.limit *= 1.175;
 
   for (let wall of walls) new BABYLON.PhysicsAggregate(wall, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);

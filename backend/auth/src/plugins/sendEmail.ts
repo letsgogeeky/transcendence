@@ -9,6 +9,9 @@ const emailPlugin: FastifyPluginCallback = fp((server, _options, done) => {
             user: 'noreply.transcendence2025@gmail.com',
             pass: server.config.GOOGLE_PASS,
         },
+		tls: {
+			rejectUnauthorized: false,
+		},
     });
     server.decorate('transporter', transporter);
     done();

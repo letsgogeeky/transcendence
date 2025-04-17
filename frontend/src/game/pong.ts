@@ -1,39 +1,12 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
 
-const messageDiv = document.createElement("div");
-messageDiv.innerText = "Waiting for game to start...";
-messageDiv.style.position = "fixed";
-messageDiv.style.top = "50%";
-messageDiv.style.left = "50%";
-messageDiv.style.transform = "translate(-50%, -50%)";
-messageDiv.style.fontSize = "48px";
-messageDiv.style.fontWeight = "bold";
-messageDiv.style.color = "#fff";
-messageDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-messageDiv.style.padding = "20px 40px";
-messageDiv.style.borderRadius = "12px";
-messageDiv.style.zIndex = "1000";
-messageDiv.style.display = "block";
-
-document.body.appendChild(messageDiv);
-
 interface Window {
 	timePassed: number;
 	game: Game;
 }
 
-interface Keys {
-  up: boolean;
-  down: boolean;
-  w: boolean;
-  s: boolean;
-  q: boolean;
-  e: boolean;
-  r: boolean;
-}
-
-let keys: Keys = {
+let keys = {
 	up: false,
 	down: false,
 	w: false,
@@ -60,10 +33,32 @@ type MeshData = {
 	}[]
 }
 
+type GameSettings = {
+	players: number;
+	aiPlayers?: number;
+	timeLimit?: number;
+	startScore?: number,
+	winScore?: number;
+	replaceDisconnected?: boolean;
+	terminatePlayers?: boolean;
+	//teams:
+}
+
+const loadingScreenDiv = document.createElement("div");
+loadingScreenDiv.id = "loadingScreenDiv";
+loadingScreenDiv.innerHTML = `
+  <div id="loadingContent">
+    <img src="../assets/PongJamLogo.png" id="loadingImage">
+    <p id="loadingText">Waiting for players...</p>
+  </div>`;
+document.body.appendChild(loadingScreenDiv);
+
 class Game {
 	engine: BABYLON.Engine;
 	scene: BABYLON.Scene | undefined;
 	camera!: BABYLON.ArcRotateCamera;
+	gui!: BABYLON.GUI.AdvancedDynamicTexture;
+	settings!: GameSettings;
 	ws: WebSocket;
 	canvas: HTMLCanvasElement; 
 	textures!: BABYLON.Texture[];
@@ -74,24 +69,23 @@ class Game {
 	constructor() {
 		this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this.engine = new BABYLON.Engine(this.canvas, true);
-		this.ws = new WebSocket('wss://localhost:8082/game');
+		this.ws = new WebSocket('wss://localhost:8082/match/game');
 		this.connectWebSocket();
-	
-		const interval = setInterval(() => {
-			if (this.scene) {
-				clearInterval(interval);
-				messageDiv.style.display = "none";
-			}
-		  }, 100);
 	}
 
 	private async createScene(sceneString: string) {
+		//document.getElementById("loadingText")!.innerText = "Loading...";
 		this.scene?.dispose();
+		console.log(sceneString.length);
 		this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
+		this.engine.hideLoadingUI();
+		this.scene.executeWhenReady(() => {
+			loadingScreenDiv.style.display = "none";
+		});
 
 		this.textures = [
-			new BABYLON.Texture("src/game/ball.png", this.scene),
-			new BABYLON.Texture("src/game/particle.png", this.scene)
+			new BABYLON.Texture("../src/game/ball.png", this.scene),
+			//new BABYLON.Texture("src/game/particle.png", this.scene)
 		]
 
 		const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene);
@@ -108,6 +102,16 @@ class Game {
 		ballMaterial.diffuseTexture = this.textures[0];
 		ballMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
 		this.scene.getMeshByName("ball")!.material = ballMaterial;
+
+		var dome = new BABYLON.PhotoDome(
+			"testdome",
+			"../src/game/space.jpg",
+			{
+				resolution: 32,
+				size: 1000
+			},
+			this.scene
+		);
 
 		this.scene.registerBeforeRender(() => {	
 			if (keys.up || keys.w && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'moveUp'}));
@@ -132,7 +136,6 @@ class Game {
 	}
 
 	connectWebSocket() {
-
 		this.ws.onmessage = async (event) => {
 			const message = JSON.parse(event.data);
 			switch(message.type) {
@@ -150,6 +153,8 @@ class Game {
 					break;
 				case 'gameEnd':
 					window.alert(message.data as string);
+					break;
+				case 'settings': this.settings = message.data as GameSettings;
 					break;
 				case 'spectator': this.spectatorMode = true;
 					break;
@@ -194,7 +199,14 @@ class Game {
 	}	
 
 	createScoreboardUI(playerList: string[]) {
-		const gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+		let playerCount = playerList.length;
+		if (playerCount == 0) playerCount = 1;
+		else if (playerCount > this.settings?.players) playerCount = this.settings.players;
+		document.getElementById("loadingText")!.innerText = 
+		`Waiting for players... (${playerCount}/${this.settings.players})`;
+		if (!this.scene?.getEngine()) return;
+		this.gui?.dispose();
+		this.gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
 	
 		const container = new BABYLON.GUI.Rectangle();
 		container.width = "100%";
@@ -202,7 +214,7 @@ class Game {
 		container.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
 		container.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 		container.thickness = 0;
-		gui.addControl(container);
+		this.gui.addControl(container);
 	
 		const stackPanel = new BABYLON.GUI.StackPanel();
 		stackPanel.isVertical = false;
@@ -240,6 +252,8 @@ window.addEventListener('DOMContentLoaded', async function() {
 		if (e.key === "q" || e.key === "Q") keys.q = true;
 		if (e.key === "e" || e.key === "E") keys.e = true;
 		if (e.key === "r" || e.key === "R") keys.r = true;
+		if (e.key === "ArrowUp" || e.key === "Up") keys.up = true;
+		if (e.key === "ArrowDown" || e.key === "Down") keys.down = true;
 	});
 
 	window.addEventListener("keyup", function(e) {

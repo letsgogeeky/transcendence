@@ -17,7 +17,9 @@ const messageTypes = {
     JOIN_LEAVE_MATCH: 'join_leave_match',
 }
 
-let gameSettings = {players: 1, coms: 1, winScore: 5, timeLimit: 3 * 60 * 1000, replaceDisconnected: true};
+let gameSettings = {players: 2, aiPlayers: 3, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
+	startScore: 5, terminatePlayers: false
+};
 
 let game1 = new GameSession("match_1", gameSettings);
 let game2 = new GameSession("match_2", gameSettings);
@@ -31,7 +33,8 @@ export function gameRoutes(app: FastifyInstance) {
             reply.send('Game WebSocket!');
         },
         wsHandler: (socket: WebSocket, req: FastifyRequest) => {
-            console.log('WebSocket Connected!');
+           // console.log('WebSocket Connected!');
+		   console.log("User " + req.user + " connected");
             //if (!req.user) {
                 //console.warn(`User not found for socket ${req.socket.remoteAddress}`);
                 // socket.close();
@@ -40,7 +43,7 @@ export function gameRoutes(app: FastifyInstance) {
 		
 			// if (gameServer.status == GameStatus.ONGOING)
 			// 	gameServer = game2;
-			gameServer = game1.clients.size < game2.clients.size ? game1 : game2;
+			//gameServer = game1.clients.size < game2.clients.size ? game1 : game2;
 			gameServer.handleConnection(socket);
             app.connections.set(req.user, socket);
             socket.on('message', (message: string) => {
@@ -92,6 +95,10 @@ export function gameRoutes(app: FastifyInstance) {
                     // socket.close();
                     // return;
                 //}
+				if (gameServer.status == GameStatus.ENDED) {
+					gameServer.dispose();
+					gameServer = new GameSession("new_match", gameSettings);
+				}
 				gameServer.handleClose(socket);
                 const user = req.user;
                 app.connections.delete(user);

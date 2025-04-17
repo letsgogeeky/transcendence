@@ -66,6 +66,7 @@ export function tournamentRoutes(app: FastifyInstance) {
         });
     });
 
+    // create a tournament
     app.post('/', {
         schema: {
             body: {
@@ -125,6 +126,49 @@ export function tournamentRoutes(app: FastifyInstance) {
             });
         },
     );
+    // add participant to a tournament
+    app.post('/:id/add-player', {
+        schema: {
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string' },
+                },
+            },
+            body: {
+                type: 'object',
+                properties: {
+                    playerId: { type: 'string' },
+                },
+            },
+        },
+    },
+    async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const { playerId } = request.body as { playerId: string };
+        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+                participants: true,
+                matches: true,
+            } });
+            if (!tournament) {
+                return reply.status(404).send({
+                    message: 'Tournament not found',
+                });
+            }
+        const tournamentParticipant = {
+            tournamentId: tournament.id,
+            userId: playerId,
+            status: 'active',
+        }
+        await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
+        const updatedTournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+                participants: true,
+                matches: true,
+            } });
+        return reply.status(200).send({
+            tournament: updatedTournament,
+        });
+    });
     // start a tournament
     app.post('/:id/start', {
         schema: {
@@ -179,4 +223,28 @@ export function tournamentRoutes(app: FastifyInstance) {
             });
         },
     );
+
+    // leave a tournament
+    app.post('/:id/leave', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const { userId } = request.body as { userId: string };
+        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+            participants: true,
+        } });
+        if (!tournament) {
+            return reply.status(404).send({
+                message: 'Tournament not found',
+            });
+        }
+        const tournamentParticipant = await app.prisma.tournamentParticipant.findFirst({ where: { tournamentId: id, userId: userId } });
+        if (!tournamentParticipant) {
+            return reply.status(404).send({
+                message: 'Participant not found',
+            });
+        }
+        await app.prisma.tournamentParticipant.delete({ where: { id: tournamentParticipant.id } });
+        return reply.status(200).send({
+            message: 'Participant left tournament',
+        });
+    });
 }

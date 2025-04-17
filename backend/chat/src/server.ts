@@ -6,69 +6,64 @@ import { PrismaClient } from '@prisma/client';
 import { WebSocket } from 'ws';
 import fpSqlitePlugin from "fastify-sqlite-typed";
 import fastifyCors from "@fastify/cors";
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    avatarUrl: string;
+import fs from 'fs';
+import fastifyJwt from '@fastify/jwt';
+declare module '@fastify/jwt' {
+    interface FastifyJWT {
+        user: string;
+    }
 }
-
 declare module 'fastify' {
     interface FastifyInstance {
         config: {
-            PORT: number;
-            DB_PATH: string;
-            DATABASE_URL: string;
+            CHAT_PORT: number;
+            CHAT_DB_PATH: string;
             UPLOAD_DIR: string;
             FRONTEND: string;
             SSL_KEY_PATH: string;
             SSL_CERT_PATH: string;
-            SSL_PASSPHRASE: string;
+            SECRET: string;
         };
         prisma: PrismaClient;
-        chatConnections: Map<string, WebSocket>;
+        connections: Map<string, WebSocket>;
     }
 }
 
-declare module 'fastify' {
-    interface FastifyRequest {
-        user?: User;
-    }
-}
+const keyPath = process.env.SSL_KEY_PATH || 'key.pem';
+const certPath = process.env.SSL_CERT_PATH || 'cert.pem';
 
-// const keyPath = process.env.SSL_KEY_PATH || 'key.pem';
-// const certPath = process.env.SSL_CERT_PATH || 'cert.pem';
-const chatServer = fastify({
+const server = fastify({
     logger: true,
-    // https: {
-    //     key: fs.readFileSync(keyPath),
-    //     cert: fs.readFileSync(certPath),
-    //     passphrase: process.env.SSL_PASSPHRASE,
-    // },
+    https: {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath),
+    },
 });
 
 
 const start = async () => {
     try {
-        await chatServer.register(fastifyEnv, options);
-        chatServer.register(fastifyCors, {
-            origin: [chatServer.config.FRONTEND],
+        await server.register(fastifyEnv, options);
+        server.register(fastifyCors, {
+            origin: [server.config.FRONTEND],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Content-Type', 'Authorization'],
         });
-        chatServer.register(fpSqlitePlugin, {
-            dbFilename: chatServer.config.DB_PATH,
+        server.register(fastifyJwt, {
+            secret: server.config.SECRET,
+        });
+        server.register(fpSqlitePlugin, {
+            dbFilename: server.config.CHAT_DB_PATH,
             driverSettings: { verbose: true },
         });
-        await chatServer.register(app, options);
-        await chatServer.listen({ port: chatServer.config.PORT });
+        await server.register(app, options);
+        await server.listen({ port: server.config.CHAT_PORT, host: '0.0.0.0' });
     } catch (err) {
-        chatServer.log.error(err);
+        server.log.error(err);
         process.exit(1);
     }
 };
 
 void start();
 
-export default chatServer;
+export default server;

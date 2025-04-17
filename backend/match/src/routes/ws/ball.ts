@@ -94,8 +94,8 @@ export class Ball {
 			return;
 		this.reset(true);
 	}
-	// this.aggregate.body.getLinearVelocity().z = 0;
-	// this.aggregate.body.transformNode.position.z = 0;
+	this.aggregate.body.getLinearVelocity().z = 0;
+	this.aggregate.body.transformNode.position.z = 0;
 }
 
   reset(scored: boolean): void {
@@ -104,7 +104,7 @@ export class Ball {
 		const i = findPolygonSide(this.position);
 		if (i < this.game.paddles.length)
 			this.game.paddles[i].score--;
-		if (this.game.settings.startScore !== undefined && this.lastTouched !== undefined) {
+		if (this.game.settings.startScore === undefined && this.lastTouched !== undefined) {
 			if (this.lastTouched != this.game.paddles[i])
 				this.lastTouched.score++;
 			else if (this.secondLastTouched != undefined)

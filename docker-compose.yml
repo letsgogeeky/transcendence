@@ -13,16 +13,8 @@ services:
             - ./uploads:/app/uploads
             - ./db:/app/db
         env_file: './.env'
-
-    # game:
-    #     build:
-    #         context: ./backend/game
-    #         dockerfile: Dockerfile
-    #     image: game
-    #     ports:
-    #         - '8083:8083'
-    #     networks:
-    #         - app-network
+        environment:
+            - DATABASE_URL=file:/app/db/auth.db
 
     match:
         build:
@@ -39,6 +31,30 @@ services:
             - ./certs:/app/certs
             - ./backend/match/src:/app/src
         env_file: './.env'
+        environment:
+            - DATABASE_URL=file:/app/db/match.db
+        depends_on:
+            - auth
+
+    chat:
+        build:
+            context: ./backend/chat
+            dockerfile: Dockerfile
+        image: chat
+        ports:
+            - '8083:8083'
+        networks:
+            - app-network
+        volumes:
+            - ./db:/app/db
+            - ./uploads:/app/uploads
+            - ./certs:/app/certs
+            - ./backend/chat/src:/app/src
+        env_file: './.env'
+        environment:
+            - DATABASE_URL=file:/app/db/chat.db
+        depends_on:
+            - auth
 
     frontend:
         build:
@@ -53,6 +69,87 @@ services:
         networks:
             - app-network
         env_file: './.env'
+        depends_on:
+            - auth
+            - match
+            - chat
+    nginx:
+        container_name: nginx
+        restart: always
+        build:
+            context: ./infra/nginx
+            dockerfile: nginx.Dockerfile
+        networks:
+            - app-network
+        ports:
+            - '80:80'
+            - '443:443'
+        environment:
+            - NGINX_HOST=0.0.0.0
+            - NGINX_PORT=80
+            - FRONTEND=https://localhost
+        volumes:
+            - ./infra/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+            - ./certs:/etc/nginx/ssl
+        depends_on:
+            - auth
+            - match
+            - chat
+            - frontend
+
+    nginx-exporter:
+        image: nginx/nginx-prometheus-exporter
+        ports:
+            - '9113:9113'
+        networks:
+            - app-network
+        command: 
+            - '-nginx.scrape-uri=http://nginx/status'
+        depends_on:
+            - nginx
+
+    node-exporter:
+        image: prom/node-exporter
+        ports:
+            - '9100:9100'
+        networks:
+            - app-network
+        command:
+            - '--collector.container'
+            - '--collector.container.labels'
+            - '--collector.container.labels-to-include=container_label_com_docker_compose_service'
+
+    prometheus:
+        image: prom/prometheus
+        ports:
+            - '9090:9090'
+        networks:
+            - app-network
+        volumes:
+            - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+        depends_on:
+            - node-exporter
+            - nginx-exporter
+            - auth
+            - match
+            - chat
+
+    grafana:
+        image: grafana/grafana
+        ports:
+            - '3001:3000'
+        networks:
+            - app-network
+        volumes:
+            - ./infra/grafana/provisioning:/etc/grafana/provisioning
+            - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
+        depends_on:
+            - prometheus
 
 networks:
     app-network:

@@ -7,12 +7,12 @@ import { Paddle } from './paddle.js'
 import { buildScene } from './scene.js';
 import { Ball } from './ball.js';
 import { WebSocket } from "ws";
+import { paddleAi } from './paddleAi.js'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const wasmPath = join(__dirname, '../../../node_modules/@babylonjs/havok/lib/esm/HavokPhysics.wasm');
-
-async function loadPhysics() {
+export async function loadPhysics() {
+	const __filename = fileURLToPath(import.meta.url);
+	const __dirname = dirname(__filename);
+	const wasmPath = join(__dirname, '../../../node_modules/@babylonjs/havok/lib/esm/HavokPhysics.wasm');
     const wasmBinary = readFileSync(wasmPath);
     const havokInstance = await HavokPhysics({ wasmBinary });
     return havokInstance;
@@ -65,14 +65,17 @@ export class GameSession {
 
 	public handleConnection(ws: WebSocket) {
 		this.clients.add(ws);
-		if (this.clients.size == this.settings.players) {
+		if (this.status == GameStatus.WAITING && this.clients.size == this.settings.players) {
 			this.startGameLoop();
 			for (let client of this.clients) this.sendScene(client);
+			this.updateScore();
 		}
 		else if (this.clients.size > this.settings.players) {
 			ws.send(JSON.stringify({type: 'spectator'}));
 			this.sendScene(ws);
 		}
+		ws.send(JSON.stringify({type: 'settings', data: this.settings}));
+		this.sendPlayerList(ws);
     }
 
     public handleMessage(ws: WebSocket, message: string) {
@@ -88,7 +91,6 @@ export class GameSession {
     }
 
     public handleClose(ws: WebSocket) {
-        console.log(`Player disconnected`);
         if (this.status == GameStatus.ONGOING) {
 			const disconnectedPlayer = this.paddles.find(p => p.ws === ws);
 			if (this.settings.replaceDisconnected && disconnectedPlayer)
@@ -98,12 +100,16 @@ export class GameSession {
 		this.clients.delete(ws);
     }
 
-	public sendScene(client: WebSocket) {
-		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
-		client.send(JSON.stringify({type: 'scene', data: sceneString}));
+	public sendPlayerList(client: WebSocket) {
 		const playerNames = [];
 		for (const paddle of this.paddles) playerNames.push(paddle.name);
 		client.send(JSON.stringify({type: 'playerList', data: playerNames}));
+	}
+
+	public sendScene(client: WebSocket) {
+		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
+		client.send(JSON.stringify({type: 'scene', data: sceneString}));
+		this.sendPlayerList(client);
 	}
 
 	public updateScore() {
@@ -116,14 +122,13 @@ export class GameSession {
 		let removePaddle;
 		for (const paddle of this.paddles) {
 			if (this.settings.winScore && paddle.score >= this.settings.winScore)
-				this.gameEnd();
-			else if (this.settings.terminatePlayers && paddle.score <= 0)
+				this.gameEnd("highest score");
+			else if (paddle.score <= 0 && this.settings.terminatePlayers)
 				removePaddle = paddle;
 		}
 		if (removePaddle) {
 			this.paddles = this.paddles.filter(p => p != removePaddle);
-			if (this.paddles.length == 1)
-				this.gameEnd();
+			if (this.paddles.length <= 1) this.gameEnd("termination");
 		}
 	}
 
@@ -155,6 +160,7 @@ export class GameSession {
 
 		this.paddles = buildScene(this.settings.players + this.settings.aiPlayers!, this.scene);
 		this.balls.push(new Ball(this, this.scene));
+		for (const paddle of this.paddles) paddle.balls = this.balls;
 		for (let ball of this.balls) ball.sceneLimit = 20 / (2 * Math.sin(Math.PI / (this.settings.players + this.settings.aiPlayers!)));
 		this.clients.forEach((client) => {
 			const paddle = this.paddles.find(p => !p.player);
@@ -179,11 +185,19 @@ export class GameSession {
             lastTime = now;
             if (this.status == GameStatus.ONGOING) {
 				this.scene.getPhysicsEngine()?._step(deltaTime);
-				for (const paddle of this.paddles) paddle.defend(this.balls);
+				for (const paddle of this.paddles) paddle.defend();
+				//for (const paddle of this.paddles) paddle.moveToTarget();
 				for (const ball of this.balls) ball.step();
 				this.broadcastSceneState();
 			} else if (this.status == GameStatus.PAUSED)
 				startTime += deltaTime;
         }, 1000 / 30);
+		// setInterval(() => {
+		// 	paddleAi(this.paddles, this.balls);
+		// }, 1000);
     }
+
+	public dispose() {
+		this.scene.dispose();
+	}
 }

@@ -17,3 +17,7 @@ clean:
 	rm -rf node_modules
 	rm -rf uploads/*
 	rm -rf coverage
+
+
+lint:
+	npx eslint .

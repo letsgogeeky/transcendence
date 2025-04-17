@@ -9,8 +9,10 @@ import historyRoutes from './routes/http/history.js';
 import { gameRoutes } from './routes/ws/game.js';
 import { tournamentRoutes } from './routes/http/tournament.js';
 
+const prefix = '/match';
+
 const swaggerOptions = {
-    routePrefix: '/docs',
+    routePrefix: prefix + '/docs',
     swagger: {
         info: {
             title: 'Match API',
@@ -25,7 +27,7 @@ const swaggerOptions = {
 };
 
 const swaggerUiOptions = {
-    routePrefix: '/docs',
+    routePrefix: prefix + '/docs',
     uiConfig: {
         docExpansion: 'full' as const,
         deepLinking: true as const,
@@ -34,13 +36,13 @@ const swaggerUiOptions = {
 } as const;
 
 export const app = fastifyPlugin((server: FastifyInstance, _options: FastifyPluginOptions) => {
-    server.register(fastifyWebsocket);
-    server.register(socketConnectionPlugin);
+    server.register(fastifyWebsocket, { prefix });
+    server.register(socketConnectionPlugin, { prefix });
     server.register(fastifySwagger, swaggerOptions);
     server.register(fastifySwaggerUi, swaggerUiOptions);
     // TODO: Add routes here
-    server.register(demoRoutes, { prefix: '/demo' });
-    server.register(historyRoutes, { prefix: '/history' });
-    server.register(gameRoutes, { prefix: '/game' });
-    server.register(tournamentRoutes, { prefix: '/tournament' });
+    server.register(demoRoutes, { prefix: prefix + '/demo' });
+    server.register(historyRoutes, { prefix: prefix + '/history' });
+    server.register(gameRoutes, { prefix: prefix + '/game' });
+    server.register(tournamentRoutes, { prefix: prefix + '/tournament' });
 });

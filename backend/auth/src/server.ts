@@ -86,7 +86,7 @@ const start = async () => {
         app.register(myCachePlugin);
         app.register(fastifyStatic, {
             root: app.config.UPLOAD_DIR,
-            prefix: '/images/',
+            prefix: '/auth/images/',
         });
         app.register(fpSqlitePlugin, {
             dbFilename: app.config.DB_PATH,
@@ -106,11 +106,11 @@ const start = async () => {
             },
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
-        app.register(registerRoutes);
-        app.register(resetPasswordRoutes);
+        app.register(registerRoutes, { prefix: '/auth'});
+        app.register(resetPasswordRoutes, { prefix: '/auth'});
         app.register(connectionsPlugin);
-        app.register(loginRoutes);
-        app.register(friendRequestsRoutes);
+        app.register(loginRoutes, { prefix: '/auth'});
+        app.register(friendRequestsRoutes, { prefix: '/auth'});
         app.register(oauthPlugin, {
             name: 'googleOAuth2',
             scope: ['email', 'profile'],
@@ -121,17 +121,17 @@ const start = async () => {
                 },
                 auth: oauthPlugin.GOOGLE_CONFIGURATION,
             },
-            startRedirectPath: '/login/google',
+            startRedirectPath: '/auth/login/google',
             callbackUri: (req) =>
-                `${req.protocol}://${req.hostname}:${app.config.AUTH_PORT}/login/google/callback`,
+                `${req.protocol}://${req.hostname}/auth/login/google/callback`,
         });
-        app.register(SocketRoutes);
-        app.register(refreshRoutes);
-        app.register(usersRoutes);
-        app.register(userRoutes);
-        app.register(logoutRoutes);
-        app.register(otpRoutes);
-        app.register(protectedOtpRoutes);
+        app.register(SocketRoutes, { prefix: '/auth'});
+        app.register(refreshRoutes, { prefix: '/auth'});
+        app.register(usersRoutes, { prefix: '/auth'});
+        app.register(userRoutes, { prefix: '/auth'});
+        app.register(logoutRoutes, { prefix: '/auth'});
+        app.register(otpRoutes, { prefix: '/auth'});
+        app.register(protectedOtpRoutes, { prefix: '/auth'});
 
         await app.listen({ port: app.config.AUTH_PORT, host: '0.0.0.0' });
     } catch (err) {

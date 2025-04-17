@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { Type } from "@sinclair/typebox";
-
+import credentialAuthCheck from "../../plugins/validateToken.js";
 export const ChatHistoryResponse = Type.Object({
     chats: Type.Array(Type.Object({
         id: Type.String(),
@@ -13,6 +13,7 @@ const ChatHistoryParams = Type.Object({
 });
 
 export default function chatHistoryRoutes(fastify: FastifyInstance) {
+    fastify.register(credentialAuthCheck);
     // get all messages for chatroom
     fastify.get<{
         Params: typeof ChatHistoryParams;
@@ -28,7 +29,7 @@ export default function chatHistoryRoutes(fastify: FastifyInstance) {
         }
         const chatParticipant = await fastify.prisma.chatParticipant.findFirst({
             where: {
-                userId: request.user?.id,
+                userId: request.user,
                 chatRoomId: chatRoomId as string,
             },
         });
@@ -52,7 +53,7 @@ export default function chatHistoryRoutes(fastify: FastifyInstance) {
         // returns history of all chats per user
         const chats = await fastify.prisma.chatParticipant.findMany({
             where: {    
-                userId: request.user?.id,
+                userId: request.user,
             },
             include: {
                 chatRoom: true,
