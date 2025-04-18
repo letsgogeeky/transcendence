@@ -151,7 +151,7 @@ export default class HomeComponent extends Component {
 		// SINGLE PLAYER - Light Blue Border
 		const singlePlayerButton = new Button('      SINGLE PLAYER', () => {
 			console.log('Navigating to /singlegame');
-			window.location.href = '/singlegame';
+			window.location.href = '/singlegame/';
 		});
 		singlePlayerButton.element.style.fontFamily = '"Impact", "Arial Black", sans-serif'; // Impact is thicker
 		singlePlayerButton.element.style.fontWeight = '900'; // Ensures max boldness
@@ -179,7 +179,7 @@ export default class HomeComponent extends Component {
 		// MULTIPLE PLAYERS - Pink Border
 		const multiplayerButton = new Button('MULTIPLE PLAYERS', () => {
 			console.log('Navigating to /multiplayer');
-			window.location.href = '/multiplayer';
+			window.location.href = '/multiplayer/index.html';
 		});
 		multiplayerButton.element.style.fontFamily = '"Impact", "Arial Black", sans-serif';
 		multiplayerButton.element.style.fontWeight = '900';

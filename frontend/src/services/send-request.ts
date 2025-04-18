@@ -42,6 +42,7 @@ export async function tryRefresh(): Promise<string | null> {
     } else {
         const responseBody = await response.json();
         State.getState().setAuthToken(responseBody.authToken);
+        localStorage.setItem('authToken', responseBody.authToken);
         return responseBody.authToken;
     }
 }

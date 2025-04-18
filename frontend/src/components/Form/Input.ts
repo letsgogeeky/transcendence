@@ -14,20 +14,22 @@ export default class Input extends Component {
     ) {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'flex items-center gap-2';
+        this.element.className = 'flex flex-col space-y-2';
+        
+        const labelElement = document.createElement('label');
+        labelElement.htmlFor = id;
+        labelElement.innerText = label;
+        labelElement.className = 'text-white text-sm font-medium';
+        
         this.inputElement = document.createElement('input');
-        this.inputElement.className += className;
-        // const labelElement = document.createElement('label');
-        // labelElement.htmlFor = id;
-        // labelElement.innerText = label;
-        // labelElement.className = 'w-40 text-left font-medium whitespace-nowrap';
-        this.inputElement.textContent = label;
+        this.inputElement.className = className;
         this.inputElement.id = id;
         this.inputElement.type = type;
         this.inputElement.name = id;
         this.inputElement.required = required || false;
         this.inputElement.placeholder = placeholder ?? label;
-        this.element.append(this.inputElement);
+        
+        this.element.append(labelElement, this.inputElement);
     }
 
     get value(): string {

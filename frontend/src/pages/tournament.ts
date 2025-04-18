@@ -13,12 +13,10 @@ export default class TournamentComponent extends Component {
     constructor() {
         super();
         const container = document.createElement('div');
-        container.className = 'text-center';
-        container.style.display = 'flex';
-        container.style.flexDirection = 'column';
-        container.style.gap = '10px';
+        container.className = 'flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-gray-800';
         const title = document.createElement('h1');
         title.textContent = 'Tournament';
+        title.className = 'text-3xl font-bold mb-8 text-white';
         this.element = container;
         container.append(title);
     }
@@ -26,6 +24,10 @@ export default class TournamentComponent extends Component {
     async fetchData() {
         const params = new URLSearchParams(window.location.search);
         const tournamentId = params.get('tournamentId');
+        if (!tournamentId) {
+            window.location.href = '/tournaments';
+            return;
+        }
         console.log('Tournament ID:', tournamentId);
         const response = await sendRequest(
             `/tournament/${tournamentId}`,
@@ -54,6 +56,7 @@ export default class TournamentComponent extends Component {
 
     static async addPlayerCallback(data: any): Promise<void> {
         console.log('Add Player Callback', data);
+        window.location.reload();
     }
 
     async getUsers(): Promise<any[]> {
@@ -84,8 +87,58 @@ export default class TournamentComponent extends Component {
         form.render(parent);
     }
 
+    static async removePlayer(tournamentId: string, userId: string): Promise<Response> {
+        return await sendRequest(
+            `/tournament/${tournamentId}/leave`,
+            'POST',
+            { userId },
+            Services.TOURNAMENTS,
+            State.getState().getAuthToken()
+        );
+    }
+
+    static async startTournament(tournamentId: string): Promise<Response> {
+        return await sendRequest(
+            `/tournament/${tournamentId}/start`,
+            'POST',
+            null,
+            Services.TOURNAMENTS,
+            State.getState().getAuthToken()
+        );
+    }
+
+    static async deleteTournament(tournamentId: string): Promise<Response> {
+        return await sendRequest(
+            `/tournament/${tournamentId}`,
+            'DELETE',
+            null,
+            Services.TOURNAMENTS,
+            State.getState().getAuthToken()
+        );
+    }
+
+    static async removePlayerCallback(data: any): Promise<void> {
+        console.log('Remove Player Callback', data);
+        window.location.reload();
+    }
+
+    static async startTournamentCallback(data: any): Promise<void> {
+        console.log('Start Tournament Callback', data);
+        window.location.reload();
+    }
+
+    static async deleteTournamentCallback(data: any): Promise<void> {
+        console.log('Delete Tournament Callback', data);
+        window.location.href = '/tournaments';
+    }
+
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
+        const title = document.createElement('h1');
+        title.textContent = 'Tournament';
+        title.className = 'text-3xl font-bold mb-8 text-white';
+        this.element.append(title);
+
         if (!this.data) {
             const loading = new ErrorComponent('Loading....');
             loading.render(this.element);
@@ -93,30 +146,126 @@ export default class TournamentComponent extends Component {
             const error = new ErrorComponent(this.data.error);
             error.render(this.element);
         } else {
+            const tournamentContainer = document.createElement('div');
+            tournamentContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-gray-800 rounded-xl shadow-2xl space-y-8 border border-gray-700';
+
+            const tournamentInfo = document.createElement('div');
+            tournamentInfo.className = 'space-y-4';
+            
             const tournamentName = new SpanComponent(this.data.tournament.name, 'Name');
-            tournamentName.render(this.element);
+            tournamentName.element.className = 'text-white text-lg font-medium';
+            tournamentName.render(tournamentInfo);
+            
             const winCondition = new SpanComponent(this.data.tournament.options.winCondition, 'Win Condition');
-            winCondition.render(this.element);
+            winCondition.element.className = 'text-white text-lg font-medium';
+            winCondition.render(tournamentInfo);
+            
             const winScoreOrTime = new SpanComponent(this.data.tournament.options.limit, 'Win Score or Time');
-            winScoreOrTime.render(this.element);
-            // participants list
+            winScoreOrTime.element.className = 'text-white text-lg font-medium';
+            winScoreOrTime.render(tournamentInfo);
+
+            tournamentContainer.append(tournamentInfo);
+
+            // Action buttons section
+            const actionButtons = document.createElement('div');
+            actionButtons.className = 'flex justify-between mt-4';
+            
+            const startButton = document.createElement('button');
+            startButton.textContent = 'Start Tournament';
+            startButton.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors';
+            startButton.onclick = async () => {
+                try {
+                    const response = await TournamentComponent.startTournament(this.data.tournament.id);
+                    const data = await response.json();
+                    TournamentComponent.startTournamentCallback(data);
+                } catch (error) {
+                    console.error('Error starting tournament:', error);
+                }
+            };
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete Tournament';
+            deleteButton.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors';
+            deleteButton.onclick = async () => {
+                if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
+                    try {
+                        const response = await TournamentComponent.deleteTournament(this.data.tournament.id);
+                        const data = await response.json();
+                        TournamentComponent.deleteTournamentCallback(data);
+                    } catch (error) {
+                        console.error('Error deleting tournament:', error);
+                    }
+                }
+            };
+            
+            actionButtons.append(startButton, deleteButton);
+            tournamentContainer.append(actionButtons);
+
+            // Participants section
+            const participantsSection = document.createElement('div');
+            participantsSection.className = 'mt-8';
+            
+            const participantsTitle = document.createElement('h2');
+            participantsTitle.textContent = 'Participants';
+            participantsTitle.className = 'text-xl font-bold mb-4 text-white';
+            participantsSection.append(participantsTitle);
+
             const participantsList = document.createElement('div');
             participantsList.id = 'participants-list';
-            this.element.append(participantsList);
+            participantsList.className = 'space-y-4';
+            
             this.data.tournament.participants.forEach(async (participant: any) => {
                 const user = await this.getUser(participant.userId);
-                const html = `
-                    <div class="flex flex-col gap-2">
-                        <span><b>Name:</b> ${user.name}</span>
-                        <span><b>Status:</b>${participant.status}</span>
-                        <span><b>Joined at:</b> ${participant.createdAt}</span>
-                    </div>
-                `
                 const participantItem = document.createElement('div');
-                participantItem.innerHTML = html;
+                participantItem.className = 'bg-gray-700 p-4 rounded-lg';
+                
+                const participantContent = document.createElement('div');
+                participantContent.className = 'flex flex-col space-y-2';
+                
+                const participantHeader = document.createElement('div');
+                participantHeader.className = 'flex justify-between items-center';
+                
+                const participantName = document.createElement('span');
+                participantName.className = 'text-white text-lg font-medium';
+                participantName.textContent = user.name;
+                
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
+                removeButton.onclick = async () => {
+                    try {
+                        const response = await TournamentComponent.removePlayer(this.data.tournament.id, participant.userId);
+                        const data = await response.json();
+                        TournamentComponent.removePlayerCallback(data);
+                    } catch (error) {
+                        console.error('Error removing player:', error);
+                    }
+                };
+                
+                participantHeader.append(participantName, removeButton);
+                
+                const participantDetails = document.createElement('div');
+                participantDetails.className = 'flex justify-between text-sm';
+                participantDetails.innerHTML = `
+                    <span class="text-gray-300">Status: ${participant.status}</span>
+                    <span class="text-gray-300">Joined: ${new Date(participant.createdAt).toLocaleDateString()}</span>
+                `;
+                
+                participantContent.append(participantHeader, participantDetails);
+                participantItem.append(participantContent);
                 participantsList.append(participantItem);
             });
-            this.renderAddParticipantForm(participantsList);
+
+            participantsSection.append(participantsList);
+            tournamentContainer.append(participantsSection);
+
+            // Add participant form
+            const addParticipantSection = document.createElement('div');
+            addParticipantSection.className = 'mt-8 pt-8 border-t border-gray-700';
+            this.renderAddParticipantForm(addParticipantSection);
+            tournamentContainer.append(addParticipantSection);
+
+            this.element.append(tournamentContainer);
         }
         super.render(parent);
     }   
