@@ -3,6 +3,7 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import { GameSession, GameSettings, GameStatus } from "./session.js";
+import credentialAuthCheck from "../../plugins/validateToken.js";
 // Update GameMessage type
 type GameMessage = {
     type: string;
@@ -26,6 +27,7 @@ let game2 = new GameSession("match_2", gameSettings);
 let gameServer = game1;
 
 export function gameRoutes(app: FastifyInstance) {
+    app.register(credentialAuthCheck);
     app.route({
         method: 'GET',
         url: '/',
