@@ -247,4 +247,37 @@ export function tournamentRoutes(app: FastifyInstance) {
             message: 'Participant left tournament',
         });
     });
+
+    // delete a tournament
+    app.delete('/:id', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+            participants: true,
+            matches: true,
+        } });
+        if (!tournament) {
+            return reply.status(404).send({
+                message: 'Tournament not found',
+            });
+        }
+
+        // Delete all tournament participants
+        await app.prisma.tournamentParticipant.deleteMany({
+            where: { tournamentId: id }
+        });
+
+        // Delete all matches associated with the tournament
+        await app.prisma.match.deleteMany({
+            where: { tournamentId: id }
+        });
+
+        // Finally delete the tournament
+        await app.prisma.tournament.delete({
+            where: { id }
+        });
+
+        return reply.status(200).send({
+            message: 'Tournament deleted successfully',
+        });
+    });
 }

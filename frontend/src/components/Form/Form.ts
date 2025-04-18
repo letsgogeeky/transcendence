@@ -21,6 +21,7 @@ export default class FormComponent extends Component {
     ) {
         super();
         this.element = document.createElement('form');
+        this.element.className = 'flex flex-col space-y-6';
         const submitButton = new Button(
             label,
             () => {},

@@ -13,24 +13,27 @@ export default class Select extends Component {
     ) {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'flex items-center gap-2';
+        this.element.className = 'flex flex-col space-y-2';
+        
         const labelElement = document.createElement('label');
         labelElement.htmlFor = id;
         labelElement.innerText = label;
-        labelElement.className = 'w-40 text-left font-medium whitespace-nowrap';
-        this.element.append(labelElement);
+        labelElement.className = 'text-white text-sm font-medium';
+        
         this.selectElement = document.createElement('select');
         this.selectElement.id = id;
         this.selectElement.name = id;
         this.selectElement.required = required;
-        this.selectElement.className += className;
+        this.selectElement.className = className;
+        
         options.forEach(({ value, text }) => {
             const option = document.createElement('option');
             option.value = value;
             option.textContent = text;
             this.selectElement.appendChild(option);
         });
-        this.element.append(this.selectElement);
+        
+        this.element.append(labelElement, this.selectElement);
     }
 
     get value(): string {
@@ -48,5 +51,9 @@ export default class Select extends Component {
         } else {
             this.selectElement.selectedIndex = 0;
         }
+    }
+
+    public render(parent: HTMLElement | Component): void {
+        super.render(parent);
     }
 }
