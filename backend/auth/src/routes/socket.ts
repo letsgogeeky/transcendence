@@ -64,6 +64,47 @@ export function SocketRoutes(fastify: FastifyInstance) {
         }
     }
 
+    async function handleAuthMessage(socket: WebSocket, data: SocketData): Promise<void> {
+        const id = verifyToken(data.token);
+        if (id) {
+            if (fastify.connections.has(id)) {
+                const message = { type: 'CONFLICT' };
+                const oldSocket = fastify.connections.get(id);
+                oldSocket!.send(JSON.stringify(message));
+                oldSocket!.close();
+                fastify.connections.delete(id);
+                socket.send(JSON.stringify({ type: 'RETRY' }));
+                return;
+            }
+            fastify.connections.set(id, socket);
+            fastify.prisma.user.findUnique({
+                where: { id },
+                select: { name: true }
+            }).then(user => {
+                if (user) {
+                    const message = {
+                        type: 'SUCCESS',
+                        message: 'Welcome ' + user.name,
+                    };
+                    socket.send(JSON.stringify(message));
+                    notifyFriends(
+                        id,
+                        user.name + ' is online',
+                        'LOGIN',
+                    ).catch((error) => {
+                        console.error('Error in notifying friends:', error);
+                    });
+                }
+            }).catch(error => {
+                console.error('Error finding user:', error);
+                socket.close();
+            });
+        } else {
+            console.log('Invalid token');
+            socket.close();
+        }
+    }
+
     fastify.route({
         method: 'GET',
         url: '/socket',
@@ -80,46 +121,10 @@ export function SocketRoutes(fastify: FastifyInstance) {
                 } catch (error) {
                     console.error('Error parsing message:', error);
                     socket.close();
+                    return;
                 }
                 if (data.type == 'AUTH') {
-                    const id = verifyToken(data.token);
-                    if (id) {
-                        if (fastify.connections.has(id)) {
-                            const message = { type: 'CONFLICT' };
-                            const oldSocket = fastify.connections.get(id);
-                            oldSocket!.send(JSON.stringify(message));
-                            oldSocket!.close();
-                            fastify.connections.delete(id);
-                            socket.send(JSON.stringify({ type: 'RETRY' }));
-                            return;
-                        }
-                        fastify.connections.set(id, socket);
-                        fastify.prisma.user.findUnique({
-                            where: { id },
-                            select: { name: true }
-                        }).then(user => {
-                            if (user) {
-                                const message = {
-                                    type: 'SUCCESS',
-                                    message: 'Welcome ' + user.name,
-                                };
-                                socket.send(JSON.stringify(message));
-                                notifyFriends(
-                                    id,
-                                    user.name + ' is online',
-                                    'LOGIN',
-                                ).catch((error) => {
-                                    console.error('Error in notifying friends:', error);
-                                });
-                            }
-                        }).catch(error => {
-                            console.error('Error finding user:', error);
-                            socket.close();
-                        });
-                    } else {
-                        console.log('Invalid token');
-                        socket.close();
-                    }
+                    handleAuthMessage(socket, data);
                 }
             });
 
