@@ -52,7 +52,7 @@ export function userRoutes(fastify: FastifyInstance) {
             const user = await fastify.prisma.user.update({
                 where: { id: request.user },
                 data: {
-                    avatarUrl: path.join('images', newAvatar),
+                    avatarUrl: path.join('/auth/images', newAvatar),
                 },
                 select: {
                     id: true,

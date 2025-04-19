@@ -107,6 +107,7 @@ export function tournamentRoutes(app: FastifyInstance) {
             const tournament = await app.prisma.tournament.create({
                 data: {
                     name: name,
+                    adminId: request.user,
                     options: {
                         winCondition: options.winCondition,
                         limit: options.limit,

@@ -67,7 +67,7 @@ export default class UserSettingsComponent extends Component {
 
         const avatar = new AvatarImageComponent(
             'My Avatar',
-            endpoints.auth + '/' + user.avatarUrl!,
+            user.avatarUrl!,
         );
         avatar.render(this.element);
 
