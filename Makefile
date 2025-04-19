@@ -1,4 +1,4 @@
-.PHONY: build-frontend run-frontend
+.PHONY: build-frontend run-frontend fclean
 
 build-frontend:
 	docker compose build frontend
@@ -63,3 +63,17 @@ generate-certs:
 		rm frontend/localhost.csr; \
 	fi
 	@echo "SSL certificates generated successfully!"
+
+fclean: down
+	@echo "Cleaning up all generated files and volumes..."
+	@docker compose -f ./docker-compose.yml down -v
+	@rm -rf ./uploads
+	@rm -rf ./db
+	@rm -rf ./data
+	@rm -rf ./certs
+	@rm -f ./frontend/localhost-key.pem
+	@rm -f ./frontend/localhost-cert.pem
+	@rm -f ./frontend/localhost.csr
+	@echo "Cleanup complete!"
+
+re: fclean up
