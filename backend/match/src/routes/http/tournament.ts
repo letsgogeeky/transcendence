@@ -156,6 +156,12 @@ export function tournamentRoutes(app: FastifyInstance) {
                     message: 'Tournament not found',
                 });
             }
+            // Check if user is admin
+            if (tournament.adminId !== request.user) {
+                return reply.status(403).send({
+                    message: 'Only tournament admin can add participants',
+                });
+            }
         const tournamentParticipant = {
             tournamentId: tournament.id,
             userId: playerId,
@@ -237,6 +243,12 @@ export function tournamentRoutes(app: FastifyInstance) {
                 message: 'Tournament not found',
             });
         }
+        // Check if user is admin or the participant themselves
+        if (tournament.adminId !== request.user && userId !== request.user) {
+            return reply.status(403).send({
+                message: 'Only tournament admin can remove participants',
+            });
+        }
         const tournamentParticipant = await app.prisma.tournamentParticipant.findFirst({ where: { tournamentId: id, userId: userId } });
         if (!tournamentParticipant) {
             return reply.status(404).send({
@@ -259,6 +271,13 @@ export function tournamentRoutes(app: FastifyInstance) {
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',
+            });
+        }
+
+        // Check if user is admin
+        if (tournament.adminId !== request.user) {
+            return reply.status(403).send({
+                message: 'Only tournament admin can delete the tournament',
             });
         }
 

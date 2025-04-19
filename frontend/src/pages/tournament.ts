@@ -170,35 +170,37 @@ export default class TournamentComponent extends Component {
             const actionButtons = document.createElement('div');
             actionButtons.className = 'flex justify-between mt-4';
             
-            const startButton = document.createElement('button');
-            startButton.textContent = 'Start Tournament';
-            startButton.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors';
-            startButton.onclick = async () => {
-                try {
-                    const response = await TournamentComponent.startTournament(this.data.tournament.id);
-                    const data = await response.json();
-                    TournamentComponent.startTournamentCallback(data);
-                } catch (error) {
-                    console.error('Error starting tournament:', error);
-                }
-            };
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete Tournament';
-            deleteButton.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors';
-            deleteButton.onclick = async () => {
-                if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
+            // Only show start and delete buttons if user is admin
+            if (this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+                const startButton = document.createElement('button');
+                startButton.textContent = 'Start Tournament';
+                startButton.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors';
+                startButton.onclick = async () => {
                     try {
-                        const response = await TournamentComponent.deleteTournament(this.data.tournament.id);
+                        const response = await TournamentComponent.startTournament(this.data.tournament.id);
                         const data = await response.json();
-                        TournamentComponent.deleteTournamentCallback(data);
+                        TournamentComponent.startTournamentCallback(data);
                     } catch (error) {
-                        console.error('Error deleting tournament:', error);
+                        console.error('Error starting tournament:', error);
                     }
-                }
-            };
+                };
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete Tournament';
+                deleteButton.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors';
+                deleteButton.onclick = async () => {
+                    if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
+                        try {
+                            const response = await TournamentComponent.deleteTournament(this.data.tournament.id);
+                            const data = await response.json();
+                            TournamentComponent.deleteTournamentCallback(data);
+                        } catch (error) {
+                            console.error('Error deleting tournament:', error);
+                        }
+                    }
+                };
+                actionButtons.append(startButton, deleteButton);
+            }
             
-            actionButtons.append(startButton, deleteButton);
             tournamentContainer.append(actionButtons);
 
             // Participants section
@@ -229,20 +231,24 @@ export default class TournamentComponent extends Component {
                 participantName.className = 'text-white text-lg font-medium';
                 participantName.textContent = user.name;
                 
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
-                removeButton.onclick = async () => {
-                    try {
-                        const response = await TournamentComponent.removePlayer(this.data.tournament.id, participant.userId);
-                        const data = await response.json();
-                        TournamentComponent.removePlayerCallback(data);
-                    } catch (error) {
-                        console.error('Error removing player:', error);
-                    }
-                };
-                
-                participantHeader.append(participantName, removeButton);
+                // Only show remove button if user is admin
+                if (this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
+                    removeButton.onclick = async () => {
+                        try {
+                            const response = await TournamentComponent.removePlayer(this.data.tournament.id, participant.userId);
+                            const data = await response.json();
+                            TournamentComponent.removePlayerCallback(data);
+                        } catch (error) {
+                            console.error('Error removing player:', error);
+                        }
+                    };
+                    participantHeader.append(participantName, removeButton);
+                } else {
+                    participantHeader.append(participantName);
+                }
                 
                 const participantDetails = document.createElement('div');
                 participantDetails.className = 'flex justify-between text-sm';
@@ -259,11 +265,14 @@ export default class TournamentComponent extends Component {
             participantsSection.append(participantsList);
             tournamentContainer.append(participantsSection);
 
-            // Add participant form
-            const addParticipantSection = document.createElement('div');
-            addParticipantSection.className = 'mt-8 pt-8 border-t border-gray-700';
-            this.renderAddParticipantForm(addParticipantSection);
-            tournamentContainer.append(addParticipantSection);
+            // Only show add participant form if user is admin
+            if (this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+                // Add participant form
+                const addParticipantSection = document.createElement('div');
+                addParticipantSection.className = 'mt-8 pt-8 border-t border-gray-700';
+                this.renderAddParticipantForm(addParticipantSection);
+                tournamentContainer.append(addParticipantSection);
+            }
 
             this.element.append(tournamentContainer);
         }

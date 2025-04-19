@@ -160,41 +160,66 @@ export default class TournamentsComponent extends Component {
 
     private async createTournamentCard(tournament: Tournament) {
         const card = document.createElement('div');
-        card.className = 'bg-gray-800 rounded-xl shadow-2xl p-6 border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer';
-        
+        card.className = 'bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-700';
+
         const header = document.createElement('div');
-        header.className = 'flex justify-between items-center mb-4';
+        header.className = 'flex justify-between items-center mb-6';
         
-        const name = document.createElement('h2');
-        name.textContent = tournament.name;
-        name.className = 'text-xl font-bold text-white';
+        const title = document.createElement('h3');
+        title.className = 'text-xl font-bold text-white';
+        title.textContent = tournament.name;
         
-        const status = document.createElement('span');
-        status.textContent = tournament.status || 'Open';
-        status.className = 'px-3 py-1 rounded-full text-sm font-medium ' + 
-            (tournament.status === 'completed' ? 'bg-green-500/20 text-green-400' : 
-             tournament.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400' : 
-             'bg-blue-500/20 text-blue-400');
-        
-        header.append(name, status);
-        
+        const actions = document.createElement('div');
+        actions.className = 'flex gap-2';
+        // Only show star and delete buttons if user is admin
+        if (tournament.adminId === this.currentUserId) {
+            const starButton = document.createElement('button');
+            starButton.className = 'p-2 text-yellow-500 hover:text-yellow-400 transition-colors';
+            starButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'p-2 text-red-500 hover:text-red-400 transition-colors';
+            deleteButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>';
+
+            deleteButton.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
+                    try {
+                        const response = await sendRequest(
+                            `/tournament/${tournament.id}`,
+                            'DELETE',
+                            null,
+                            Services.TOURNAMENTS,
+                            State.getState().getAuthToken()
+                        );
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Error deleting tournament:', error);
+                    }
+                }
+            });
+            actions.append(starButton, deleteButton);
+        }
+        header.append(title, actions);
         const details = document.createElement('div');
         details.className = 'grid grid-cols-2 gap-4 text-white';
-        
+
         const winCondition = document.createElement('div');
         winCondition.className = 'flex flex-col';
         winCondition.innerHTML = `
             <span class="text-xs uppercase tracking-wider font-semibold text-gray-400">Win Condition</span>
             <span class="text-lg font-medium">${tournament.options.winCondition}</span>
         `;
-        
+
         const limit = document.createElement('div');
         limit.className = 'flex flex-col';
         limit.innerHTML = `
             <span class="text-xs uppercase tracking-wider font-semibold text-gray-400">Limit</span>
             <span class="text-lg font-medium">${tournament.options.limit}</span>
         `;
-        
+
         const participants = document.createElement('div');
         participants.className = 'flex flex-col';
         participants.innerHTML = `
@@ -220,16 +245,16 @@ export default class TournamentsComponent extends Component {
                 <span class="text-lg font-medium text-gray-500">Unknown</span>
             `;
         }
-        
+
         details.append(winCondition, limit, participants, admin);
-        
+
         card.append(header, details);
-        
+
         card.addEventListener('click', () => {
             window.history.pushState({}, '', `/tournament?tournamentId=${tournament.id}`);
             window.dispatchEvent(new PopStateEvent('popstate'));
         });
-        
+
         return card;
     }
 
