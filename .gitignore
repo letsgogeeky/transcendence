@@ -39,6 +39,7 @@ Icon?
 *.srl
 *.csr
 *.crt
+*.pem
 
 uploads/
 db/

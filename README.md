@@ -16,8 +16,8 @@
 - Nginx Exporter is available at `http://localhost:9113/metrics`
 
 ## API Documentation
-- Chat API docs is available at `http://localhost/chat/docs`
-- Match API docs is available at `http://localhost/match/docs`
+- Chat API docs is available at `https://localhost/chat/docs`
+- Match API docs is available at `https://localhost/match/docs`
 
 ### User Journey
 ![User Journey](docs/user-journey.png)
@@ -89,61 +89,3 @@
 - User can receive ball move from the server
 - User can see the game stats (score, etc..)
 - User can see when the game starts and when it ends
-
-#### In-Game socket objects
-- Paddle
-    ```json
-    {
-        "type": "paddle",
-        "match_id": "123",
-        "data": {
-            "user_id": "123",
-            "x": 100,
-            "y": 200
-        }
-    }
-    ```
-- Ball (A vector2D object)
-    ```json
-    {
-        "type": "ball",
-        "match_id": "123",
-        "data": {
-            "user_id": "123",
-            "x": 100,
-            "y": 200,
-            "direction": "up"
-        }
-    }
-    ```
-- Score
-    ```json
-    {
-        "type": "score",
-        "match_id": "123",
-        "data": {
-            "scoring_user_id": "123",
-            "scored_user_id": "456",
-            "score": 100
-        }
-    }
-    ```
-- Leave/Join Match
-    ```json
-    {
-        "type": "leave_match",
-        "match_id": "123",
-        "data": {
-            "user_id": "123"
-        }
-    }
-    ```
-    ```json
-    {
-        "type": "join_match",
-        "match_id": "123",
-        "data": {
-            "user_id": "123"
-        }
-    }
-    ```
