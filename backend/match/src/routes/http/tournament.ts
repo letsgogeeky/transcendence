@@ -107,6 +107,7 @@ export function tournamentRoutes(app: FastifyInstance) {
             const tournament = await app.prisma.tournament.create({
                 data: {
                     name: name,
+                    adminId: request.user,
                     options: {
                         winCondition: options.winCondition,
                         limit: options.limit,
@@ -153,6 +154,12 @@ export function tournamentRoutes(app: FastifyInstance) {
             if (!tournament) {
                 return reply.status(404).send({
                     message: 'Tournament not found',
+                });
+            }
+            // Check if user is admin
+            if (tournament.adminId !== request.user) {
+                return reply.status(403).send({
+                    message: 'Only tournament admin can add participants',
                 });
             }
         const tournamentParticipant = {
@@ -236,6 +243,12 @@ export function tournamentRoutes(app: FastifyInstance) {
                 message: 'Tournament not found',
             });
         }
+        // Check if user is admin or the participant themselves
+        if (tournament.adminId !== request.user && userId !== request.user) {
+            return reply.status(403).send({
+                message: 'Only tournament admin can remove participants',
+            });
+        }
         const tournamentParticipant = await app.prisma.tournamentParticipant.findFirst({ where: { tournamentId: id, userId: userId } });
         if (!tournamentParticipant) {
             return reply.status(404).send({
@@ -258,6 +271,13 @@ export function tournamentRoutes(app: FastifyInstance) {
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',
+            });
+        }
+
+        // Check if user is admin
+        if (tournament.adminId !== request.user) {
+            return reply.status(403).send({
+                message: 'Only tournament admin can delete the tournament',
             });
         }
 

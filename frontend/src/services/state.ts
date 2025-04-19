@@ -38,6 +38,12 @@ export default class State {
     }
 
     public getCurrentUser(): MyUser | null {
+        if (!this.user) {
+            const currentUser = localStorage.getItem('currentUser')
+                ? (JSON.parse(localStorage.getItem('currentUser')!) as MyUser)
+                : null; //currentUser is parsed from JSON if it exists.
+            this.user = currentUser;
+        }
         return this.user;
     }
 
