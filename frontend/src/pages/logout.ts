@@ -1,4 +1,4 @@
-import Button from '../components/Button';
+import Button from '../components/button';
 import Component from '../components/Component';
 import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';

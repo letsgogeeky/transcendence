@@ -149,7 +149,7 @@ export function loginRoutes(fastify: FastifyInstance) {
                     registrationDate: new Date().toISOString(),
                     emailValidated: 1,
                     googleLinkedAccount: 1,
-                    avatarUrl: 'images/default.jpg',
+                    avatarUrl: 'assets/forgetful.gif',
                 },
             });
         } catch (error) {
@@ -163,7 +163,7 @@ export function loginRoutes(fastify: FastifyInstance) {
                     registrationDate: new Date().toISOString(),
                     emailValidated: 1,
                     googleLinkedAccount: 1,
-                    avatarUrl: 'images/default.jpg',
+                    avatarUrl: 'assets/forgetful.gif',
                 },
             });
         }

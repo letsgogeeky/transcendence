@@ -2,6 +2,8 @@ import Component from '../../components/Component';
 import FormComponent from '../../components/Form/Form';
 import Input from '../../components/Form/Input';
 import sendRequest, { Services } from '../../services/send-request';
+import { loadBackgroundGif, loadImage } from '../../styles/background'
+
 export default class ResetPasswordComponent extends Component {
     readonly element: HTMLElement;
     private form: FormComponent;
@@ -11,29 +13,14 @@ export default class ResetPasswordComponent extends Component {
         const container = document.createElement('div');
 		container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
-		const backgroundGif = document.createElement('div');
-		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
-
-		const gif = document.createElement('img');
-		gif.src = './assets/transparent_pong.gif';
-		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
-		gif.style.opacity = '0.4';
-		gif.alt = 'Background Gif';
-		backgroundGif.appendChild(gif);
-
-		// Append the background image container
-		container.appendChild(backgroundGif);
-
-        // The new me gif
-        const newMeGif = document.createElement('img');
-        newMeGif.src = './assets/newme.gif';  // Replace with your actual image path
-        newMeGif.alt = 'New Me';
-        newMeGif.className = 'w-full max-w-[400px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
-		container.appendChild(newMeGif);
+		//adds the background pong gif 
+		container.appendChild(loadBackgroundGif());
+        // The new me gif:
+		container.appendChild(loadImage('newme.gif', 'w-full max-w-[400px] h-auto mb-5 rounded-lg', 'Gif for new me'));
 
         const inputStyle = 'border border-[#FFFF33] border-4 rounded-xl p-2 w-60 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
-        // const inputStyle = 'border border-gray-300 rounded p-2 w-full';
-        const newPassword = new Input(
+
+		const newPassword = new Input(
             'new password',
             'password',
             'newPassword',

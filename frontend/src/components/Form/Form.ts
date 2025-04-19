@@ -1,4 +1,4 @@
-import Button from '../Button';
+import Button from '../button';
 import Component from '../Component';
 import { showToast, ToastState } from '../Toast';
 import Input from './Input';

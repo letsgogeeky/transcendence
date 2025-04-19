@@ -10,7 +10,6 @@ export default class LoginOtpComponent extends Component {
     readonly element: HTMLElement;
 
     constructor() {
-        console.log('here');
         super();
         const container = document.createElement('div');
         container.className = 'text-center';

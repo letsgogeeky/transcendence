@@ -17,6 +17,7 @@ export default class NavigatorComponent extends Component {
         this.navbar = new Navbar(id, routes);
         this.selectedRoute = this.navbar.routes[0];
         this.content = new NavContent(id, this.selectedRoute.component);
+        this.content.element.className = 'px-4 md:px-8 lg:px-16 pt-8';
         document.title = this.selectedRoute.title;
     }
 
@@ -38,7 +39,6 @@ export default class NavigatorComponent extends Component {
 
     displayTab(path: string, shouldDisplay: boolean) {
         this.navbar.displayTab(path, shouldDisplay);
-        // this.render(this.parent);
     }
 
     render(parent: HTMLElement) {
