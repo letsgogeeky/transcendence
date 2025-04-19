@@ -10,11 +10,17 @@ build-auth:
 	docker compose build auth
 
 run:
+	@make ensure-volumes
+	@docker compose up --build
+
+ensure-volumes:
 	mkdir -p ./uploads
 	mkdir -p ./db
-	docker compose up --build
+	mkdir -p ./data
+	mkdir -p ./data/prometheus
+	mkdir -p ./data/grafana
 
-up:
+up: ensure-volumes
 	@chmod +x ./init-env.sh
 	@./init-env.sh
 	@make generate-certs
