@@ -2,10 +2,14 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+rule_files:
+  - "rules/alerts.yml"
+
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+    metrics_path: '/metrics'
 
   - job_name: 'node-exporter'
     static_configs:
@@ -24,13 +28,31 @@ scrape_configs:
     scrape_interval: 5s
     scrape_timeout: 3s
 
-  - job_name: 'match-service'
+  - job_name: 'auth'
+    static_configs:
+      - targets: ['auth:8081']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 3s
+
+  - job_name: 'match'
     static_configs:
       - targets: ['match:8082']
     metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 3s
+
+  - job_name: 'chat'
+    static_configs:
+      - targets: ['chat:8083']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 3s
 
   - job_name: 'nginx'
     static_configs:
       - targets: ['nginx:80']
-    metrics_path: '/metrics' 
+    metrics_path: '/metrics'
     scheme: 'https'
+    scrape_interval: 5s
+    scrape_timeout: 3s

@@ -124,6 +124,7 @@ services:
             - app-network
         volumes:
             - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ./infra/prometheus/rules:/etc/prometheus/rules
         command:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--storage.tsdb.path=/prometheus'

@@ -15,6 +15,8 @@ run:
 	docker compose up --build
 
 up:
+	@chmod +x ./init-env.sh
+	@./init-env.sh
 	@make generate-certs
 	@docker compose -f ./docker-compose.yml up --build -d
 	@docker compose -f ./docker-compose.yml exec auth npx prisma db push
