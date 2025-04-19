@@ -15,7 +15,7 @@ interface TournamentPayload {
 }
 
 export function tournamentRoutes(app: FastifyInstance) {
-    // app.register(credentialAuthCheck);
+    app.register(credentialAuthCheck);
     app.get('/', async (request, reply) => {
         // get all tournaments
         const tournaments = await app.prisma.tournament.findMany({
@@ -107,6 +107,7 @@ export function tournamentRoutes(app: FastifyInstance) {
             const tournament = await app.prisma.tournament.create({
                 data: {
                     name: name,
+                    adminId: request.user,
                     options: {
                         winCondition: options.winCondition,
                         limit: options.limit,
@@ -153,6 +154,12 @@ export function tournamentRoutes(app: FastifyInstance) {
             if (!tournament) {
                 return reply.status(404).send({
                     message: 'Tournament not found',
+                });
+            }
+            // Check if user is admin
+            if (tournament.adminId !== request.user) {
+                return reply.status(403).send({
+                    message: 'Only tournament admin can add participants',
                 });
             }
         const tournamentParticipant = {
@@ -236,6 +243,12 @@ export function tournamentRoutes(app: FastifyInstance) {
                 message: 'Tournament not found',
             });
         }
+        // Check if user is admin or the participant themselves
+        if (tournament.adminId !== request.user && userId !== request.user) {
+            return reply.status(403).send({
+                message: 'Only tournament admin can remove participants',
+            });
+        }
         const tournamentParticipant = await app.prisma.tournamentParticipant.findFirst({ where: { tournamentId: id, userId: userId } });
         if (!tournamentParticipant) {
             return reply.status(404).send({
@@ -245,6 +258,46 @@ export function tournamentRoutes(app: FastifyInstance) {
         await app.prisma.tournamentParticipant.delete({ where: { id: tournamentParticipant.id } });
         return reply.status(200).send({
             message: 'Participant left tournament',
+        });
+    });
+
+    // delete a tournament
+    app.delete('/:id', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
+            participants: true,
+            matches: true,
+        } });
+        if (!tournament) {
+            return reply.status(404).send({
+                message: 'Tournament not found',
+            });
+        }
+
+        // Check if user is admin
+        if (tournament.adminId !== request.user) {
+            return reply.status(403).send({
+                message: 'Only tournament admin can delete the tournament',
+            });
+        }
+
+        // Delete all tournament participants
+        await app.prisma.tournamentParticipant.deleteMany({
+            where: { tournamentId: id }
+        });
+
+        // Delete all matches associated with the tournament
+        await app.prisma.match.deleteMany({
+            where: { tournamentId: id }
+        });
+
+        // Finally delete the tournament
+        await app.prisma.tournament.delete({
+            where: { id }
+        });
+
+        return reply.status(200).send({
+            message: 'Tournament deleted successfully',
         });
     });
 }

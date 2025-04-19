@@ -28,10 +28,6 @@ export default class State {
 
     public setAuthToken(token: string | null): void {
         this.authToken = token;
-        // setTimeout(() => {
-        //     if (token && this.authSocket?.socket?.readyState != WebSocket.OPEN)
-        //         this.authSocket = new WebSocketService(endpoints.authSocket);
-        // }, 2000);
         if (token && this.authSocket?.socket?.readyState != WebSocket.OPEN)
             this.authSocket = new WebSocketService(endpoints.authSocket);
         window.dispatchEvent(new Event('userChange'));
@@ -42,6 +38,12 @@ export default class State {
     }
 
     public getCurrentUser(): MyUser | null {
+        if (!this.user) {
+            const currentUser = localStorage.getItem('currentUser')
+                ? (JSON.parse(localStorage.getItem('currentUser')!) as MyUser)
+                : null; //currentUser is parsed from JSON if it exists.
+            this.user = currentUser;
+        }
         return this.user;
     }
 
@@ -60,6 +62,7 @@ export default class State {
     public reset() {
         this.user = null;
         this.authToken = null;
-        localStorage.clear();
+        // Don't clear localStorage here as it may contain other app data
+        // The refresh token cookie will be cleared by the backend on logout
     }
 }

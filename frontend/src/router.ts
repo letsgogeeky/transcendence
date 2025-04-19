@@ -13,6 +13,7 @@ import ProfileComponent from './pages/profile';
 import RegisterComponent from './pages/register';
 import UserSettingsComponent from './pages/settings/settings';
 import TournamentComponent from './pages/tournament';
+import TournamentsComponent from './pages/tournaments';
 import UsersPageComponent from './pages/users';
 
 export type Route = {
@@ -26,7 +27,7 @@ export type Route = {
 
 export const routes: Route[] = [
 	/** 1) GENERAL PAGES */
-    { 
+  { 
 		path: '/', // The home page (/) is mapped to HomeComponent, meaning that when a user first opens the website at /, the HomeComponent is rendered:
 		title: 'Home',
 		component: new HomeComponent(),
@@ -120,4 +121,10 @@ export const routes: Route[] = [
 		component: new TournamentComponent(),
 		visible: false,
 	},
+  {
+     path: '/tournaments',
+     title: 'Tournaments',
+     component: new TournamentsComponent(),
+     visible: true,
+   }
 ];

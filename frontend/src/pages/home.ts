@@ -97,9 +97,8 @@ export default class HomeComponent extends Component {
 
 		// Adds buttons using the helper function
 		buttonContainer.appendChild(createStyledButton('      SINGLE PLAYER', '/singlegame', '#20A4D6')); // Light blue
-		buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer', '#FF69B4'));   // Pink
+		buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));   // Pink
 		buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));  // Yellow
-
 		// Append all visual sections in order
 		contentContainer.append(logoContainer, buttonContainer);
 		

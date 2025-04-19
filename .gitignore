@@ -38,6 +38,7 @@ build/
 *.srl
 *.csr
 *.crt
+*.pem
 
 uploads/
 db/

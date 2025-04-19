@@ -31,20 +31,23 @@ export async function successfulLogin(
     reply.setCookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
-        path: '/refresh',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
     });
     reply.setCookie('userId', user.id, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
-        path: '/socket',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
     });
     reply.setCookie('userName', user.name, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
-        path: '/socket',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
     });
     const newTimestamp = new Date().toISOString();
     await fastify.prisma.user.update({
