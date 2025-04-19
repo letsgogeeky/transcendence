@@ -9,21 +9,23 @@ export default class WebSocketService {
 
     constructor(url: string) {
         this.url = url;
-        console.log('CONSTRUCTOR');
         this.connect();
     }
 
     private connect(): void {
         console.log('Connecting to WebSocket...');
-        if (!State.getState().getAuthToken()) return;
-
+        const authToken = State.getState().getAuthToken();
+        if (!authToken) return;
+        console.log(`Auth token: ${authToken}`);
+        console.log(`URL: ${this.url}`);
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {
+            console.log('WebSocket connection opened');
             this.sendMessage(
                 JSON.stringify({
                     type: 'AUTH',
-                    token: State.getState().getAuthToken(),
+                    token: authToken,
                 }),
             );
             this.reconnectAttempts = 0;

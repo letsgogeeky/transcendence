@@ -69,7 +69,14 @@ class Game {
 	constructor() {
 		this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this.engine = new BABYLON.Engine(this.canvas, true);
-		this.ws = new WebSocket('wss://localhost:8082/match/game');
+		const token = localStorage.getItem('authToken');
+		if (!token) {
+			console.error('No authentication token found');
+			// redirect to login
+			window.location.href = '/login';
+			return;
+		}
+		this.ws = new WebSocket('wss://localhost/match/game?token=' + token);
 		this.connectWebSocket();
 	}
 

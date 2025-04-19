@@ -81,6 +81,7 @@ const start = async () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true,
+            exposedHeaders: ['Set-Cookie'],
         });
         app.register(fastifyWebsocket);
         app.register(myCachePlugin);
@@ -102,7 +103,8 @@ const start = async () => {
             parseOptions: {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'lax',
+                sameSite: 'none',
+                path: '/',
             },
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });

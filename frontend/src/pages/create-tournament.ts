@@ -14,12 +14,10 @@ export default class CreateTournamentComponent extends Component {
     constructor() {
         super();
         const container = document.createElement('div');
-        container.className = 'text-center';
-        container.style.display = 'flex';
-        container.style.flexDirection = 'column';
-        container.style.gap = '10px';
+        container.className = 'flex flex-col items-center justify-center min-h-screen bg-gradient-to-b';
         const title = document.createElement('h1');
         title.textContent = 'Create Tournament';
+        title.className = 'text-3xl font-bold mb-8 text-white';
         this.element = container;
         container.append(title);
     }
@@ -44,17 +42,26 @@ export default class CreateTournamentComponent extends Component {
 
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
+        const title = document.createElement('h1');
+        title.textContent = 'Create Tournament';
+        title.className = 'text-3xl font-bold mb-8 text-white';
+        this.element.append(title);
+
+        const formContainer = document.createElement('div');
+        formContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-gray-800 rounded-xl shadow-2xl space-y-8 border border-gray-700';
+        
         const tournamentNameInput = new Input('Name', 'text', 'name', true, null, inputStyle);
-        // win condition: score or time user has to choose from dropdown
         const winConditionDropdown = new Select('Win Condition', 'condition', [{ value: 'score', text: 'Score' }, { value: 'time', text: 'Time' }], true, selectStyle);
         const winScoreOrTimeInput = new Input('Win Score or Time', 'text', 'win_score_time', true, null, inputStyle);
+        
         const form = new FormComponent(
             'Create Tournament',
             [tournamentNameInput, winConditionDropdown, winScoreOrTimeInput],
             (data) => CreateTournamentComponent.createTournament(data),
             CreateTournamentComponent.createTournamentCallback,
         );
-        form.render(this.element);
+        form.render(formContainer);
+        this.element.append(formContainer);
         super.render(parent);
     }
 }

@@ -12,6 +12,7 @@ import ProfileComponent from './pages/profile';
 import RegisterComponent from './pages/register';
 import UserSettingsComponent from './pages/settings/settings';
 import TournamentComponent from './pages/tournament';
+import TournamentsComponent from './pages/tournaments';
 import UsersPageComponent from './pages/users';
 
 export type Route = {
@@ -105,5 +106,11 @@ export const routes: Route[] = [
         title: 'Tournament',
         component: new TournamentComponent(),
         visible: false,
+    },
+    {
+        path: '/tournaments',
+        title: 'Tournaments',
+        component: new TournamentsComponent(),
+        visible: true,
     },
 ];
