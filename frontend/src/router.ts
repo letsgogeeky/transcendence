@@ -102,12 +102,6 @@ export const routes: Route[] = [
 		component: new UsersPageComponent(),
 		visible: false,
 	},
-	{
-		path: '/logout',
-		title: 'Logout',
-		component: new LogoutComponent(),
-		visible: false,
-	},
 	//	   B. Regarding the Game
 	{
 		path: '/create-tournament',
@@ -121,10 +115,16 @@ export const routes: Route[] = [
 		component: new TournamentComponent(),
 		visible: false,
 	},
-  {
-     path: '/tournaments',
-     title: 'Tournaments',
-     component: new TournamentsComponent(),
-     visible: true,
-   }
+	{
+		path: '/tournaments',
+		title: 'Tournaments',
+		component: new TournamentsComponent(),
+		visible: false,
+	},
+	{
+		path: '/logout',
+		title: 'Logout',
+		component: new LogoutComponent(),
+		visible: false,
+	},
 ];

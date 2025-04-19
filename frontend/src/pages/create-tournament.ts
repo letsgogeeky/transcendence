@@ -50,9 +50,9 @@ export default class CreateTournamentComponent extends Component {
         const formContainer = document.createElement('div');
         formContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-gray-800 rounded-xl shadow-2xl space-y-8 border border-gray-700';
         
-        const tournamentNameInput = new Input('Name', 'text', 'name', true, null, inputStyle);
+        const tournamentNameInput = new Input('Name', 'text', 'name', true, null);
         const winConditionDropdown = new Select('Win Condition', 'condition', [{ value: 'score', text: 'Score' }, { value: 'time', text: 'Time' }], true, selectStyle);
-        const winScoreOrTimeInput = new Input('Win Score or Time', 'text', 'win_score_time', true, null, inputStyle);
+        const winScoreOrTimeInput = new Input('Win Score or Time', 'text', 'win_score_time', true, null);
         
         const form = new FormComponent(
             'Create Tournament',

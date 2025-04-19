@@ -92,17 +92,19 @@ const render = () => {
         if (user) {
             navigator.displayTab('/register', false);
             navigator.displayTab('/login', false);
-            navigator.displayTab('/logout', true);
             navigator.displayTab('/settings', true);
+            navigator.displayTab('/users', true);
             navigator.displayTab('/create-tournament', true);
-            navigator.displayTab('/tournament', true);
+            navigator.displayTab('/tournaments', true);
+            navigator.displayTab('/logout', true);
         }
         if (!user) {
             // navigator.displayTab('/register', true);
             navigator.displayTab('/logout', false);
             navigator.displayTab('/settings', false);
             navigator.displayTab('/create-tournament', false);
-            navigator.displayTab('/tournament', false);
+            navigator.displayTab('/tournaments', false);
+            navigator.displayTab('/users', false);
         }
 		// Ensures that after a user logs in or out, the event listeners for navigation links are reattached:
         document.querySelectorAll('#app [href^="/"]').forEach((el) =>
