@@ -43,11 +43,3 @@ generate-certs:
 	openssl genrsa -out certs/server.key 2048
 	openssl req -new -key certs/server.key -out certs/server.csr -subj "/CN=localhost"
 	openssl x509 -req -days 365 -in certs/server.csr -signkey certs/server.key -out certs/server.crt
-
-lint:
-	docker compose exec auth npx eslint .
-	docker compose exec match npx eslint .
-	docker compose exec chat npx eslint .
-	docker compose exec frontend npx eslint .
-
-# docker-compose up -d

@@ -5,6 +5,8 @@
 - To stop the platform, run `make down`
 - To restart the platform, run `make restart`
 - To check the logs, run `make logs`
+- To generate the certificates, run `make generate-certs`
+- To stop the platform and remove the containers, run `make clean`
 
 ## Navigate to the platform
 - The platform is available at `https://localhost`
