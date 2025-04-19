@@ -124,6 +124,8 @@ services:
             - app-network
         volumes:
             - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ./infra/prometheus/rules:/etc/prometheus/rules
+            - prometheus:/prometheus
         command:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--storage.tsdb.path=/prometheus'
@@ -145,9 +147,28 @@ services:
         volumes:
             - ./infra/grafana/provisioning:/etc/grafana/provisioning
             - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
+            - grafana:/var/lib/grafana
+        environment:
+            - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+            - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+            - GF_USERS_ALLOW_SIGN_UP=false
         depends_on:
             - prometheus
 
 networks:
     app-network:
         driver: bridge
+
+volumes:
+    prometheus:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./data/prometheus
+    grafana:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./data/grafana

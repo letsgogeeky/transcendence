@@ -1,4 +1,4 @@
-.PHONY: build-frontend run-frontend
+.PHONY: build-frontend run-frontend fclean
 
 build-frontend:
 	docker compose build frontend
@@ -10,11 +10,19 @@ build-auth:
 	docker compose build auth
 
 run:
+	@make ensure-volumes
+	@docker compose up --build
+
+ensure-volumes:
 	mkdir -p ./uploads
 	mkdir -p ./db
-	docker compose up --build
+	mkdir -p ./data
+	mkdir -p ./data/prometheus
+	mkdir -p ./data/grafana
 
-up:
+up: ensure-volumes
+	@chmod +x ./init-env.sh
+	@./init-env.sh
 	@make generate-certs
 	@docker compose -f ./docker-compose.yml up --build -d
 	@docker compose -f ./docker-compose.yml exec auth npx prisma db push
@@ -55,3 +63,17 @@ generate-certs:
 		rm frontend/localhost.csr; \
 	fi
 	@echo "SSL certificates generated successfully!"
+
+fclean: down
+	@echo "Cleaning up all generated files and volumes..."
+	@docker compose -f ./docker-compose.yml down -v
+	@rm -rf ./uploads
+	@rm -rf ./db
+	@rm -rf ./data
+	@rm -rf ./certs
+	@rm -f ./frontend/localhost-key.pem
+	@rm -f ./frontend/localhost-cert.pem
+	@rm -f ./frontend/localhost.csr
+	@echo "Cleanup complete!"
+
+re: fclean up
