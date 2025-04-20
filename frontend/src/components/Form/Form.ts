@@ -18,10 +18,12 @@ export default class FormComponent extends Component {
         inputs: FormInput[],
         submitCallback: ((data: any) => Promise<Response>) | null,
         successCallback: SuccessCallback | null = null,
+        id: string = '',
     ) {
         super();
         this.element = document.createElement('form');
         this.element.className = 'flex flex-col space-y-6';
+        this.element.id = id;
         const submitButton = new Button(
             label,
             () => {},
@@ -70,10 +72,11 @@ export default class FormComponent extends Component {
                         throw new Error(`Error: ${responseBody.error}`);
                     }
                     if (successCallback) await successCallback(responseBody);
-                    showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
+                    showToast(ToastState.SUCCESS, "Success!");
                 } catch (error) {
                     if (error instanceof Error) {
                         showToast(ToastState.ERROR, error.message);
+                        throw error;
                     } else {
                         showToast(
                             ToastState.ERROR,

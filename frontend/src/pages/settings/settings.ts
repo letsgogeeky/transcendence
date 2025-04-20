@@ -11,11 +11,17 @@ import AvatarUploadComponent from './avatarUpload';
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
+    private lastUserData: any | null = null;
 
     constructor() {
         super();
         this.element = document.createElement('div');
         this.element.className = 'flex flex-col items-center gap-2';
+    }
+
+    private shouldUpdate(newData: any): boolean {
+        if (!this.lastUserData) return true;
+        return JSON.stringify(this.lastUserData) !== JSON.stringify(newData);
     }
 
     render(parent: HTMLElement) {
@@ -96,6 +102,9 @@ export default class UserSettingsComponent extends Component {
     }
 
     private async setUserFromResponse(data: any): Promise<void> {
+        if (!this.shouldUpdate(data)) return;
+
+        this.lastUserData = data;
         localStorage.setItem('currentUser', JSON.stringify(data || null));
         State.getState().setCurrentUser(data);
 

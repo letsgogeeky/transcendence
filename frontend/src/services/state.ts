@@ -14,12 +14,16 @@ export default class State {
     private static instance: State | null = null;
     private authToken: string | null;
     private authSocket: WebSocketService | null;
+    private matchSocket: WebSocketService | null;
     private user: MyUser | null;
+    private updateTimeout: number | null;
 
     private constructor() {
         this.authToken = null;
         this.authSocket = null;
+        this.matchSocket = null;
         this.user = null;
+        this.updateTimeout = null;
     }
 
     public getAuthToken(): string | null {
@@ -28,13 +32,24 @@ export default class State {
 
     public setAuthToken(token: string | null): void {
         this.authToken = token;
-        if (token && this.authSocket?.socket?.readyState != WebSocket.OPEN)
-            this.authSocket = new WebSocketService(endpoints.authSocket);
+        if (token) {
+            if (this.authSocket?.socket?.readyState != WebSocket.OPEN)
+                this.authSocket = new WebSocketService(endpoints.authSocket);
+            if (this.matchSocket?.socket?.readyState != WebSocket.OPEN)
+                this.matchSocket = new WebSocketService(`${endpoints.matchMakingSocket}?token=${token}`);
+        } else {
+            this.authSocket = null;
+            this.matchSocket = null;
+        }
         window.dispatchEvent(new Event('userChange'));
     }
 
     public getAuthSocket(): WebSocket | null | undefined {
         return this.authSocket?.socket;
+    }
+
+    public getMatchSocket(): WebSocket | null | undefined {
+        return this.matchSocket?.socket;
     }
 
     public getCurrentUser(): MyUser | null {
@@ -49,7 +64,13 @@ export default class State {
 
     public setCurrentUser(user: MyUser | null): void {
         this.user = user;
-        window.dispatchEvent(new Event('userChange'));
+        if (this.updateTimeout) {
+            clearTimeout(this.updateTimeout);
+        }
+        this.updateTimeout = window.setTimeout(() => {
+            window.dispatchEvent(new Event('userChange'));
+            this.updateTimeout = null;
+        }, 100); // Debounce for 100ms
     }
 
     public static getState(): State {
