@@ -13,6 +13,7 @@ export default class TournamentComponent extends Component {
     private tournamentContainer: HTMLElement | null = null;
     private participantsSection: HTMLElement | null = null;
     private isRenderingParticipants = false;
+    private isRendering = false;
     constructor() {
         super();
         const container = document.createElement('div');
@@ -59,8 +60,7 @@ export default class TournamentComponent extends Component {
 
     async addPlayerCallback(data: any): Promise<void> {
         console.log('Add Player Callback', data);
-        await this.fetchData();
-        await this.renderParticipants();
+        await this.actionCallback();
     }
 
     async getUsers(): Promise<any[]> {
@@ -126,14 +126,24 @@ export default class TournamentComponent extends Component {
 
     async removePlayerCallback(data: any): Promise<void> {
         console.log('Remove Player Callback', data);
+        await this.actionCallback();
+    }
+
+    async actionCallback(): Promise<void> {
         await this.fetchData();
         await this.renderParticipants();
+        if (this.tournamentContainer) {
+            const addParticipantSection = this.tournamentContainer.querySelector('#add-participant-form')?.parentElement;
+            if (addParticipantSection) {
+                addParticipantSection.innerHTML = '';
+                await this.renderAddParticipantForm(addParticipantSection);
+            }
+        }
     }
 
     async startTournamentCallback(data: any): Promise<void> {
         console.log('Start Tournament Callback', data);
-        await this.fetchData();
-        await this.renderParticipants();
+        await this.actionCallback();
     }
 
     async deleteTournamentCallback(data: any): Promise<void> {
@@ -180,8 +190,7 @@ export default class TournamentComponent extends Component {
                     try {
                         const response = await this.removePlayer(this.data.tournament.id, participant.userId);
                         if (response.ok) {
-                            await this.fetchData();
-                            await this.renderParticipants();
+                            await this.actionCallback();
                         }
                     } catch (error) {
                         console.error('Error removing player:', error);
@@ -197,8 +206,7 @@ export default class TournamentComponent extends Component {
                         try {
                             const response = await this.removePlayer(this.data.tournament.id, participant.userId);
                             if (response.ok) {
-                                await this.fetchData();
-                                await this.renderParticipants();
+                                await this.actionCallback();
                             }
                         } catch (error) {
                             console.error('Error leaving tournament:', error);
@@ -233,6 +241,8 @@ export default class TournamentComponent extends Component {
     }
 
     public render(parent: HTMLElement | Component): void {
+        if (this.isRendering) return;
+        this.isRendering = true;
         this.element.innerHTML = '';
         const title = document.createElement('h1');
         title.textContent = 'Tournament';
@@ -278,9 +288,9 @@ export default class TournamentComponent extends Component {
                 startButton.onclick = async () => {
                     try {
                         const response = await this.startTournament(this.data.tournament.id);
-                        const data = await response.json();
-                        await this.fetchData();
-                        await this.renderParticipants();
+                        if (response.ok) {
+                            await this.actionCallback();
+                        }
                     } catch (error) {
                         console.error('Error starting tournament:', error);
                     }
@@ -292,8 +302,9 @@ export default class TournamentComponent extends Component {
                     if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
                         try {
                             const response = await this.deleteTournament(this.data.tournament.id);
-                            const data = await response.json();
-                            window.location.href = '/tournaments';
+                            if (response.ok) {
+                                window.location.href = '/tournaments';
+                            }
                         } catch (error) {
                             console.error('Error deleting tournament:', error);
                         }
@@ -321,5 +332,6 @@ export default class TournamentComponent extends Component {
             this.element.append(this.tournamentContainer);
         }
         super.render(parent);
+        this.isRendering = false;
     }   
 }

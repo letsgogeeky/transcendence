@@ -13,7 +13,6 @@ export default class NavContent extends Component {
     }
 
     async init(parent: HTMLElement) {
-        this.render(parent);
         this.childComponent.data = await this.childComponent.fetchData();
         this.element.innerHTML = '';
         this.render(parent);
