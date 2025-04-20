@@ -92,7 +92,7 @@ export const routes: Route[] = [
 	},
 	{
 		path: '/profile',
-		title: 'User profile',
+		title: 'My profile',
 		component: new ProfileComponent(),
 		visible: false,
 	},

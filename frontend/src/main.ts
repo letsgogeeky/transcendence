@@ -102,6 +102,7 @@ const render = () => {
             navigator.displayTab('/create-tournament', true);
             navigator.displayTab('/tournaments', true);
             navigator.displayTab('/logout', true);
+            navigator.displayTab('/profile', true);
         }
         if (!user) {
             navigator.displayTab('/logout', false);
@@ -109,6 +110,7 @@ const render = () => {
             navigator.displayTab('/create-tournament', false);
             navigator.displayTab('/tournaments', false);
             navigator.displayTab('/users', false);
+            navigator.displayTab('/profile', false);
         }
         navigator.render(root);
     });

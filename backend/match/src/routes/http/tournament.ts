@@ -53,7 +53,7 @@ export function tournamentRoutes(app: FastifyInstance) {
             const tournaments = await app.prisma.tournament.findMany({
                 where: {
                     participants: {
-                        some: { id },
+                        some: { userId: id },
                     },
                 },
                 include: {

@@ -128,10 +128,6 @@ export default class WebSocketService {
                     `Tournament "${data.tournamentName}" has started!`,
                     5000
                 );
-                // Refresh tournament page if user is on it
-                if (window.location.pathname.includes('/tournament')) {
-                    window.location.reload();
-                }
                 break;
 
             case 'TOURNAMENT_INVITATION':
@@ -205,10 +201,6 @@ export default class WebSocketService {
                     `Tournament Update: ${data.message}`,
                     5000
                 );
-                // Refresh tournament page if user is on it
-                if (window.location.pathname.includes('/tournament')) {
-                    window.location.reload();
-                }
                 break;
 
             case 'TOURNAMENT_ENDED':
@@ -217,10 +209,6 @@ export default class WebSocketService {
                     `Tournament "${data.tournamentName}" has ended! ${data.message}`,
                     5000
                 );
-                // Redirect to tournament results if on tournament page
-                if (window.location.pathname.includes('/tournament')) {
-                    window.location.reload();
-                }
                 break;
 
             case 'TOURNAMENT_MATCH_START':
