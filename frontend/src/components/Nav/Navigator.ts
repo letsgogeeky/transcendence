@@ -22,7 +22,6 @@ export default class NavigatorComponent extends Component {
     }
 
     changeSelection(path: string) {
-        this.content.element.innerHTML = '';
         const selectedRoute = this.navbar.routes.find(
             (route) => route.path == path,
         );

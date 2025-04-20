@@ -67,15 +67,15 @@ export function SocketRoutes(fastify: FastifyInstance) {
     async function handleAuthMessage(socket: WebSocket, data: SocketData): Promise<void> {
         const id = verifyToken(data.token);
         if (id) {
-            if (fastify.connections.has(id)) {
-                const message = { type: 'CONFLICT' };
-                const oldSocket = fastify.connections.get(id);
-                oldSocket!.send(JSON.stringify(message));
-                oldSocket!.close();
-                fastify.connections.delete(id);
-                socket.send(JSON.stringify({ type: 'RETRY' }));
-                return;
-            }
+            // if (fastify.connections.has(id)) {
+            //     const message = { type: 'CONFLICT' };
+            //     const oldSocket = fastify.connections.get(id);
+            //     oldSocket!.send(JSON.stringify(message));
+            //     oldSocket!.close();
+            //     fastify.connections.delete(id);
+            //     socket.send(JSON.stringify({ type: 'RETRY' }));
+            //     return;
+            // }
             fastify.connections.set(id, socket);
             fastify.prisma.user.findUnique({
                 where: { id },
