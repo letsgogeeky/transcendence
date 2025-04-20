@@ -160,10 +160,8 @@ export function otpRoutes(fastify: FastifyInstance) {
                 digits: 6,
                 secret: user.otpBase32!,
             });
-            console.log('after totp');
             const delta = totp.validate({ token });
-            console.log('delta');
-            console.log(delta);
+            console.log(`delta: ${delta}`);
             if (delta === null) {
                 return res.status(401).send({
                     message,

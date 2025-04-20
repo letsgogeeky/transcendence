@@ -24,7 +24,7 @@ model TournamentParticipant {
   id          String    @id @default(uuid())
   tournamentId String    // References Tournament from tournament schema
   userId      String    // References User from auth schema
-  status      String    // active, eliminated, winner
+  status      String    // active, eliminated, winner, pending, rejected, accepted
   createdAt   DateTime  @default(now())
   tournament Tournament? @relation(fields: [tournamentId], references: [id])
 }

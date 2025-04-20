@@ -103,13 +103,26 @@ async function handleTournamentAccept(app: FastifyInstance, userId: string, mess
     }
 
     try {
+        // First find the participant
+        const participant = await app.prisma.tournamentParticipant.findFirst({
+            where: {
+                tournamentId: message.tournamentId,
+                userId: userId
+            }
+        });
+
+        if (!participant) {
+            console.error('Participant not found');
+            return;
+        }
+
         // Update tournament participant status in database
         const tournament = await app.prisma.tournament.update({
             where: { id: message.tournamentId },
             data: {
                 participants: {
                     update: {
-                        where: { userId_tournamentId: { userId, tournamentId: message.tournamentId } },
+                        where: { id: participant.id },
                         data: { status: 'ACCEPTED' }
                     }
                 }
@@ -117,8 +130,13 @@ async function handleTournamentAccept(app: FastifyInstance, userId: string, mess
             include: { participants: true }
         });
 
+        if (!tournament.adminId) {
+            console.error('Missing adminId in TOURNAMENT_ACCEPT message');
+            return;
+        }
+
         // Notify tournament creator about acceptance
-        const creatorSocket = app.connections.get(tournament.creatorId);
+        const creatorSocket = app.connections.get(tournament.adminId as string);
         if (creatorSocket) {
             creatorSocket.send(JSON.stringify({
                 type: messageTypes.TOURNAMENT_UPDATE,
@@ -138,13 +156,26 @@ async function handleTournamentReject(app: FastifyInstance, userId: string, mess
     }
 
     try {
+        // First find the participant
+        const participant = await app.prisma.tournamentParticipant.findFirst({
+            where: {
+                tournamentId: message.tournamentId,
+                userId: userId
+            }
+        });
+
+        if (!participant) {
+            console.error('Participant not found');
+            return;
+        }
+
         // Update tournament participant status in database
         const tournament = await app.prisma.tournament.update({
             where: { id: message.tournamentId },
             data: {
                 participants: {
                     update: {
-                        where: { userId_tournamentId: { userId, tournamentId: message.tournamentId } },
+                        where: { id: participant.id },
                         data: { status: 'REJECTED' }
                     }
                 }
@@ -152,8 +183,13 @@ async function handleTournamentReject(app: FastifyInstance, userId: string, mess
             include: { participants: true }
         });
 
+        if (!tournament.adminId) {
+            console.error('Missing adminId in TOURNAMENT_REJECT message');
+            return;
+        }
+
         // Notify tournament creator about rejection
-        const creatorSocket = app.connections.get(tournament.creatorId);
+        const creatorSocket = app.connections.get(tournament.adminId as string);
         if (creatorSocket) {
             creatorSocket.send(JSON.stringify({
                 type: messageTypes.TOURNAMENT_UPDATE,

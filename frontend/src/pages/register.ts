@@ -57,6 +57,9 @@ export default class RegisterComponent extends Component {
             'JOIN',
             [emailInput, nameInput, passwordInput],
             (data) => sendRequest('/register', 'POST', data, Services.AUTH),
+            () => {
+                window.location.href = '/login';
+            }
         );
         form.className = 'flex flex-col gap-4 w-80 relative z-10'; // Form styling
 

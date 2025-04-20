@@ -165,9 +165,21 @@ export function tournamentRoutes(app: FastifyInstance) {
         const tournamentParticipant = {
             tournamentId: tournament.id,
             userId: playerId,
-            status: 'active',
+            status: 'pending',
         }
         await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
+
+        // Send notification to the added participant
+        const participantSocket = app.connections.get(playerId);
+        if (participantSocket) {
+            participantSocket.send(JSON.stringify({
+                type: 'TOURNAMENT_INVITATION',
+                tournamentId: tournament.id,
+                tournamentName: tournament.name,
+                message: `You've been invited to join tournament "${tournament.name}"`
+            }));
+        }
+
         const updatedTournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
                 participants: true,
                 matches: true,
@@ -256,6 +268,42 @@ export function tournamentRoutes(app: FastifyInstance) {
             });
         }
         await app.prisma.tournamentParticipant.delete({ where: { id: tournamentParticipant.id } });
+
+        // Send notification to the removed participant
+        const removedUserSocket = app.connections.get(userId);
+        if (removedUserSocket && request.user !== userId) {
+            removedUserSocket.send(JSON.stringify({
+                type: 'TOURNAMENT_UPDATE',
+                tournamentId: tournament.id,
+                message: `You have been removed from tournament "${tournament.name}"`
+            }));
+        }
+
+        // Send notification to the tournament admin
+        if (tournament.adminId) {
+            const adminSocket = app.connections.get(tournament.adminId as string);
+            if (adminSocket && request.user !== tournament.adminId) {
+                try {
+                    // Get user info from auth service
+                    const response = await fetch(`${process.env.AUTH_SERVICE_URL}/user/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${request.headers.authorization}`
+                        }
+                    });
+                    if (response.ok) {
+                        const userData = await response.json() as { name: string };
+                        adminSocket.send(JSON.stringify({
+                            type: 'TOURNAMENT_UPDATE',
+                            tournamentId: tournament.id,
+                            message: `User ${userData.name} has left tournament "${tournament.name}"`
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error sending admin notification:', error);
+                }
+            }
+        }
+
         return reply.status(200).send({
             message: 'Participant left tournament',
         });
