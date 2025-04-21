@@ -8,6 +8,8 @@ import { buildScene } from './scene.js';
 import { Ball } from './ball.js';
 import { WebSocket } from "ws";
 import { paddleAi } from './paddleAi.js'
+import { Player } from './player.js';
+import { disconnect } from 'process';
 
 export async function loadPhysics() {
 	const __filename = fileURLToPath(import.meta.url);
@@ -26,7 +28,8 @@ export type GameSettings = {
 	winScore?: number;
 	replaceDisconnected?: boolean;
 	terminatePlayers?: boolean;
-	//teams:
+	teams?: string[][];
+	friendlyFire?: boolean
 }
 
 export enum GameStatus {
@@ -39,18 +42,20 @@ export enum GameStatus {
 export class GameSession {
     engine!: BABYLON.NullEngine;
     scene!: BABYLON.Scene;
-    clients = new Set<WebSocket>();
+	simScene!: BABYLON.Scene;
+	players = new Map<string, Player>();
 	paddles: Paddle[] = [];
 	balls: Ball[] = [];
 	status: GameStatus = GameStatus.WAITING;
 	settings: GameSettings;
 	id: string;
+	teams: Player[][] = [];
+	timePassed: number = 0;
 
     constructor(matchId: string, settings: GameSettings) {
 		this.id = matchId;
 		this.settings = settings;
 		if (settings.aiPlayers == undefined) settings.aiPlayers = 0;
-        this.createScene();
     }
 
     private async createScene() {
@@ -60,50 +65,61 @@ export class GameSession {
         const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
 		this.scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin);
 
+		// const simEngine = new BABYLON.NullEngine();
+		// this.simScene = new BABYLON.Scene(simEngine);
+		// const havokInstance2 = await loadPhysics();
+		// const havokPlugin2 = new BABYLON.HavokPlugin(true, havokInstance2);
+		// this.simScene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin2);
+
 		if (this.settings.players == 0) this.startGameLoop();
     }
 
-	public handleConnection(ws: WebSocket) {
-		this.clients.add(ws);
-		if (this.status == GameStatus.WAITING && this.clients.size == this.settings.players) {
-			this.startGameLoop();
-			for (let client of this.clients) this.sendScene(client);
-			this.updateScore();
+	public handleConnection(id: string, name: string, ws: WebSocket) {
+		if (this.status == GameStatus.ENDED || this.players.has(id)) {
+			const reason = this.status == GameStatus.ENDED ? 'Game ended' : 'User already connected';
+			ws.send(JSON.stringify({type: 'connectionDenied', data: reason}));
+			return;
 		}
-		else if (this.clients.size > this.settings.players) {
+		this.players.set(id, new Player(id, name, ws));
+		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
+			this.startGameLoop();
+		}
+		else if (this.players.size > this.settings.players) {
 			ws.send(JSON.stringify({type: 'spectator'}));
 			this.sendScene(ws);
 		}
-		ws.send(JSON.stringify({type: 'settings', data: this.settings}));
+		ws.send(JSON.stringify({type: 'settings', data: { ...this.settings, timeLimit: (this.settings.timeLimit ?? 0) - this.timePassed }}));
 		this.sendPlayerList(ws);
     }
 
-    public handleMessage(ws: WebSocket, message: string) {
+    public handleMessage(id: string, message: string) {
         try {
             const data = JSON.parse(message);
             switch (data.type) {
-                case 'moveUp': this.paddles.find(p => p.ws === ws)?.moveUp(); break;
-                case 'moveDown': this.paddles.find(p => p.ws === ws)?.moveDown(); break;
+                case 'moveUp': this.players.get(id)?.paddle?.moveUp(); break;
+                case 'moveDown': this.players.get(id)?.paddle?.moveDown(); break;
+				case 'turnLeft': this.players.get(id)?.paddle?.turnLeft(); break;
+                case 'turnRight': this.players.get(id)?.paddle?.turnRight(); break;
             }
         } catch (e) {
             console.error('Invalid message:', message);
         }
     }
 
-    public handleClose(ws: WebSocket) {
+    public handleClose(id: string) {
+		const disconnectedPlayer = this.players.get(id);
         if (this.status == GameStatus.ONGOING) {
-			const disconnectedPlayer = this.paddles.find(p => p.ws === ws);
-			if (this.settings.replaceDisconnected && disconnectedPlayer)
-				 disconnectedPlayer.player = false;
+			if (this.settings.replaceDisconnected && disconnectedPlayer?.paddle)
+				disconnectedPlayer.paddle.player = undefined;
 			else this.gameEnd("Lost connection to player");
 		}
-		this.clients.delete(ws);
+		this.players.delete(id);
     }
 
 	public sendPlayerList(client: WebSocket) {
-		const playerNames = [];
-		for (const paddle of this.paddles) playerNames.push(paddle.name);
-		client.send(JSON.stringify({type: 'playerList', data: playerNames}));
+		const playerNames = Array.from(this.paddles).map(paddle => paddle.name);
+		const teams = this.teams?.map(team => team.map(player => player.paddle?.name));
+		client.send(JSON.stringify({type: 'playerList', data: {players: playerNames, teams: teams}}));
 	}
 
 	public sendScene(client: WebSocket) {
@@ -114,21 +130,27 @@ export class GameSession {
 
 	public updateScore() {
 		const scoreMap = new Map<string, number>();
-		this.paddles.forEach(player => {
-			scoreMap.set(player.name, player.score);
+		this.paddles.forEach(paddle => {
+			scoreMap.set(paddle.name, paddle.score);
 		});
-		for (const client of this.clients) 
-			client.send(JSON.stringify({type: 'score', data: Object.fromEntries(scoreMap)}));
-		let removePaddle;
-		for (const paddle of this.paddles) {
-			if (this.settings.winScore && paddle.score >= this.settings.winScore)
-				this.gameEnd("highest score");
-			else if (paddle.score <= 0 && this.settings.terminatePlayers)
-				removePaddle = paddle;
+		for (const player of this.players.values()) 
+			player.ws.send(JSON.stringify({type: 'score', data: Object.fromEntries(scoreMap)}));
+		
+		for (const team of this.teams ?? []) {
+			let teamScore = 0;
+			for (const player of team) teamScore += player.score;
+			//for (const player of team) player.ws.send(JSON.stringify({type: 'teamScore', data: teamScore}));
+			if (this.settings.winScore && teamScore >= this.settings.winScore) 
+				this.gameEnd("Team " + team[0].teamNumber + " won!");
 		}
-		if (removePaddle) {
-			this.paddles = this.paddles.filter(p => p != removePaddle);
-			if (this.paddles.length <= 1) this.gameEnd("termination");
+		for (const player of this.players.values()) {
+			if (!player.team && this.settings.winScore && player.score >= this.settings.winScore)
+				this.gameEnd();
+			else if (player.score <= 0 && this.settings.terminatePlayers) {
+				player.paddle?.die();
+				this.paddles = this.paddles.filter(p => p != player.paddle);
+				if (this.paddles.length <= 1) this.gameEnd();
+			}	
 		}
 	}
 
@@ -136,24 +158,45 @@ export class GameSession {
 		const paddlePositions = this.paddles.map(paddle => ({position: paddle.box.position, id: paddle.box.id}));
 		const ballPositions = this.balls.map(ball => ({position: ball.position, id: ball.ball.id}));
 		const meshPositions = [...paddlePositions, ...ballPositions];
-		const meshRotations = this.balls.map(ball => ({rotation: ball.aggregate.transformNode.rotationQuaternion, id: ball.ball.id}));
-		this.clients.forEach((client) => {
-		    client.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations}}));
+		
+		const meshRotations = this.balls.map(ball => ({rotation: ball.aggregate.transformNode.rotationQuaternion, id: ball.ball.id
+		}));
+		this.players.forEach((player) => {
+			if (player.paddle)
+				meshRotations.push({rotation: player.paddle.aggregate.transformNode.rotationQuaternion, id: player.paddle.box.id});
+		})
+		const targets = this.paddles.map(paddle => paddle.target).filter(target => target !== undefined);
+		this.players.forEach((player) => {
+		    player.ws.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
 		});
     }
 
+	createTeam(players: string[], teamNumber: number) {
+		const team = players.map(name => this.players.get(name)).filter(player => player !== undefined);
+		team.forEach(player => (player.teamNumber = teamNumber, player.team = team));
+		this.teams.push(team);
+	}
+
+	addToTeam(id: string, teamNumber: number) {
+		if (this.settings.teams && this.settings.teams.length > teamNumber)
+			this.settings.teams[teamNumber].push(id);
+	}
+
 	private gameEnd(message?: string) {
-		const winner = this.paddles.reduce((max, current) =>
-			current.score > max.score ? current : max
-		);
-		this.clients.forEach((client) => {
-			client.send(JSON.stringify({type: 'gameEnd', data: 
-				message ? message : `Game ended. ${winner.name} won!`}))
+		let winner: Player;
+		if (this.players.size > 0) {
+			winner = Array.from(this.players.values()).reduce((max, current) =>
+				current.score > max.score ? current : max);
+		}
+		this.players.forEach((player) => {
+			player.ws.send(JSON.stringify({type: 'gameEnd', data: 
+				message ? message : `Game ended. ${winner.name ?? "No one"} won!`}))
 		});
 		this.status = GameStatus.ENDED;
 	}
 
-    private startGameLoop() {
+    private async startGameLoop() {
+		await  this.createScene();
 		this.status = GameStatus.ONGOING
 		let startTime = Date.now();
         let lastTime = Date.now();
@@ -162,19 +205,33 @@ export class GameSession {
 		this.balls.push(new Ball(this, this.scene));
 		for (const paddle of this.paddles) paddle.balls = this.balls;
 		for (let ball of this.balls) ball.sceneLimit = 20 / (2 * Math.sin(Math.PI / (this.settings.players + this.settings.aiPlayers!)));
-		this.clients.forEach((client) => {
+		this.players.forEach((player) => {
 			const paddle = this.paddles.find(p => !p.player);
-			if (paddle) {
-				paddle.player = true;
-				paddle.ws = client;
-			}
-		})
+			if (paddle) paddle.player = player;
+			player.paddle = paddle;
+		});
+		for (let i = 0; i < (this.settings.teams ?? []).length; i++)
+			this.createTeam(this.settings.teams![i], i + 1);
+		for (let i = 1; i < (this.teams ?? []).length + 1; i++) {
+			const r = (i & 1) ? 1 : 0;
+			const g = (i & 4) ? 1 : 0;
+			const b = (i & 2) ? 1 : 0;
+			const teamColor = new BABYLON.Color3(r, g, b);
+			for (const player of this.teams![i - 1]) 
+				(player.paddle!.box.material as BABYLON.StandardMaterial).diffuseColor = teamColor;
+		}
+		
 		let players = 1;
 		let coms = 1;
 		for (const paddle of this.paddles) {
 			paddle.player ? paddle.name = "Player" + players++ : paddle.name = "COM" + coms++;
-			if (this.settings.startScore) paddle.score = this.settings.startScore;
+			if (this.settings.startScore) paddle.addPoints(this.settings.startScore);
 		}
+
+		for (let player of this.players.values()) this.sendScene(player.ws);
+		this.updateScore();
+
+		console.log(this.teams);
 
         setInterval(() => {
             const now = Date.now();
@@ -182,6 +239,7 @@ export class GameSession {
 				&& now - startTime > this.settings.timeLimit)
 				this.gameEnd();
             const deltaTime = (now - lastTime) / 1000;
+			this.timePassed += deltaTime;
             lastTime = now;
             if (this.status == GameStatus.ONGOING) {
 				this.scene.getPhysicsEngine()?._step(deltaTime);
@@ -193,7 +251,7 @@ export class GameSession {
 				startTime += deltaTime;
         }, 1000 / 30);
 		// setInterval(() => {
-		// 	paddleAi(this.paddles, this.balls);
+		// 	paddleAi(this.paddles, this.balls, this.simScene);
 		// }, 1000);
     }
 

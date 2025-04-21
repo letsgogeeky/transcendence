@@ -26,8 +26,8 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
 
   if (sides != 2) {
     for (let i = 0; i < points.length; i++) {
-      const wall1 = BABYLON.MeshBuilder.CreateBox("wall" + i * 2, { height: sideLength / 4 }, scene);
-      const wall2 = BABYLON.MeshBuilder.CreateBox("wall" + i * 2 + 1, { height: sideLength / 4 }, scene);
+      const wall1 = BABYLON.MeshBuilder.CreateBox("wall", { height: sideLength / 4 }, scene);
+      const wall2 = BABYLON.MeshBuilder.CreateBox("wall", { height: sideLength / 4 }, scene);
       wall1.position = points[i];
       wall2.position = points[i];
       wall1.lookAt(points.at(i - 1)!, 0, Math.PI / 2, 0);
@@ -44,8 +44,8 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
     }
   } else {
 	const wallLength = sideLength * 1.5;
-    const wall1 = BABYLON.MeshBuilder.CreateBox("wall0", { height: wallLength }, scene);
-    const wall2 = BABYLON.MeshBuilder.CreateBox("wall1", { height: wallLength }, scene);
+    const wall1 = BABYLON.MeshBuilder.CreateBox("wall", { height: wallLength }, scene);
+    const wall2 = BABYLON.MeshBuilder.CreateBox("wall", { height: wallLength }, scene);
     const paddle1 = wall1.clone("paddle0");
     const paddle2 = wall2.clone("paddle1");
     paddle1.scaling = new BABYLON.Vector3(0.5, 0.125, 0.5);
@@ -70,9 +70,9 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
     walls.push(wall2);
     paddleBoxes.push(paddle1);
     paddleBoxes.push(paddle2);
-	let obstacle = BABYLON.MeshBuilder.CreateBox("box", { width: 3, height: 3}, scene);
-	obstacle.rotation.z = Math.PI / 4;
-	new BABYLON.PhysicsAggregate(obstacle, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
+	// let obstacle = BABYLON.MeshBuilder.CreateBox("box", { width: 3, height: 3}, scene);
+	// obstacle.rotation.z = Math.PI / 4;
+	// new BABYLON.PhysicsAggregate(obstacle, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
   }
   points.push(points[0]);
   polygon = BABYLON.MeshBuilder.CreateLines("polygon", { points }, scene);
