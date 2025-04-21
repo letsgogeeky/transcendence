@@ -35,6 +35,80 @@ export default class FriendsPageComponent extends Component {
         const errorText = document.createElement('p');
         errorText.textContent = 'users';
         this.element.appendChild(errorText);
+
+        // // Chatfenster erstellen
+        // const chatWindow = document.createElement('div');
+        // chatWindow.id = 'chat-window';
+        // chatWindow.style.position = 'fixed';
+        // chatWindow.style.top = '25%';
+        // chatWindow.style.right = '2%';
+        // chatWindow.style.width = '300px';
+        // chatWindow.style.height = '500px';
+        // chatWindow.style.backgroundColor = '#2d2d2d';
+        // chatWindow.style.border = '1px solid #444';
+        // chatWindow.style.borderRadius = '8px';
+        // chatWindow.style.display = 'none'; // Standardmäßig versteckt
+        // chatWindow.style.color = 'white';
+        // chatWindow.style.display = 'flex';
+        // chatWindow.style.flexDirection = 'column';
+        // chatWindow.style.overflow = 'hidden';
+
+        // chatWindow.innerHTML = `
+        //     <div id="chat-header" style="padding: 10px; background-color: #444; border-bottom: 1px solid #555; text-align: center;">
+        //         <h3 style="margin: 0;">Chat</h3>
+        //     </div>
+        //     <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; background-color: #333;">
+        //         <p style="color: #aaa;">Hier könnten Ihre Nachrichten erscheinen.</p>
+        //     </div>
+        //     <div id="chat-input" style="padding: 10px; background-color: #444; border-top: 1px solid #555; display: flex; gap: 10px; align-items: center;">
+        //         <input type="text" id="message-input" placeholder="Nachricht eingeben..." style="flex: 1; padding: 8px; border: none; border-radius: 4px; background-color: #555; color: white; box-sizing: border-box;">
+        //         <button id="send-message" style="padding: 8px 12px; background-color: #666; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;">Senden</button>
+        //     </div>
+        // `;
+        // document.body.appendChild(chatWindow);
+
+        // // Schließen-Button für das Chatfenster
+        // const closeChatButton = document.createElement('button');
+        // closeChatButton.textContent = 'Schließen';
+        // closeChatButton.style.marginTop = '10px';
+        // closeChatButton.style.padding = '5px 10px';
+        // closeChatButton.style.backgroundColor = '#444';
+        // closeChatButton.style.color = 'white';
+        // closeChatButton.style.border = 'none';
+        // closeChatButton.style.borderRadius = '4px';
+        // closeChatButton.style.cursor = 'pointer';
+        // closeChatButton.addEventListener('click', () => {
+        //     chatWindow.style.display = 'none'; // Chatfenster schließen
+        // });
+        // chatWindow.querySelector('#chat-header')!.appendChild(closeChatButton);
+
+        // // Nachricht senden
+        // const sendMessageButton = chatWindow.querySelector('#send-message') as HTMLButtonElement;
+        // const messageInput = chatWindow.querySelector('#message-input') as HTMLInputElement;
+        // const chatMessages = chatWindow.querySelector('#chat-messages') as HTMLDivElement;
+
+        // sendMessageButton.addEventListener('click', () => {
+        //     const message = messageInput.value.trim();
+        //     if (message) {
+        //         // Platzhalter: Nachricht anzeigen
+        //         const messageElement = document.createElement('p');
+        //         messageElement.textContent = `Sie: ${message}`;
+        //         messageElement.style.color = 'white';
+        //         chatMessages.appendChild(messageElement);
+        //         chatMessages.scrollTop = chatMessages.scrollHeight; // Scrollen nach unten
+        //         messageInput.value = ''; // Eingabefeld leeren
+        //     }
+        // });
+
+        // Regelmäßiges Update der Benutzerliste
+        setInterval(async () => {
+            try {
+                const data = await this.fetchData();
+                this.setUsers(data);
+            } catch (error) {
+                console.error('Fehler beim Aktualisieren der Benutzerliste:', error);
+            }
+        }, 1000); // Aktualisierung alle 1 Sekunden
     }
 
     private sendFriendRequest(userData: any) {
@@ -127,6 +201,13 @@ export default class FriendsPageComponent extends Component {
                 {
                     callback: this.declineRequest,
                     label: 'Unfriend',
+                },
+                {
+                    callback: (friendData: any) => {
+                        console.log(`Chat with ${friendData.user.name} clicked`);
+                        this.createChatWindow(friendData.user.name);
+                    },
+                    label: 'Chat',
                 },
             ],
             true,
@@ -302,5 +383,75 @@ export default class FriendsPageComponent extends Component {
         this.allUsers = data;
         this.filteredUsers = data;
         this.updateUserLists();
+    }
+
+    private createChatWindow(friendName: string): void {
+        let chatWindow = document.getElementById('chat-window');
+        if (!chatWindow) {
+            chatWindow = document.createElement('div');
+            chatWindow.id = 'chat-window';
+            chatWindow.style.position = 'fixed';
+            chatWindow.style.top = '25%';
+            chatWindow.style.right = '2%';
+            chatWindow.style.width = '300px';
+            chatWindow.style.height = '500px';
+            chatWindow.style.backgroundColor = '#2d2d2d';
+            chatWindow.style.border = '1px solid #444';
+            chatWindow.style.borderRadius = '8px';
+            chatWindow.style.color = 'white';
+            chatWindow.style.display = 'flex';
+            chatWindow.style.flexDirection = 'column';
+            chatWindow.style.overflow = 'hidden';
+
+            chatWindow.innerHTML = `
+                <div id="chat-header" style="padding: 10px; background-color: #444; border-bottom: 1px solid #555; text-align: center;">
+                    <h3 style="margin: 0;">Chat mit ${friendName}</h3>
+                </div>
+                <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; background-color: #333;">
+                    <p style="color: #aaa;">Hier könnten Ihre Nachrichten erscheinen.</p>
+                </div>
+                <div id="chat-input" style="padding: 10px; background-color: #444; border-top: 1px solid #555; display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="message-input" placeholder="Nachricht eingeben..." style="flex: 1; padding: 8px; border: none; border-radius: 4px; background-color: #555; color: white; box-sizing: border-box;">
+                    <button id="send-message" style="padding: 8px 12px; background-color: #666; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;">Senden</button>
+                </div>
+            `;
+            document.body.appendChild(chatWindow);
+
+            // Schließen-Button für das Chatfenster
+            const closeChatButton = document.createElement('button');
+            closeChatButton.textContent = 'Schließen';
+            closeChatButton.style.marginTop = '10px';
+            closeChatButton.style.padding = '5px 10px';
+            closeChatButton.style.backgroundColor = '#444';
+            closeChatButton.style.color = 'white';
+            closeChatButton.style.border = 'none';
+            closeChatButton.style.borderRadius = '4px';
+            closeChatButton.style.cursor = 'pointer';
+            closeChatButton.addEventListener('click', () => {
+                chatWindow!.style.display = 'none'; // Chatfenster schließen
+            });
+            chatWindow.querySelector('#chat-header')!.appendChild(closeChatButton);
+
+            // Nachricht senden
+            const sendMessageButton = chatWindow.querySelector('#send-message') as HTMLButtonElement;
+            const messageInput = chatWindow.querySelector('#message-input') as HTMLInputElement;
+            const chatMessages = chatWindow.querySelector('#chat-messages') as HTMLDivElement;
+
+            sendMessageButton.addEventListener('click', () => {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Platzhalter: Nachricht anzeigen
+                    const messageElement = document.createElement('p');
+                    messageElement.textContent = `Sie: ${message}`;
+                    messageElement.style.color = 'white';
+                    chatMessages.appendChild(messageElement);
+                    chatMessages.scrollTop = chatMessages.scrollHeight; // Scrollen nach unten
+                    messageInput.value = ''; // Eingabefeld leeren
+                }
+            });
+        } else {
+            chatWindow.querySelector('h3')!.textContent = `Chat mit ${friendName}`;
+            chatWindow.style.display = 'flex'; // Chatfenster anzeigen
+        }
     }
 }
