@@ -9,7 +9,6 @@ export default class ChatComponent extends Component {
     private messageInput: HTMLInputElement;
     private closeButton: HTMLButtonElement;
 
-    // Implementiere das abstrakte `element`-Mitglied
     public element: HTMLElement;
 
     constructor(private friendId: string, private friendName: string) {
@@ -17,7 +16,6 @@ export default class ChatComponent extends Component {
         this.chatWindow = document.createElement('div');
         this.chatWindow.className = 'fixed bottom-4 right-4 w-90 h-96 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
 
-        // Setze `element` auf das Haupt-Chat-Fenster
         this.element = this.chatWindow;
 
         // Header
@@ -61,7 +59,7 @@ export default class ChatComponent extends Component {
 
     private connectToChat(): void {
         const authToken = State.getState().getAuthToken();
-        this.socket = new WebSocket(`${endpoints.chat}?token=${authToken}`); // Korrigierter Endpunkt
+        this.socket = new WebSocket(`${endpoints.chat}?token=${authToken}`); // ?????
 
         this.socket.onopen = () => {
             console.log('WebSocket connected');
