@@ -393,7 +393,7 @@ export default class FriendsPageComponent extends Component {
             chatWindow.style.position = 'fixed';
             chatWindow.style.top = '25%';
             chatWindow.style.right = '2%';
-            chatWindow.style.width = '300px';
+            chatWindow.style.width = '350px';
             chatWindow.style.height = '500px';
             chatWindow.style.backgroundColor = '#2d2d2d';
             chatWindow.style.border = '1px solid #444';
@@ -408,11 +408,11 @@ export default class FriendsPageComponent extends Component {
                     <h3 style="margin: 0;">Chat mit ${friendName}</h3>
                 </div>
                 <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; background-color: #333;">
-                    <p style="color: #aaa;">Hier könnten Ihre Nachrichten erscheinen.</p>
+                    <p style="color: #aaa;"></p>
                 </div>
-                <div id="chat-input" style="padding: 10px; background-color: #444; border-top: 1px solid #555; display: flex; gap: 10px; align-items: center;">
+                <div id="chat-input" style="padding: 10px; background-color: #444; border-top: 1px solid #555; display: flex; gap: 10px; align-items: center; box-sizing: border-box;">
                     <input type="text" id="message-input" placeholder="Nachricht eingeben..." style="flex: 1; padding: 8px; border: none; border-radius: 4px; background-color: #555; color: white; box-sizing: border-box;">
-                    <button id="send-message" style="padding: 8px 12px; background-color: #666; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;">Senden</button>
+                    <button id="send-message" style="padding: 8px 12px; background-color: #666; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Senden</button>
                 </div>
             `;
             document.body.appendChild(chatWindow);
