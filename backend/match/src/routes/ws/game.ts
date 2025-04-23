@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import { GameSession, GameSettings, GameStatus } from "./session.js";
 import credentialAuthCheck from "../../plugins/validateToken.js";
-import https from 'https';
 
 type GameMessage = {
     type: string;
