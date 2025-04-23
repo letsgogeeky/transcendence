@@ -1,6 +1,8 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
 
+import State from "../services/state";
+
 interface Window {
 	game: Game;
 }
@@ -74,12 +76,14 @@ class Game {
 		this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this.engine = new BABYLON.Engine(this.canvas, true);
 		const token = localStorage.getItem('authToken');
-		if (!token) {
-			console.error('No authentication token found');
+		const user = localStorage.getItem('currentUser');
+		const userName = State.getState().getCurrentUser()?.name;
+		if (!token || !user || !userName) {
+			console.error('No authentication token or username found');
 			window.location.href = '/login';
 			return;
 		}
-		this.ws = new WebSocket('wss://localhost/match/game?token=' + token);
+		this.ws = new WebSocket(`wss://localhost/match/game?token=${token}&userName=${userName}`);
 		this.connectWebSocket();
 	}
 

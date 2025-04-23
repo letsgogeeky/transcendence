@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import { GameSession, GameSettings, GameStatus } from "./session.js";
 import credentialAuthCheck from "../../plugins/validateToken.js";
+import https from 'https';
 
 type GameMessage = {
     type: string;
@@ -39,8 +40,6 @@ export function gameRoutes(app: FastifyInstance) {
 			// });
 			//console.log(user);
 
-			let userName = req.user.substring(0, 8);
-
 			// app.prisma.userName.findUnique({where: {id: req.user}}).then((user: { name: string; }) => {userName = user.name;});
 			// try {
 			// 	const userResponse = await app.prisma.user.findUnique({
@@ -60,7 +59,7 @@ export function gameRoutes(app: FastifyInstance) {
 			if (gameServer.status == GameStatus.ONGOING)
 				gameServer = new GameSession("", gameSettings);
 			//gameServer = game1.clients.size < game2.clients.size ? game1 : game2;
-			gameServer.handleConnection(req.user, userName, socket);
+			gameServer.handleConnection(req.user, req.userName, socket);
 			gameServer.addToTeam(req.user, app.connections.size % 2);
             app.connections.set(req.user, socket);
             socket.on('message', (message: string) => {
