@@ -39,14 +39,14 @@ export default class FriendsPageComponent extends Component {
 
 
         // Regelmäßiges Update der Benutzerliste
-        setInterval(async () => {
-            try {
-                const data = await this.fetchData();
-                this.setUsers(data);
-            } catch (error) {
-                console.error('Fehler beim Aktualisieren der Benutzerliste:', error);
-            }
-        }, 1000); // Aktualisierung alle 1 Sekunden
+        // setInterval(async () => {
+        //     try {
+        //         const data = await this.fetchData();
+        //         this.setUsers(data);
+        //     } catch (error) {
+        //         console.error('Fehler beim Aktualisieren der Benutzerliste:', error);
+        //     }
+        // }, 10000); // Aktualisierung alle 1 Sekunden
     }
 
     private sendFriendRequest(userData: any) {

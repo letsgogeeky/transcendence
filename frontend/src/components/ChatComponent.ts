@@ -11,7 +11,7 @@ export default class ChatComponent extends Component {
 
     public element: HTMLElement;
 
-    constructor(private friendId: string, private friendName: string) {
+    constructor(private chatRoomId: string, private friendName: string) {
         super();
         this.chatWindow = document.createElement('div');
         this.chatWindow.className = 'fixed bottom-4 right-4 w-90 h-96 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
@@ -59,17 +59,16 @@ export default class ChatComponent extends Component {
 
     private connectToChat(): void {
         const authToken = State.getState().getAuthToken();
-        this.socket = new WebSocket(`${endpoints.chat}?token=${authToken}`); // ?????
+        this.socket = new WebSocket(`${endpoints.chat}/ws?token=${authToken}&roomId=${this.chatRoomId}`);
 
         this.socket.onopen = () => {
             console.log('WebSocket connected');
-            this.socket?.send(JSON.stringify({ type: 'JOIN_CHAT', friendId: this.friendId }));
         };
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === 'CHAT_MESSAGE') {
-                this.displayMessage(data.message, data.sender === State.getState().getCurrentUser()?.id ? 'You' : this.friendName);
+                this.displayMessage(data.content, data.sender === State.getState().getCurrentUser()?.id ? 'You' : this.friendName);
             }
         };
 
@@ -82,12 +81,31 @@ export default class ChatComponent extends Component {
         };
     }
 
-    private sendMessage(): void {
+    private async sendMessage(): Promise<void> {
         const message = this.messageInput.value.trim();
         if (message && this.socket) {
-            this.socket.send(JSON.stringify({ type: 'CHAT_MESSAGE', content: message, friendId: this.friendId }));
-            this.displayMessage(message, 'You');
-            this.messageInput.value = '';
+            try {
+                // Send the message via WebSocket
+                this.socket.send(JSON.stringify({ type: 'CHAT_MESSAGE', content: message, chatRoomId: this.chatRoomId }));
+                this.displayMessage(message, 'You');
+
+                // Optionally, save the message to the backend
+                await fetch(`${endpoints.chat}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${State.getState().getAuthToken()}`,
+                    },
+                    body: JSON.stringify({
+                        content: message,
+                        chatRoomId: this.chatRoomId,
+                    }),
+                });
+
+                this.messageInput.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
         }
     }
 

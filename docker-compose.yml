@@ -165,10 +165,11 @@ volumes:
         driver_opts:
             type: none
             o: bind
-            device: ./data/prometheus
+            # device: ./data/prometheus
+            device: /Users/tkilling/Documents/transcendence/data/prometheus
     grafana:
         driver: local
         driver_opts:
             type: none
             o: bind
-            device: ./data/grafana
+            device: /Users/tkilling/Documents/transcendence/data/grafana
