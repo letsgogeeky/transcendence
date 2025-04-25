@@ -8,11 +8,19 @@ import State from '../services/state';
 import { loadBackgroundGif, loadImage } from '../styles/background'
 
 export default class LoginComponent extends Component {
-    readonly element: HTMLElement;
+    readonly element: HTMLElement = document.createElement('div');
 
     constructor() {
         super();
-        const container = document.createElement('div');
+
+        // Check if user is already logged in
+        const currentUser = State.getState().getCurrentUser();
+        if (currentUser) {
+            window.history.pushState({ path: '/' }, '', '/');
+            return;
+        }
+
+        const container = this.element;
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
 		container.appendChild(loadBackgroundGif());
@@ -78,8 +86,6 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
-
-        this.element = container; // Set the final element
     }
 
 	static loginCallback(data: any): void {

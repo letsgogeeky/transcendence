@@ -1,6 +1,5 @@
 import * as BABYLON from '@babylonjs/core';
 import HavokPhysics from '@babylonjs/havok';
-import { loadPhysics } from './session.js';
 import { Ball } from './ball.js';
 import { Paddle } from './paddle.js';
 
@@ -10,26 +9,24 @@ type TrajectoryPoint = {
 	time: number;
 };
 
-const engine = new BABYLON.NullEngine();
-const scene = new BABYLON.Scene(engine);
-const havokInstance = await loadPhysics();
-const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
-scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin);
+function cloneBall(original: BABYLON.PhysicsAggregate, scene: BABYLON.Scene): BABYLON.PhysicsAggregate {
+	let mesh = BABYLON.MeshBuilder.CreateSphere("ball", { diameter: 0.8 }, scene);
+	const aggregate = new BABYLON.PhysicsAggregate(mesh, original?.shape?.type, {
+		mass: 1,
+		restitution: 1,
+	}, scene);
+	mesh.position.copyFrom(original?.transformNode?.position);
+	aggregate.body?.setLinearVelocity(original?.body?.getLinearVelocity()?.clone());
+	aggregate.body?.setAngularVelocity(original?.body?.getAngularVelocity()?.clone());
+	
+	return aggregate;
+}
 
-function clonePhysicsAggregate(original: BABYLON.PhysicsAggregate): BABYLON.PhysicsAggregate | null {
-	let newMesh = original.transformNode.clone(original.transformNode.name, null);
-	if (!newMesh) return null;
-	newMesh.position.copyFrom(original.transformNode.position);
-	newMesh.rotationQuaternion = original.transformNode.rotationQuaternion!.clone();
-	const newAggregate = new BABYLON.PhysicsAggregate(
-		newMesh,
-		BABYLON.PhysicsShapeType.SPHERE,
-		{mass: original.body.getMassProperties().mass ?? 1},
-		scene
-	);
-	newAggregate.body.setLinearVelocity(original.body.getLinearVelocity().clone());
-	newAggregate.body.setAngularVelocity(original.body.getAngularVelocity().clone());
-	return newAggregate;
+function cloneMesh(original: BABYLON.AbstractMesh, scene: BABYLON.Scene) {
+	let serialized = {}
+    original.serialize(serialized)
+	let mesh = BABYLON.Mesh.Parse(serialized, scene, "");
+	new BABYLON.PhysicsAggregate(mesh, BABYLON.PhysicsShapeType.BOX, {mass: 0}, scene);
 }
 
 function pointToSegmentDistance(A: BABYLON.Vector3, B: BABYLON.Vector3, P: BABYLON.Vector3): number {
@@ -50,42 +47,52 @@ function pointToSegmentDistance(A: BABYLON.Vector3, B: BABYLON.Vector3, P: BABYL
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-function calculateTrajectories(balls: Ball[]): TrajectoryPoint[][] {
-	const simBalls = balls.map(ball => clonePhysicsAggregate(ball.aggregate)).filter(ball => ball != null);
+function calculateTrajectories(balls: Ball[], scene: BABYLON.Scene): TrajectoryPoint[][] {
+	balls[0].game.scene.meshes.forEach(mesh => {if (mesh.name == "wall") cloneMesh(mesh, scene)});
 	const simFrames = 10;
 	const trajectories = [];
-	for (let i = 0; i < simFrames; i++) {
-		const points = [];
-		for (const ball of simBalls)
-			points.push({position: ball.transformNode.position.clone(),
-						direction: ball.body.getLinearVelocity().clone(), time: i});
-		trajectories.push(points);
-		scene.getPhysicsEngine()?._step(1000 / simFrames);
+	try {
+		const simBalls = balls.map(ball => cloneBall(ball.aggregate, scene));
+		for (let i = 0; i < simFrames; i++) {
+			const points = [];
+			scene.getPhysicsEngine()?._step(1000 / simFrames);
+			for (const ball of simBalls) {
+				points.push({position: ball.transformNode.position.clone(),
+							direction: ball.body.getLinearVelocity().clone(), time: i});
+			}
+			console.log(points[0].position);
+			trajectories.push(points);
+		}
+		//console.log("meshes");
+		//scene.meshes.forEach((mesh) => {console.log(mesh.name);});
+		for (const mesh of scene.meshes) {
+			mesh.physicsBody?.dispose();
+			mesh.dispose();
+		} 
+	} catch (e) {
+		console.error(e);
 	}
-	for (const mesh of scene.meshes) {
-		mesh.physicsBody?.dispose();
-		mesh.dispose();
-	} 
 	return trajectories;
 }
 
-export function paddleAi(paddles: Paddle[], balls: Ball[]) {
-	const trajectories = calculateTrajectories(balls);;
+export function paddleAi(paddles: Paddle[], balls: Ball[], scene: BABYLON.Scene) {
+	const trajectories = calculateTrajectories(balls, scene);
 	for (const paddle of paddles) {
-		if (paddle.player) return;
+		if (paddle.player) continue;
 		const a = paddle.startPos.clone().addInPlace(paddle.up.scale(10));
 		const b = paddle.startPos.clone().addInPlace(paddle.up.scale(-10));
 		let closestPoint = BABYLON.Vector3.Zero();
-		let closestDistance = Number.MAX_SAFE_INTEGER;
+		let closestDistance = Number.MAX_VALUE;
 		for (let i = trajectories.length - 1; i > -1; i--) {
 			for (const p of trajectories[i]) {
 				const distance = pointToSegmentDistance(a, b, p.position);
-				if (distance < closestDistance) {
+				const nextDistance = pointToSegmentDistance(a, b, p.position.clone().add(p.direction));
+				// (distance < closestDistance && nextDistance < distance) {
 					closestDistance = distance;
 					closestPoint = p.position;
-				} 
+				//} 
 			}
 		}
-		paddle.target = closestPoint;
+		paddle.target = closestPoint.clone();
 	}
 }
