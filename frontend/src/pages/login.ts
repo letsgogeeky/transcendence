@@ -12,14 +12,6 @@ export default class LoginComponent extends Component {
 
     constructor() {
         super();
-
-        // Check if user is already logged in
-        const currentUser = State.getState().getCurrentUser();
-        if (currentUser) {
-            window.history.pushState({ path: '/' }, '', '/');
-            return;
-        }
-
         const container = this.element;
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
