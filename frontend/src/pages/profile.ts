@@ -37,7 +37,7 @@ export default class ProfileComponent extends Component {
         } else {
             const avatar = new AvatarImageComponent(
                 this.data.name + "'s avatar",
-                endpoints.auth + '/' + this.data.avatarUrl!,
+                this.data.avatarUrl!,
             );
             avatar.render(this.element);
             const title = document.createElement('h1');

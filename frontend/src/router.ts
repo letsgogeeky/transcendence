@@ -6,6 +6,7 @@ import LoginOtpComponent from './pages/login-2fa';
 import LoginAfterGoogle from './pages/login-google';
 import LogoutComponent from './pages/logout';
 import NotFoundComponent from './pages/notfound';
+import AboutComponent from './pages/about';
 import ForgotPasswordComponent from './pages/password/forgot-password';
 import ResetPasswordComponent from './pages/password/reset-password';
 import ProfileComponent from './pages/profile';
@@ -25,92 +26,105 @@ export type Route = {
 };
 
 export const routes: Route[] = [
-	//The home page (/) is mapped to HomeComponent, meaning that when a user 
-	// first opens the website at /, the HomeComponent is rendered:
-    { path: '/', title: 'Home', component: new HomeComponent(), visible: true },
-	// Fills the array, with elements of type "Route", defined above, as object of the 4 variables:
+	/** 1) GENERAL PAGES */
+  { 
+		path: '/', // The home page (/) is mapped to HomeComponent, meaning that when a user first opens the website at /, the HomeComponent is rendered:
+		title: 'Home',
+		component: new HomeComponent(),
+		visible: true 
+	},
 	{
-        path: '/profile',
-        title: 'User profile',
-        component: new ProfileComponent(),
-        visible: false,
-    },
-    {
-        path: '/users',
-        title: 'Users',
-        component: new UsersPageComponent(),
-        visible: true,
-    },
-    {
-        path: '/error',
-        title: 'Error',
-        component: new NotFoundComponent(),
-        visible: false,
-    },
-    {
-        path: '/login',
-        title: 'Login',
-        component: new LoginComponent(),
-        visible: false,
-    },
-    {
-        path: '/login/google',
-        title: 'Login',
-        component: new LoginAfterGoogle(),
-        visible: false,
-    },
-    {
-        path: '/login/2fa',
-        title: 'Login verification code',
-        component: new LoginOtpComponent(),
-        visible: false,
-    },
-    {
-        path: '/logout',
-        title: 'Logout',
-        component: new LogoutComponent(),
-        visible: false,
-    },
-    {
-        path: '/settings',
-        title: 'User settings',
-        component: new UserSettingsComponent(),
-        visible: false,
-    },
-    {
-        path: '/forgot-password',
-        title: 'Password reset',
-        component: new ForgotPasswordComponent(),
-        visible: false,
-    },
-    {
-        path: '/register',
-        title: 'Sign up',
-        component: new RegisterComponent(),
-        visible: true,
-    },
-    {
-        path: '/reset-password',
-        title: 'Password reset',
-        component: new ResetPasswordComponent(),
-        visible: false,
-    },
-    {
-        path: '/create-tournament',
-        title: 'Create Tournament',
-        component: new CreateTournamentComponent(),
-        visible: false,
-    },
-    {
-        path: '/tournament',
-        title: 'Tournament',
-        component: new TournamentComponent(),
-        visible: false,
-    },
-    {
-        path: '/tournaments',
-        title: 'Tournaments',
-        component: new TournamentsComponent(),
-        visible: true,
-    },
+		path: '/error',
+		title: 'Error',
+		component: new NotFoundComponent(),
+		visible: false,
+	},
+	{
+		path: '/about',
+		title: 'About',
+		component: new AboutComponent(),
+		visible: true,
+	},
+	/** 2) PAGES BEFORE LOG IN: */
+	{
+		path: '/login',
+		title: 'Log in',
+		component: new LoginComponent(),
+		visible: true,
+	},
+	{
+		path: '/register',
+		title: 'Sign up',
+		component: new RegisterComponent(),
+		visible: true,
+	},
+	{
+		path: '/login/google',
+		title: 'Login',
+		component: new LoginAfterGoogle(),
+		visible: false,
+	},
+	{
+		path: '/login/2fa',
+		title: 'Login verification code',
+		component: new LoginOtpComponent(),
+		visible: false,
+	},
+	{
+		path: '/forgot-password',
+		title: 'Password reset',
+		component: new ForgotPasswordComponent(),
+		visible: false,
+	},
+	{
+		path: '/reset-password',
+		title: 'Password reset',
+		component: new ResetPasswordComponent(),
+		visible: false,
+	},
+	/** 3) PAGES AFTER LOG IN: */
+	//	   A. Regarding User(s)
+	{
+		path: '/settings',
+		title: 'User settings',
+		component: new UserSettingsComponent(),
+		visible: false,
+	},
+	{
+		path: '/profile',
+		title: 'User profile',
+		component: new ProfileComponent(),
+		visible: false,
+	},
+	{
+		path: '/users',
+		title: 'Users',
+		component: new UsersPageComponent(),
+		visible: false,
+	},
+	//	   B. Regarding the Game
+	{
+		path: '/create-tournament',
+		title: 'Create Tournament',
+		component: new CreateTournamentComponent(),
+		visible: false,
+	},
+	{
+		path: '/tournament',
+		title: 'Tournament',
+		component: new TournamentComponent(),
+		visible: false,
+	},
+	{
+		path: '/tournaments',
+		title: 'Tournaments',
+		component: new TournamentsComponent(),
+		visible: false,
+	},
+	{
+		path: '/logout',
+		title: 'Logout',
+		component: new LogoutComponent(),
+		visible: false,
+	},
 ];

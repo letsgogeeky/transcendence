@@ -15,6 +15,7 @@ model Tournament {
   status      String    // active, inactive, completed
   options     Json      // { winCondition: "score", winScore: 10 } or { winCondition: "time", winTime: 10 }
   createdAt   DateTime  @default(now())
+  adminId     String?    // References User from auth schema nullable
   participants TournamentParticipant[]
   matches Match[]
 }
@@ -23,7 +24,7 @@ model TournamentParticipant {
   id          String    @id @default(uuid())
   tournamentId String    // References Tournament from tournament schema
   userId      String    // References User from auth schema
-  status      String    // active, eliminated, winner
+  status      String    // active, eliminated, winner, pending, rejected, accepted
   createdAt   DateTime  @default(now())
   tournament Tournament? @relation(fields: [tournamentId], references: [id])
 }

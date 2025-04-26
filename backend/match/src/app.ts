@@ -8,6 +8,7 @@ import demoRoutes from './routes/http/demo.js';
 import historyRoutes from './routes/http/history.js';
 import { gameRoutes } from './routes/ws/game.js';
 import { tournamentRoutes } from './routes/http/tournament.js';
+import { matchmakingRoutes } from './routes/ws/matchmaking.js';
 
 const prefix = '/match';
 
@@ -44,5 +45,6 @@ export const app = fastifyPlugin((server: FastifyInstance, _options: FastifyPlug
     server.register(demoRoutes, { prefix: prefix + '/demo' });
     server.register(historyRoutes, { prefix: prefix + '/history' });
     server.register(gameRoutes, { prefix: prefix + '/game' });
+    server.register(matchmakingRoutes, { prefix: prefix + '/matchmaking' });
     server.register(tournamentRoutes, { prefix: prefix + '/tournament' });
 });

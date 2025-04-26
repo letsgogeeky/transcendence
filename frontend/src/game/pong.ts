@@ -3,9 +3,11 @@
 
 const assetPath = "../src/game/"
 
-interface Window {
-	game: Game;
-}
+import State from "../services/state";
+
+import State from "../services/state";
+
+const assetPath = "../src/game/"
 
 let keys = {
 	up: false,
@@ -75,12 +77,14 @@ class Game {
 		this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this.engine = new BABYLON.Engine(this.canvas, true);
 		const token = localStorage.getItem('authToken');
-		if (!token) {
-			console.error('No authentication token found');
+		const user = localStorage.getItem('currentUser');
+		const userName = State.getState().getCurrentUser()?.name;
+		if (!token || !user || !userName) {
+			console.error('No authentication token or username found');
 			window.location.href = '/login';
 			return;
 		}
-		this.ws = new WebSocket('wss://localhost/match/game?token=' + token);
+		this.ws = new WebSocket(`wss://localhost/match/game?token=${token}&userName=${userName}`);
 		this.connectWebSocket();
 	}
 
@@ -184,7 +188,7 @@ class Game {
 				else if (keys.right) this.ws.send(JSON.stringify({type: 'turnRight', data: 1}));
 			}
 	  
-			if (keys.r) window.game.resetCamera();
+			if (keys.r) this.resetCamera();
 	  
 		  });
 
@@ -355,7 +359,7 @@ class Game {
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
-	window.game = new Game();
+	let game = new Game();
 
 	window.addEventListener("keydown", function(e) {
 		if (e.key === "ArrowUp" || e.key === "Up") keys.up = true;
@@ -374,40 +378,40 @@ window.addEventListener('DOMContentLoaded', async function() {
 	window.addEventListener("keyup", function(e) {
 		if (e.key === "ArrowUp" || e.key === "Up") { 
 			keys.up = false;
-			window.game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}))
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}))
 		}
 		if (e.key === "ArrowDown" || e.key === "Down") {
 			keys.down = false; 
-			window.game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}));
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}));
 		}
 		if (e.key === "ArrowLeft" || e.key === "Left") {
 			keys.left = false;
-			window.game.ws.send(JSON.stringify({type: 'stopTurning', data: 1}));
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 1}));
 		}
 		if (e.key === "ArrowRight" || e.key === "Right") {
 			keys.right = false;
-			window.game.ws.send(JSON.stringify({type: 'stopTurning', data: 1}));
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 1}));
 		}
 		if (e.key === "w" || e.key === "W") {
 			keys.w = false;
-			window.game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
 		}
 		if (e.key === "s" || e.key === "S") {
 			keys.s = false;
-			window.game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
 		}
 		if (e.key === "a" || e.key === "A") { 
 			keys.a = false;
-			window.game.ws.send(JSON.stringify({type: 'stopTurning', data: 0}));
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 0}));
 		}
 		if (e.key === "d" || e.key === "D") {
 			keys.d = false;
-			window.game.ws.send(JSON.stringify({type: 'stopTurning', data: 0}));
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 0}));
 		}
 		if (e.key === "r" || e.key === "R") keys.r = false;
 	});
 
 	window.addEventListener('resize', function() {
-		window.game.engine?.resize();
+		game.engine?.resize();
 	});
 });

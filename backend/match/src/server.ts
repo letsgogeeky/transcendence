@@ -29,6 +29,11 @@ declare module 'fastify' {
         prisma: PrismaClient;
         connections: Map<string, WebSocket>;
     }
+    interface FastifyRequest {
+        user: string;
+        token: string;
+        userName: string;
+    }
 }
 
 const keyPath = process.env.SSL_KEY_PATH || 'key.pem';

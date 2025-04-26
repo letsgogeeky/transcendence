@@ -67,15 +67,15 @@ export function SocketRoutes(fastify: FastifyInstance) {
     async function handleAuthMessage(socket: WebSocket, data: SocketData): Promise<void> {
         const id = verifyToken(data.token);
         if (id) {
-            if (fastify.connections.has(id)) {
-                const message = { type: 'CONFLICT' };
-                const oldSocket = fastify.connections.get(id);
-                oldSocket!.send(JSON.stringify(message));
-                oldSocket!.close();
-                fastify.connections.delete(id);
-                socket.send(JSON.stringify({ type: 'RETRY' }));
-                return;
-            }
+            // if (fastify.connections.has(id)) {
+            //     const message = { type: 'CONFLICT' };
+            //     const oldSocket = fastify.connections.get(id);
+            //     oldSocket!.send(JSON.stringify(message));
+            //     oldSocket!.close();
+            //     fastify.connections.delete(id);
+            //     socket.send(JSON.stringify({ type: 'RETRY' }));
+            //     return;
+            // }
             fastify.connections.set(id, socket);
             fastify.prisma.user.findUnique({
                 where: { id },
@@ -112,9 +112,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
             reply.send({ message: 'WebSocket endpoint' });
         },
         wsHandler: (socket: WebSocket, _req: FastifyRequest) => {
-            console.log('WebSocket connection established');
             socket.on('message', (message: string) => {
-                console.log('Received:' + message);
                 let data: SocketData;
                 try {
                     data = JSON.parse(message) as SocketData;
@@ -124,7 +122,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
                     return;
                 }
                 if (data.type == 'AUTH') {
-                    handleAuthMessage(socket, data);
+                    void handleAuthMessage(socket, data);
                 }
             });
 
