@@ -7,6 +7,7 @@ interface chatMessage {
     content: string;
     chatRoomId: string;
     userId: string;
+    // name: string;
 }
 
 export function chatRoutes(fastify: FastifyInstance) {
