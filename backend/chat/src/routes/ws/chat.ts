@@ -27,15 +27,18 @@ export function chatRoutes(fastify: FastifyInstance) {
             fastify.connections.set(req.user, socket);
             socket.on('message', (message) => {
                 console.log(message);
-                if (typeof message === 'string') {
+                try {
                     const chatMessage: chatMessage = JSON.parse(message) as chatMessage;
+                    console.log('Received message:', chatMessage);
+                    // store message in db
                     fastify.connections.get(chatMessage.userId)?.send(JSON.stringify({
                         type: 'chatMessage',
                         data: chatMessage,
                     }));
                 }
-                else {
-                    console.log(`Received non-string message from ${req.user}`);
+                catch (error) {
+                    console.error('Error parsing message:', error);
+                    console.error('Received message:', message);
                 }
             });
             socket.on('close', () => {

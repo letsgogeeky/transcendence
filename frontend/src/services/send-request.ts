@@ -15,6 +15,7 @@ export const endpoints = {
     match: '/match',
     matchMakingSocket: '/match/matchmaking',
     chat: '/chat',
+    chatSocket: '/chat/socket',
 };
 
 const noRetryRoutes = [
