@@ -103,7 +103,6 @@ export default class ChatComponent extends Component {
                         chatRoomId: this.chatRoomId,
                         userId: this.chatRoomId,
                         content: message,
-                        token: localStorage.getItem('authToken'),
                     }),
                 );
                 // sendMessage(this.chatRoomId, message);

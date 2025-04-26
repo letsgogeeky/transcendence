@@ -25,10 +25,11 @@ export function chatRoutes(fastify: FastifyInstance) {
                 return;
             }
             fastify.connections.set(req.user, socket);
-            socket.on('message', (message) => {
-                console.log(message);
+            socket.on('message', (message, isBinary) => {
+                const messageString = isBinary ? message.toString('utf8') : message;
+                console.log(messageString);
                 try {
-                    const chatMessage: chatMessage = JSON.parse(message) as chatMessage;
+                    const chatMessage: chatMessage = JSON.parse(messageString) as chatMessage;
                     console.log('Received message:', chatMessage);
                     // store message in db
                     fastify.connections.get(chatMessage.userId)?.send(JSON.stringify({
