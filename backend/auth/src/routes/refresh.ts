@@ -5,15 +5,12 @@ export function refreshRoutes(fastify: FastifyInstance) {
     fastify.get('/refresh', async (req, reply) => {
         try {
             const { refreshToken } = req.cookies;
-            console.log('cookies', req.cookies);
             const accessToken = req.headers['authorization']?.replace(
                 'Bearer ',
                 '',
             );
             let decoded = null;
             if (!refreshToken || !accessToken) {
-                console.log('No refresh token or access token');
-                console.log(refreshToken, accessToken);
                 return reply.code(401).send({ error: 'Unauthorized' });
             }
             try {

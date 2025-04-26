@@ -1,0 +1,110 @@
+groups:
+  - name: system
+    rules:
+      # High CPU usage alert
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for 5 minutes on {{ $labels.instance }}"
+
+      # High memory usage alert
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% for 5 minutes on {{ $labels.instance }}"
+
+      # Disk space alert
+      - alert: LowDiskSpace
+        expr: (node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_free_bytes{mountpoint="/"}) / node_filesystem_size_bytes{mountpoint="/"} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is above 85% for 5 minutes on {{ $labels.instance }}"
+
+  - name: nginx
+    rules:
+      # High error rate alert
+      - alert: HighNginxErrorRate
+        expr: rate(nginx_http_requests_total{status=~"5.."}[5m]) / rate(nginx_http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on Nginx"
+          description: "Error rate is above 5% for 5 minutes"
+
+      # High request latency alert
+      - alert: HighNginxLatency
+        expr: histogram_quantile(0.95, sum(rate(nginx_http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request latency on Nginx"
+          description: "95th percentile of request latency is above 1 second for 5 minutes"
+
+  - name: application
+    rules:
+      # High response time alert
+      - alert: HighResponseTime
+        expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time on {{ $labels.service }}"
+          description: "Average response time is above 2 seconds for 5 minutes"
+
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is above 5% for 5 minutes"
+
+  - name: security
+    rules:
+      # Suspicious request patterns
+      - alert: SuspiciousRequestPattern
+        expr: rate(nginx_http_requests_total{status=~"4.."}[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Suspicious request pattern detected"
+          description: "High number of 4xx responses for 5 minutes"
+
+  - name: websocket
+    rules:
+      # WebSocket connection issues
+      - alert: WebSocketConnectionIssues
+        expr: rate(websocket_connection_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket connection issues detected"
+          description: "WebSocket connection errors are occurring"
+
+      # High WebSocket message latency
+      - alert: HighWebSocketLatency
+        expr: rate(websocket_message_duration_seconds_sum[5m]) / rate(websocket_message_duration_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High WebSocket message latency"
+          description: "Average WebSocket message processing time is above 1 second for 5 minutes" 

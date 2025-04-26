@@ -5,6 +5,8 @@
 - To stop the platform, run `make down`
 - To restart the platform, run `make restart`
 - To check the logs, run `make logs`
+- To generate the certificates, run `make generate-certs`
+- To stop the platform and remove the containers, run `make clean`
 
 ## Navigate to the platform
 - The platform is available at `https://localhost`
@@ -14,8 +16,8 @@
 - Nginx Exporter is available at `http://localhost:9113/metrics`
 
 ## API Documentation
-- Chat API docs is available at `http://localhost/chat/docs`
-- Match API docs is available at `http://localhost/match/docs`
+- Chat API docs is available at `https://localhost/chat/docs`
+- Match API docs is available at `https://localhost/match/docs`
 
 ### User Journey
 ![User Journey](docs/user-journey.png)
@@ -88,60 +90,22 @@
 - User can see the game stats (score, etc..)
 - User can see when the game starts and when it ends
 
-#### In-Game socket objects
-- Paddle
-    ```json
-    {
-        "type": "paddle",
-        "match_id": "123",
-        "data": {
-            "user_id": "123",
-            "x": 100,
-            "y": 200
-        }
-    }
-    ```
-- Ball (A vector2D object)
-    ```json
-    {
-        "type": "ball",
-        "match_id": "123",
-        "data": {
-            "user_id": "123",
-            "x": 100,
-            "y": 200,
-            "direction": "up"
-        }
-    }
-    ```
-- Score
-    ```json
-    {
-        "type": "score",
-        "match_id": "123",
-        "data": {
-            "scoring_user_id": "123",
-            "scored_user_id": "456",
-            "score": 100
-        }
-    }
-    ```
-- Leave/Join Match
-    ```json
-    {
-        "type": "leave_match",
-        "match_id": "123",
-        "data": {
-            "user_id": "123"
-        }
-    }
-    ```
-    ```json
-    {
-        "type": "join_match",
-        "match_id": "123",
-        "data": {
-            "user_id": "123"
-        }
-    }
-    ```
+
+### Subject modules
+- Major module: Use a framework to build the backend. (fastify)
+- Minor module: Use a framework or toolkit to build the front-end. (TailwindCSS)
+- Minor module: Use a database for the backend -and more. (SQLite)
+- Major module: Standard user management, authentication and users across tournaments. (Auth)
+- Major module: Implement remote authentication. (Google Auth)
+- Major module: Remote players (socket.io) **To be tested.**
+- Major module: Multiple players (socket.io, multiple clients) **To be tested.**
+- Major module: Live Chat. (socket.io) **To be tested. and continue feature-set required**
+- Major module: Implement Two-Factor Authentication (2FA) and JWT. (Auth + SQLite + fastify-jwt)
+- Minor module: Monitoring system. (Prometheus, Grafana, Node Exporter, Nginx Exporter)
+- Major module: Designing the Backend as Microservices. (Auth, Match, Chat)
+- Major module: Implementing Advanced 3D Techniques. (BabylonJS)
+
+Count of Major modules: 9
+Count of Minor modules: 3
+
+Total: 10.5

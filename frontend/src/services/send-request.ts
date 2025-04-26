@@ -13,6 +13,7 @@ export const endpoints = {
     auth: '/auth',
     authSocket: '/auth/socket',
     match: '/match',
+    matchMakingSocket: '/match/matchmaking',
     chat: '/chat',
 };
 

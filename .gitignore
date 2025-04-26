@@ -22,7 +22,6 @@ build/
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon?
 ._*
 
 # VSCode
@@ -39,6 +38,7 @@ Icon?
 *.srl
 *.csr
 *.crt
+*.pem
 
 uploads/
 db/
@@ -47,3 +47,8 @@ frontend/src/pages/login_before.ts
 
 # db content
 db/*.db
+
+# prometheus data
+prometheus_data/
+grafana_data/
+data/

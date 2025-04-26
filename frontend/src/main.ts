@@ -52,6 +52,11 @@ const render = () => {
 	 * Updates the browser history using pushState().
 	 * Ensures that navigation is handled WITHOUT a full page reload.
 	 */
+    document.querySelectorAll('#app [href^="/"]').forEach((el) => {
+        const newEl = el.cloneNode(true);
+        el.parentNode?.replaceChild(newEl, el);
+    });
+
     document.querySelectorAll('#app [href^="/"]').forEach((el) =>
         el.addEventListener('click', (evt) => {
             evt.preventDefault();
@@ -60,7 +65,7 @@ const render = () => {
                 const { pathname: path } = new URL(target.href);
                 window.history.pushState({ path }, path, path);
             } catch (error) {}
-        }),
+        })
     );
 
 	// Handles the Browser Back/Forward Navigation (popstate)
@@ -91,31 +96,21 @@ const render = () => {
         console.log('user', user);
         if (user) {
             navigator.displayTab('/register', false);
-            navigator.displayTab('/logout', true);
+            navigator.displayTab('/login', false);
             navigator.displayTab('/settings', true);
+            navigator.displayTab('/users', true);
             navigator.displayTab('/create-tournament', true);
-            navigator.displayTab('/tournament', true);
+            navigator.displayTab('/tournaments', true);
+            navigator.displayTab('/logout', true);
         }
         if (!user) {
-            navigator.displayTab('/register', true);
             navigator.displayTab('/logout', false);
             navigator.displayTab('/settings', false);
             navigator.displayTab('/create-tournament', false);
-            navigator.displayTab('/tournament', false);
+            navigator.displayTab('/tournaments', false);
+            navigator.displayTab('/users', false);
         }
-		// Ensures that after a user logs in or out, the event listeners for navigation links are reattached:
-        document.querySelectorAll('#app [href^="/"]').forEach((el) =>
-            el.addEventListener('click', (evt) => {
-				evt.preventDefault();
-                try {
-					const target = evt.target as HTMLAnchorElement;
-                    const { pathname: path } = new URL(target.href);
-                    window.history.pushState({ path }, path, path);
-                } catch (error) {}
-            }),
-        );
-        console.log('should rerender');
-        navigator.render(root); // Calls navigator.render(root) to update the UI.
+        navigator.render(root);
     });
 };
 

@@ -1,43 +1,32 @@
-import Button from '../components/Button';
+import Button from '../components/button';
 import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
 import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
+import { loadBackgroundGif, loadImage } from '../styles/background'
 
 export default class LoginComponent extends Component {
-    readonly element: HTMLElement;
+    readonly element: HTMLElement = document.createElement('div');
 
     constructor() {
         super();
-        const container = document.createElement('div');
+
+        // Check if user is already logged in
+        const currentUser = State.getState().getCurrentUser();
+        if (currentUser) {
+            window.history.pushState({ path: '/' }, '', '/');
+            return;
+        }
+
+        const container = this.element;
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
-		const backgroundGif = document.createElement('div');
-		backgroundGif.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and spans the full width of the screen
+		container.appendChild(loadBackgroundGif());
+		container.appendChild(loadImage('welcome_back.jpg', 'w-full max-w-[300px] h-auto mb-5 rounded-lg', 'Welcome Image'));
 
-		const gif = document.createElement('img');
-		gif.src = './assets/transparent_pong.gif';  // Replace with the actual path to your transparent gif
-		gif.className = 'w-full object-cover';  // Set width to full, height to a fixed value (e.g., 700px)
-		gif.style.opacity = '0.4';
-		gif.alt = 'Background Gif';
-		backgroundGif.appendChild(gif);
-
-		// Append the background image container
-		container.appendChild(backgroundGif);
-
-        // Big welcome image
-        const welcomeBackImage = document.createElement('img');
-        welcomeBackImage.src = './assets/welcome_back.jpg';  // Replace with your actual image path
-        welcomeBackImage.alt = 'Welcome Image';
-        welcomeBackImage.className = 'w-full max-w-[300px] h-auto mb-5 rounded-lg'; // Add 'rounded-lg' to give rounded edges
-
-		container.appendChild(welcomeBackImage);
-
-        // Input Fields Styling
 		const inputStyle = 'border border-[#00FFFF] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
-
         // Email, Name, and Password Inputs
         const emailInput = new Input(
             'email',
@@ -56,7 +45,6 @@ export default class LoginComponent extends Component {
             inputStyle,
         );
 
-        // Form
         const form = new FormComponent(
             'LOG IN',
             [emailInput, passwordInput],
@@ -98,8 +86,6 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
-
-        this.element = container; // Set the final element
     }
 
 	static loginCallback(data: any): void {
