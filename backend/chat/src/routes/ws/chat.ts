@@ -28,6 +28,10 @@ export function chatRoutes(fastify: FastifyInstance) {
             socket.on('message', (message) => {
                 console.log(message);
                 try {
+                    if (typeof message !== 'string') {
+                        console.error('Received non-string message:', message);
+                        return;
+                    }
                     const chatMessage: chatMessage = JSON.parse(message) as chatMessage;
                     console.log('Received message:', chatMessage);
                     // store message in db
