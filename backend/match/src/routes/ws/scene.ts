@@ -13,7 +13,7 @@ let paddleBoxes: BABYLON.Mesh[] = [];
 let paddles: Paddle[];
 let meshes: BABYLON.Mesh[];
 
-function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): void {
+function createShape(sides: number, sideLength: number, mode: number, scene: BABYLON.Scene): void {
   const points = getRegularPolygonPoints(sides, sideLength);
   if (polygon !== undefined) polygon.dispose();
 
@@ -34,6 +34,7 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
       wall2.lookAt(points.at(i !== points.length - 1 ? (i + 1) : 0)!, 0, Math.PI / 2, 0);
       wall1.locallyTranslate(new BABYLON.Vector3(0, wall1.scaling.y * 2, 0));
       wall2.locallyTranslate(new BABYLON.Vector3(0, wall2.scaling.y * 2, 0));
+	  wall2.position.z += 0.01;
       const paddle = wall1.clone("paddle" + i);
       paddle.locallyTranslate(new BABYLON.Vector3(0, paddle.scaling.y * 8, 0));
       paddle.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
@@ -70,20 +71,42 @@ function createShape(sides: number, sideLength: number, scene: BABYLON.Scene): v
     walls.push(wall2);
     paddleBoxes.push(paddle1);
     paddleBoxes.push(paddle2);
-	// let obstacle = BABYLON.MeshBuilder.CreateBox("box", { width: 3, height: 3}, scene);
-	// obstacle.rotation.z = Math.PI / 4;
-	// new BABYLON.PhysicsAggregate(obstacle, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
-  }
-  points.push(points[0]);
-  polygon = BABYLON.MeshBuilder.CreateLines("polygon", { points }, scene);
+}
+	let obstacles = [];
+	if (mode == 1) {
+		obstacles.push(BABYLON.MeshBuilder.CreateBox("", { width: 2.5, height: 2.5}, scene)) 
+		obstacles[0].rotation.z = Math.PI / 4;
+		obstacles[0].position.x = -6;
+		obstacles.push(obstacles[0].clone(""));
+		obstacles[1].position.x = 6;
+		for (const o of obstacles)
+			new BABYLON.PhysicsAggregate(o, BABYLON.PhysicsShapeType.BOX, { mass: 0 }, scene);
+	}
+	else if (mode == 2) {
+		obstacles.push(BABYLON.MeshBuilder.CreateCylinder("", {diameter: 5, height: 1, tessellation: 3}));
+		obstacles[0].position.y = -6;
+		obstacles[0].rotate(BABYLON.Axis.Y, Math.PI / 2, BABYLON.Space.WORLD);
+		obstacles[0].rotate(BABYLON.Axis.X, Math.PI / 2, BABYLON.Space.WORLD);
+		obstacles[0].scaling.z = 3;
+		obstacles.push(obstacles[0].clone(""));
+		obstacles[1].rotate(BABYLON.Axis.Z, Math.PI, BABYLON.Space.WORLD);
+		obstacles[1].position.y = 6;
+		for (const o of obstacles) {
+			o.computeWorldMatrix(true);
+			o.refreshBoundingInfo();
+			new BABYLON.PhysicsAggregate(o, BABYLON.PhysicsShapeType.MESH, { mass: 0 }, scene);
+		}
+	}
+	points.push(points[0]);
+	polygon = BABYLON.MeshBuilder.CreateLines("polygon", { points }, scene);
 
-  const paddleMaterial = new BABYLON.StandardMaterial("paddleMat", scene);
-  paddleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
-  for (let i = 0; i < paddleBoxes.length; i++) paddles.push(new Paddle(paddleBoxes[i], paddleMaterial, 
-	paddleBoxes.length > 2, scene));
-  if (sides == 2) for (let p of paddles) p.limit *= 1.175;
+	const paddleMaterial = new BABYLON.StandardMaterial("paddleMat", scene);
+	paddleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+	for (let i = 0; i < paddleBoxes.length; i++) paddles.push(new Paddle(paddleBoxes[i], paddleMaterial, 
+		paddleBoxes.length > 2, scene));
+	if (sides == 2) for (let p of paddles) p.limit *= 1.175;
 
-  for (let wall of walls) new BABYLON.PhysicsAggregate(wall, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
+	for (let wall of walls) new BABYLON.PhysicsAggregate(wall, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
 }
 
 export function findPolygonSide(pos: BABYLON.Vector3): number {
@@ -105,9 +128,9 @@ function getRegularPolygonPoints(n: number, sideLength: number): BABYLON.Vector3
   return points;
 }
 
-export const buildScene = function(players: number, scene: BABYLON.Scene): Paddle[] {
+export const buildScene = function(players: number, mode: number, scene: BABYLON.Scene): Paddle[] {
 	sides = players;
 	paddles = [];
-  	createShape(sides, sideLength, scene);
+  	createShape(sides, sideLength, mode, scene);
 	return paddles;
 }

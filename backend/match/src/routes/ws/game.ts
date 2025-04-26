@@ -9,8 +9,8 @@ type GameMessage = {
     data: any;
 }
 
-let gameSettings = {players: 2, aiPlayers: 0, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
-	startScore: 5, terminatePlayers: false, teams: [[], []], friendlyFire: false
+let gameSettings = {players: 1, aiPlayers: 1, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
+	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: false
 };
 
 let game1 = new GameSession("match_1", gameSettings);
@@ -61,7 +61,8 @@ export function gameRoutes(app: FastifyInstance) {
 				gameServer = new GameSession("", gameSettings);
 			//gameServer = game1.clients.size < game2.clients.size ? game1 : game2;
 			gameServer.handleConnection(req.user, userName, socket);
-			gameServer.addToTeam(req.user, app.connections.size % 2);
+			//gameServer.addToTeam(req.user, app.connections.size % 2);
+			//gameServer.addGuest(req.user);
             app.connections.set(req.user, socket);
             socket.on('message', (message: string) => {
                 (async () => {

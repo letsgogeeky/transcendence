@@ -1,8 +1,6 @@
 import {Ball} from './ball'
 import {Player} from './player'
 import * as BABYLON from '@babylonjs/core';
-import HavokPhysics from '@babylonjs/havok';
-import { WebSocket } from "ws";
 
 export class Paddle {
 	box: BABYLON.Mesh;
@@ -19,6 +17,7 @@ export class Paddle {
 	reverse: boolean;
 	name: string;
 	balls?: Ball[];
+	moving: boolean = false;
 
 	constructor(box: BABYLON.Mesh, material: BABYLON.Material, reverse: boolean, scene: BABYLON.Scene) {
 		this.box = box;
@@ -26,9 +25,9 @@ export class Paddle {
 		this.aggregate.body.setMotionType(BABYLON.PhysicsMotionType.ANIMATED);
 		this.aggregate.body.disablePreStep = false;
 		this.box.material = material.clone(material.name);
-		this.speed = 0.3;
+		this.speed = 20;
 		this.startPos = this.box.position.clone();
-		this.limit = 5;
+		this.limit = 4.3;
 		this.disposed = false;
 		this.up = this.box.up.clone();
 		this.score = 0;
@@ -38,21 +37,46 @@ export class Paddle {
 	}
 
   	moveUp(): void {
-		if (BABYLON.Vector3.Distance(this.box.position.clone().add(this.up.scale(0.8)), this.startPos) < this.limit && !this.disposed)
-			this.box.position.addInPlace(this.up.scale(this.speed));
+		//if (BABYLON.Vector3.Distance(this.box.position.clone().add(this.up.scale(0.8)), this.startPos) < this.limit && !this.disposed)
+			this.aggregate.body.setLinearVelocity(this.up.scale(this.speed));
 	}
 	
 	moveDown(): void {
-		if (BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up.scale(0.8)), this.startPos) < this.limit && !this.disposed)
-			this.box.position.subtractInPlace(this.up.scale(this.speed));
+		//if (BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up.scale(0.8)), this.startPos) < this.limit && !this.disposed)
+			this.aggregate.body.setLinearVelocity(this.up.scale(-this.speed));
 	}
 
 	turnLeft(): void {
-		if (!this.disposed) this.box.addRotation(-0.1, 0, 0);
+		if (!this.disposed)
+			this.aggregate.body.setAngularVelocity(new BABYLON.Vector3(0, 0, -1).scale(this.speed * 0.3));
 	}
 
 	turnRight(): void {
-		if (!this.disposed) this.box.addRotation(0.1, 0, 0);
+		if (!this.disposed)
+			this.aggregate.body.setAngularVelocity(new BABYLON.Vector3(0, 0, 1).scale(this.speed * 0.3));
+	}
+
+	checkBounds() {
+		const minPos = this.startPos.clone().subtract(this.up.scale(this.limit));
+		const maxPos = this.startPos.clone().add(this.up.scale(this.limit));
+		if (BABYLON.Vector3.Distance(this.box.position, this.startPos) > this.limit)
+			if (BABYLON.Vector3.Distance(this.box.position, minPos) < BABYLON.Vector3.Distance(this.box.position, maxPos)) 
+				this.box.position = minPos.clone();
+			else 
+				this.box.position = maxPos.clone();
+
+
+		// if (BABYLON.Vector3.Distance(this.box.position.clone().add(this.up.scale(0.8)), this.startPos) 
+		// || BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up.scale(0.8)), this.startPos))
+	 	// 	this.stopMoving();
+	}
+
+	stopMoving() {
+		this.aggregate.body.setLinearVelocity(BABYLON.Vector3.Zero());
+	}
+
+	stopTurning() {
+		this.aggregate.body.setAngularVelocity(BABYLON.Vector3.Zero());
 	}
 	
 	addPoints(n: number): void {
@@ -71,9 +95,12 @@ export class Paddle {
 			}
 		}
 		distanceToBall = BABYLON.Vector3.Distance(this.box.position, closest.position);
-		if (distanceToBall < BABYLON.Vector3.Distance(this.box.position.clone().add(this.up), closest.position))
+		if (distanceToBall > BABYLON.Vector3.Distance(this.box.position.clone().add(this.up), closest.position))
+			this.moveUp();
+		else if (distanceToBall > BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up), closest.position)) 
 			this.moveDown();
-		else this.moveUp();
+		else
+			this.stopMoving();
 	}
 
 	moveToTarget() {
