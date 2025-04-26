@@ -18,7 +18,7 @@ export const endpoints = {
     chatSocket: '/chat/socket',
 };
 
-const noRetryRoutes = [
+export const noRetryRoutes = [
     '/login',
     '/register',
     '/reset-password',
@@ -63,7 +63,12 @@ export async function retryFetch(
             Authorization: `Bearer ${refreshSuccess}`,
         };
         if (refreshSuccess) return fetch(input, init);
-        else window.history.pushState({ path: '/login' }, '', '/login');
+        else {
+            const currentPath = window.location.pathname;
+            if (!noRetryRoutes.includes(currentPath)) {
+                window.history.pushState({ path: '/login' }, '', '/login');
+            }
+        }
     }
     return response;
 }

@@ -1,6 +1,6 @@
 import NavigatorComponent from './components/Nav/Navigator';
 import { routes } from './router';
-import { tryRefresh } from './services/send-request';
+import { tryRefresh, noRetryRoutes } from './services/send-request';
 import State, { MyUser } from './services/state';
 
 /**
@@ -27,7 +27,7 @@ const render = () => {
     const authToken = localStorage.getItem('authToken');
     const currentUser = localStorage.getItem('currentUser')
         ? (JSON.parse(localStorage.getItem('currentUser')!) as MyUser)
-        : null; //currentUser is parsed from JSON if it exists.
+        : null;
 	// If the state doesn't already contain an auth token or user, it initializes them.
     if (authToken && !State.getState().getAuthToken()) {
         State.getState().setAuthToken(authToken);
@@ -36,15 +36,30 @@ const render = () => {
     if (!State.getState().getCurrentUser()) {
         State.getState().setCurrentUser(currentUser);
     }
-    tryRefresh();
+
 	// Gets the #app element where the content will be rendered.
     const element = document.getElementById('app');
+    if (!element) return;
+    
     const root = element as HTMLElement;
 	// Creates a NavigatorComponent to manage page routing.
     const navigator = new NavigatorComponent('main', routes);
-	// Renders the navigation bar and highlights the correct route:
-    navigator.render(root);
-    navigator.changeSelection(new URL(window.location.href).pathname);
+    
+    // Get current path
+    const currentPath = window.location.pathname;
+    
+    // Only try refresh if we're not on a public route
+    if (!noRetryRoutes.includes(currentPath)) {
+        tryRefresh().then(() => {
+            // Renders the navigation bar and highlights the correct route:
+            navigator.render(root);
+            navigator.changeSelection(currentPath);
+        });
+    } else {
+        // For public routes, render immediately
+        navigator.render(root);
+        navigator.changeSelection(currentPath);
+    }
 
 	/** INTERNAL LINKS handling:
 	 * Finds all links (<a>) inside #app that start with / (indicating an internal route).
@@ -114,7 +129,8 @@ const render = () => {
     });
 };
 
-render(); // Executes the entire logic when the script runs.
+// Only render once when the page loads
+render();
 
 
 /**
