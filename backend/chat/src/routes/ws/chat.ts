@@ -10,6 +10,11 @@ interface chatMessage {
     // name: string;
 }
 
+function generateChatRoomId(myId: string, chatRoomId: string): string {
+    // Compare the IDs and return them in ascending order
+    return myId < chatRoomId ? `${myId}-${chatRoomId}` : `${chatRoomId}-${myId}`;
+}
+
 export function chatRoutes(fastify: FastifyInstance) {
     fastify.register(credentialAuthCheck);
     fastify.route({
@@ -18,7 +23,7 @@ export function chatRoutes(fastify: FastifyInstance) {
         handler: (request, reply) => {
             reply.send('Chat WebSocket!');
         },
-        wsHandler: (socket, req) => {
+        wsHandler: async (socket, req) => {
             console.log('WebSocket Connected!');
             if (!req.user) {
                 console.warn(`User not found for socket ${req.socket.remoteAddress}`);
@@ -26,7 +31,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                 return;
             }
             fastify.connections.set(req.user, socket);
-            socket.on('message', (message, isBinary) => {
+            socket.on('message', async (message, isBinary) => { // Add async here
                 let messageString: string;
 
                 if (isBinary || message instanceof Buffer) {
@@ -49,11 +54,82 @@ export function chatRoutes(fastify: FastifyInstance) {
                     }
                 }
 
-                console.log(messageString);
+                console.log('test', messageString);
                 try {
                     const chatMessage: chatMessage = JSON.parse(messageString) as chatMessage;
                     console.log('Received message:', chatMessage);
                     // Store message in db
+                    // create a chat room in the db if it doesn't exist
+                    const combinedId = generateChatRoomId(req.user, chatMessage.chatRoomId);
+                    console.log('combinedId:', combinedId);
+
+
+                    const chatRoom = await fastify.prisma.chatRoom.findFirst({
+                        where: {
+                            id: combinedId,
+                        },
+                    });
+                    if (!chatRoom) {
+                        console.log('create chatRoom:', combinedId);
+                        await fastify.prisma.chatRoom.create({
+                            data: {
+                                id: combinedId,
+                                name: `Chat between ${req.user} and ${chatMessage.userId}`,
+                                participants: {
+                                    create: [
+                                        {
+                                            userId: req.user,
+                                            isAdmin: true,
+                                            joinedAt: new Date(2024, 1, 1),
+                                        },
+                                        {
+                                            userId: chatMessage.userId,
+                                            isAdmin: true,
+                                            joinedAt: new Date(2024, 1, 1),
+                                        },
+                                    ],
+                                },
+                            },
+                        });
+                    } else {
+                        console.log('chatRoom already exists:', combinedId);
+                        // pull the chat room from the db
+                        const chatRoomMessages = await fastify.prisma.message.findMany({
+                            where: {
+                                chatRoomId: combinedId,
+                            },
+                            select: {
+                                id: true,
+                                content: true,
+                                createdAt: true,
+                                updatedAt: true,
+                                userId: true,
+                            },
+                            orderBy: {
+                                createdAt: 'asc',
+                            },
+                        });
+                        console.log('chatRoomMessages:', chatRoomMessages);
+                    }
+                    // // Store message in db
+                    await fastify.prisma.message.createMany({
+                        data: [
+                            {
+                                content: chatMessage.content,
+                                chatRoomId: combinedId,
+                                userId: req.user,
+                                createdAt: new Date(2024, 1, 1),
+                                updatedAt: new Date(2024, 1, 1),
+                            },
+                        ],
+                    });
+
+
+
+
+
+
+
                     fastify.connections.get(chatMessage.userId)?.send(JSON.stringify({
                         type: 'chatMessage',
                         data: chatMessage,
