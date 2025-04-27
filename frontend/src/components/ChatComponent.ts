@@ -14,15 +14,16 @@ export default class ChatComponent extends Component {
     private messageInput: HTMLInputElement;
     private closeButton: HTMLButtonElement;
     private socket: WebSocket | null = null;
+    private chatRoomMessages: any[] = [];
 
     readonly element: HTMLElement;
-    private allUsers: any[] = [];
-    private filteredUsers: any[] = [];
-    private friendList: UserGridComponent | null = null;
-    private pendingReceived: UserGridComponent | null = null;
-    private pendingSent: UserGridComponent | null = null;
-    private strangers: UserGridComponent | null = null;
-    private userListsContainer: HTMLElement | null = null;
+    // private allUsers: any[] = [];
+    // private filteredUsers: any[] = [];
+    // private friendList: UserGridComponent | null = null;
+    // private pendingReceived: UserGridComponent | null = null;
+    // private pendingSent: UserGridComponent | null = null;
+    // private strangers: UserGridComponent | null = null;
+    // private userListsContainer: HTMLElement | null = null;
 
     constructor(private chatRoomId: string, private friendName: string, private ws: WebSocket | null) {
         super();
@@ -65,39 +66,59 @@ export default class ChatComponent extends Component {
 
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
-        if (this.socket) {
-            this.setupWebSocket(friendName);
-        }
-        
+
+        this.setupWebSocket(friendName);
     }
 
-    private setupWebSocket(friendName: string): void {
+    private async setupWebSocket(friendName: string): Promise<void> {
         if (!this.socket) {
             console.error('WebSocket not initialized');
             return;
         }
+        this.socket.onopen = () => {
+            console.log('Chat socket connected');
+            // wait for the socket to be open before sending messages
+            
+            this.getMessages();
+        };
+
+
+        console.log('Chat socket connected');
+
+        // Wait for 1 second before calling getMessages
+
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
             if (data.type === 'chatMessage') {
                 console.log('Received chat message:', data.data);
-                // Display the received message in the chat window
-                this.displayMessage(data.data.content, `${friendName}`);
+                this.displayMessage(data.data.content, data.data.name);
             }
 
             if (data.type === 'chatHistory') {
                 console.log('Received chat history:', data.data);
+
                 // Display the chat history in the chat window
                 data.data.forEach((message: any) => {
-                    this.displayMessage(message.content, `${friendName}`);   
+                    this.displayMessage(message.content, message.name);
                 });
             }
+        };
+
+        this.socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        this.socket.onclose = () => {
+            console.log('WebSocket connection closed');
         };
     }
 
     private async sendMessage(): Promise<void> {
+        // this.getMessages();
         const message = this.messageInput.value.trim();
+        const myName = State.getState().getCurrentUser()?.name || 'Unknown';
         console.log('Sending message:', message);
         if (message) {
             try {
@@ -109,6 +130,7 @@ export default class ChatComponent extends Component {
                         chatRoomId: this.chatRoomId,
                         userId: this.chatRoomId,
                         content: message,
+                        name: myName,
                     }),
                 );
                 // sendMessage(this.chatRoomId, message);
@@ -119,7 +141,38 @@ export default class ChatComponent extends Component {
         }
     }
 
-    
+    private async getMessages(): Promise<void> {
+        const myName = State.getState().getCurrentUser()?.name || 'Unknown';
+        console.log('getHistory:');
+            try {
+                // Send the message via WebSocket
+                // this.displayMessage(message, 'You');
+                this.socket?.send(
+                    JSON.stringify({
+                        type: 'chatHistory',
+                        chatRoomId: this.chatRoomId,
+                        userId: this.chatRoomId,
+                    }),
+                );
+                // sendMessage(this.chatRoomId, message);
+                this.messageInput.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+        }
+    }
+
+    private async waitForSocketConnection(socket: WebSocket): Promise<void> {
+        return new Promise((resolve) => {
+            if (socket.readyState === WebSocket.OPEN) {
+                resolve();
+            } else {
+                socket.onopen = () => {
+                    resolve();
+                };
+            }
+        });
+    }
+
     private displayMessage(message: string, sender: string): void {
         const messageElement = document.createElement('div');
         messageElement.className = 'p-2 bg-gray-700 rounded';
@@ -133,69 +186,3 @@ export default class ChatComponent extends Component {
     }
 }
 
-// export async function createChat(chatName: string): Promise<any> {
-//     try {
-//         const response = await fetch(`${endpoints.chat}/create`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-//             },
-//             body: JSON.stringify({ name: chatName }),
-//         });
-//         if (!response.ok) throw new Error('Failed to create chat');
-//         return await response.json();
-//     } catch (error) {
-//         console.error('Error creating chat:', error);
-//         throw error;
-//     }
-// }
-
-// export async function joinChat(chatRoomId: string): Promise<any> {
-//     try {
-//         const response = await fetch(`${endpoints.chat}/join/${chatRoomId}`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-//             },
-//         });
-//         if (!response.ok) throw new Error('Failed to join chat');
-//         return await response.json();
-//     } catch (error) {
-//         console.error('Error joining chat:', error);
-//         throw error;
-//     }
-// }
-
-// // export function sendMessage(chatRoomId: string, content: string): void {
-// //     const socketService = new WebSocketService(`${endpoints.chatSocket}`);
-// //     const message = {
-// //         type: 'chatMessage',
-// //         chatRoomId,
-// //         content,
-// //         token: localStorage.getItem('authToken'),
-// //     };
-// //     socketService.sendMessage(JSON.stringify(message));
-// // }
-
-// export async function fetchChatMessages(chatRoomId: string): Promise<any> {
-//     try {
-//         const response = await fetch(`${endpoints.chat}/history/${chatRoomId}`, {
-//             method: 'GET',
-//             headers: {
-//                 Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-//             },
-//         });
-//         if (!response.ok) throw new Error('Failed to fetch chat messages');
-//         return await response.json();
-//     } catch (error) {
-//         console.error('Error fetching chat messages:', error);
-//         throw error;
-//     }
-// }
-
-// export async function exampleUsage(fastify: FastifyInstance) {
-//     const chatRoom = await createChatRoom(fastify, '1', '2', 'Chat between User 1 and User 2');
-//     console.log('Chat room created:', chatRoom);
-// }

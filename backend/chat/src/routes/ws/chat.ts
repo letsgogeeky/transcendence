@@ -7,7 +7,8 @@ interface chatMessage {
     content: string;
     chatRoomId: string;
     userId: string;
-    // name: string;
+    name: string;
+    type: string;
 }
 
 function generateChatRoomId(myId: string, chatRoomId: string): string {
@@ -31,7 +32,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                 return;
             }
             fastify.connections.set(req.user, socket);
-            socket.on('message', async (message, isBinary) => { // Add async here
+            socket.on('message', async (message, isBinary) => {
                 let messageString: string;
 
                 if (isBinary || message instanceof Buffer) {
@@ -93,23 +94,32 @@ export function chatRoutes(fastify: FastifyInstance) {
                         });
                     } else {
                         console.log('chatRoom already exists:', combinedId);
+                        console.log('chatMessage.type:', chatMessage.type);
+                        if (chatMessage.type === 'chatHistory') {
+                            console.log('Fetching chat history')
+                            const chatRoomMessages = await fastify.prisma.message.findMany({
+                                where: {
+                                    chatRoomId: combinedId,
+                                },
+                                select: {
+                                    id: true,
+                                    content: true,
+                                    createdAt: true,
+                                    updatedAt: true,
+                                    userId: true,
+                                    name: true,
+                                },
+                                orderBy: {
+                                    createdAt: 'asc',
+                                },
+                            });
+                            console.log('chatRoomMessages:', chatRoomMessages);
+                            fastify.connections.get(req.user)?.send(JSON.stringify({
+                                type: 'chatHistory',
+                                data: chatRoomMessages,
+                            }));
+                        }
                         // pull the chat room from the db
-                        const chatRoomMessages = await fastify.prisma.message.findMany({
-                            where: {
-                                chatRoomId: combinedId,
-                            },
-                            select: {
-                                id: true,
-                                content: true,
-                                createdAt: true,
-                                updatedAt: true,
-                                userId: true,
-                            },
-                            orderBy: {
-                                createdAt: 'asc',
-                            },
-                        });
-                        console.log('chatRoomMessages:', chatRoomMessages);
                     }
                     // // Store message in db
                     await fastify.prisma.message.createMany({
@@ -118,6 +128,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                                 content: chatMessage.content,
                                 chatRoomId: combinedId,
                                 userId: req.user,
+                                name: chatMessage.name,
                                 createdAt: new Date(2024, 1, 1),
                                 updatedAt: new Date(2024, 1, 1),
                             },

@@ -30,6 +30,7 @@ model ChatParticipant {
 model Message {
   id          String    @id @default(uuid())
   content     String
+  name        String 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   userId      String    // References User from auth schema
