@@ -86,10 +86,10 @@ export function registerRoutes(fastify: FastifyInstance) {
     async function sendVerificationEmail(
         email: string,
         token: string,
-        req: FastifyRequest,
+        _req: FastifyRequest,
     ) {
         try {
-            const tokenLink = `<a href = "${req.protocol}://${req.hostname}:${req.port}/verify-email?token=${token}&email=${email}"> Email verification </a>`;
+            const tokenLink = `<a href = "${fastify.config.FRONTEND}/verify-email?token=${token}&email=${email}"> Email verification </a>`;
             await fastify.transporter.sendMail({
                 from: '"noreply transcendence" <noreply.transcendence2025@gmail.com>',
                 to: email,
