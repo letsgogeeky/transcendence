@@ -1,7 +1,0 @@
-{
-  "devDependencies": {
-    "@types/node": "^22.13.14",
-    "babylonjs": "^8.0.1",
-    "babylonjs-gui": "^8.0.1"
-  }
-}

@@ -10,6 +10,7 @@ import { WebSocket } from "ws";
 import { paddleAi } from './paddleAi.js'
 import { Player } from './player.js';
 import { disconnect } from 'process';
+import { FastifyInstance } from 'fastify';
 
 export async function loadPhysics() {
 	const __filename = fileURLToPath(import.meta.url);
@@ -51,11 +52,13 @@ export class GameSession {
 	id: string;
 	teams: Player[][] = [];
 	timePassed: number = 0;
+	app: FastifyInstance;
 
-    constructor(matchId: string, settings: GameSettings) {
+    constructor(matchId: string, settings: GameSettings, app: FastifyInstance) {
 		this.id = matchId;
 		this.settings = settings;
 		if (settings.aiPlayers == undefined) settings.aiPlayers = 0;
+		this.app = app;
     }
 
     private async createScene() {
@@ -71,7 +74,7 @@ export class GameSession {
 		// const havokPlugin2 = new BABYLON.HavokPlugin(true, havokInstance2);
 		// this.simScene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin2);
 
-		if (this.settings.players == 0) this.startGameLoop();
+		if (this.settings.players == 0) this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
     }
 
 	public handleConnection(id: string, name: string, ws: WebSocket) {
@@ -82,7 +85,13 @@ export class GameSession {
 		}
 		this.players.set(id, new Player(id, name, ws));
 		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
-			this.startGameLoop();
+			console.log(`Starting game loop for match ${this.id}`);
+			// set the match to in progress
+			this.app.prisma.match.update({
+				where: { id: this.id },
+				data: { status: 'in progress' }
+			}).catch(err => console.error('Error updating match status:', err));
+			this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
 		}
 		else if (this.players.size > this.settings.players) {
 			ws.send(JSON.stringify({type: 'spectator'}));
@@ -92,9 +101,8 @@ export class GameSession {
 		this.sendPlayerList(ws);
     }
 
-    public handleMessage(id: string, message: string) {
+    public handleMessage(id: string, data: any) {
         try {
-            const data = JSON.parse(message);
             switch (data.type) {
                 case 'moveUp': this.players.get(id)?.paddle?.moveUp(); break;
                 case 'moveDown': this.players.get(id)?.paddle?.moveDown(); break;
@@ -102,7 +110,7 @@ export class GameSession {
                 case 'turnRight': this.players.get(id)?.paddle?.turnRight(); break;
             }
         } catch (e) {
-            console.error('Invalid message:', message);
+            console.error('Invalid message:', data);
         }
     }
 
@@ -145,7 +153,7 @@ export class GameSession {
 		}
 		for (const player of this.players.values()) {
 			if (!player.team && this.settings.winScore && player.score >= this.settings.winScore)
-				this.gameEnd();
+				this.gameEnd("Team " + team[0].teamNumber + " won!");
 			else if (player.score <= 0 && this.settings.terminatePlayers) {
 				player.paddle?.die();
 				this.paddles = this.paddles.filter(p => p != player.paddle);
@@ -193,6 +201,10 @@ export class GameSession {
 				message ? message : `Game ended. ${winner.name ?? "No one"} won!`}))
 		});
 		this.status = GameStatus.ENDED;
+		this.app.prisma.match.update({
+			where: { id: this.id },
+			data: { status: 'ended' }
+		}).catch(err => console.error('Error updating match status:', err));
 	}
 
     private async startGameLoop() {
@@ -207,8 +219,10 @@ export class GameSession {
 		for (let ball of this.balls) ball.sceneLimit = 20 / (2 * Math.sin(Math.PI / (this.settings.players + this.settings.aiPlayers!)));
 		this.players.forEach((player) => {
 			const paddle = this.paddles.find(p => !p.player);
-			if (paddle) paddle.player = player;
-			player.paddle = paddle;
+			if (paddle) {
+				paddle.player = player;
+				player.paddle = paddle;
+			}
 		});
 		for (let i = 0; i < (this.settings.teams ?? []).length; i++)
 			this.createTeam(this.settings.teams![i], i + 1);
@@ -221,15 +235,14 @@ export class GameSession {
 				(player.paddle!.box.material as BABYLON.StandardMaterial).diffuseColor = teamColor;
 		}
 		
-		let players = 1;
 		let coms = 1;
 		for (const paddle of this.paddles) {
-			paddle.player ? paddle.name = "Player" + players++ : paddle.name = "COM" + coms++;
+			paddle.player ? paddle.name = paddle.player.name : paddle.name = "COM" + coms++;
 			if (this.settings.startScore) paddle.addPoints(this.settings.startScore);
 		}
 
 		for (let player of this.players.values()) this.sendScene(player.ws);
-		this.updateScore();
+		await this.updateScore();
 
 		console.log(this.teams);
 

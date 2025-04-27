@@ -230,6 +230,8 @@ export function tournamentRoutes(app: FastifyInstance) {
                         userId: participants[i].id,
                         gameType: 'Pong',
                         status: 'pending',
+                        settings: {},
+                        stats: {},
                         participants: {
                             connect: [participants[i], participants[i + 1]],
                         },

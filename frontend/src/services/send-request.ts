@@ -86,7 +86,10 @@ export default async function sendRequest(
         case Services.AUTH:
             url = endpoints.auth;
             break;
-        case Services.TOURNAMENTS || Services.MATCH:
+        case Services.TOURNAMENTS:
+            url = endpoints.match;
+            break;
+        case Services.MATCH:
             url = endpoints.match;
             break;
         default:
