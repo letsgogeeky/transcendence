@@ -5,30 +5,24 @@ import UserGridComponent from '../components/UserGrid';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import { endpoints } from '../services/send-request';
-// import { createChatRoom } from './../../../backend/chat/src/routes/http/chat';
-// import WebSocketService from './sockets';
-// import ErrorComponent from './error';
+
 export default class ChatComponent extends Component {
     private chatWindow: HTMLElement;
     private chatMessages: HTMLElement;
     private messageInput: HTMLInputElement;
     private closeButton: HTMLButtonElement;
     private socket: WebSocket | null = null;
-    private chatRoomMessages: any[] = [];
 
     readonly element: HTMLElement;
-    // private allUsers: any[] = [];
-    // private filteredUsers: any[] = [];
-    // private friendList: UserGridComponent | null = null;
-    // private pendingReceived: UserGridComponent | null = null;
-    // private pendingSent: UserGridComponent | null = null;
-    // private strangers: UserGridComponent | null = null;
-    // private userListsContainer: HTMLElement | null = null;
+
 
     constructor(private chatRoomId: string, private friendName: string, private ws: WebSocket | null) {
         super();
         this.chatWindow = document.createElement('div');
-        this.chatWindow.className = 'fixed bottom-4 right-4 w-90 h-96 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
+        this.chatWindow.className = 'fixed bottom-4 right-4 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
+        this.chatWindow.style.width = '300px'; // Fixed width for the chat window
+        this.chatWindow.style.height = '400px'; // Fixed height for the chat window
+        this.chatWindow.style.overflow = 'hidden';
 
         this.element = this.chatWindow;
 
@@ -49,6 +43,8 @@ export default class ChatComponent extends Component {
         // Messages container
         this.chatMessages = document.createElement('div');
         this.chatMessages.className = 'flex-1 overflow-y-auto p-4 space-y-2';
+        this.chatMessages.style.height = 'calc(100% - 100px)'; 
+        this.chatMessages.style.overflowY = 'auto';
 
         // Input container
         const inputContainer = document.createElement('div');
@@ -77,7 +73,6 @@ export default class ChatComponent extends Component {
         }
         this.socket.onopen = () => {
             console.log('Chat socket connected');
-            // wait for the socket to be open before sending messages
             
             this.getMessages();
         };
@@ -85,7 +80,6 @@ export default class ChatComponent extends Component {
 
         console.log('Chat socket connected');
 
-        // Wait for 1 second before calling getMessages
 
 
         this.socket.onmessage = (event) => {
@@ -98,10 +92,13 @@ export default class ChatComponent extends Component {
 
             if (data.type === 'chatHistory') {
                 console.log('Received chat history:', data.data);
-
+                const myId = State.getState().getCurrentUser()?.id || 'Unknown';
                 // Display the chat history in the chat window
                 data.data.forEach((message: any) => {
-                    this.displayMessage(message.content, message.name);
+                    const senderName = message.userId === myId ? 'You' : message.name;
+                    console.log('senderName: message.id: myId:', senderName, message.id, myId);
+
+                    this.displayMessage(message.content, senderName);
                 });
             }
         };
@@ -175,7 +172,7 @@ export default class ChatComponent extends Component {
 
     private displayMessage(message: string, sender: string): void {
         const messageElement = document.createElement('div');
-        messageElement.className = 'p-2 bg-gray-700 rounded';
+        messageElement.className = 'p-2 bg-gray-700 rounded break-words max-w-full';
         messageElement.textContent = `${sender}: ${message}`;
         this.chatMessages.appendChild(messageElement);
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
@@ -185,4 +182,3 @@ export default class ChatComponent extends Component {
         this.chatWindow.remove();
     }
 }
-
