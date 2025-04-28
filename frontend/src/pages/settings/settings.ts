@@ -4,7 +4,7 @@ import FormComponent from '../../components/Form/Form';
 import Input from '../../components/Form/Input';
 import PhoneInput from '../../components/Form/PhoneInput';
 import Select from '../../components/Form/Select';
-import sendRequest, { endpoints, Services } from '../../services/send-request';
+import sendRequest, { Services } from '../../services/send-request';
 import State from '../../services/state';
 import ChangePasswordComponent from '../password/change-password';
 import AvatarUploadComponent from './avatarUpload';
@@ -71,10 +71,7 @@ export default class UserSettingsComponent extends Component {
         const title = document.createElement('h1');
         this.element.append(title);
 
-        const avatar = new AvatarImageComponent(
-            'My Avatar',
-            user.avatarUrl!,
-        );
+        const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!);
         avatar.render(this.element);
 
         const uploadAvatarForm = new AvatarUploadComponent(
@@ -88,9 +85,9 @@ export default class UserSettingsComponent extends Component {
         super.render(parent);
     }
 
-    private showImageDialog(imageUrl: string) {
+    private showImageDialog(image: string) {
         let dialog = document.createElement('dialog');
-        dialog.innerHTML = `<img src="${imageUrl}" style="max-width:100%; height:auto;">
+        dialog.innerHTML = `<img src="${image}" style="max-width:100%; height:auto;" alt="Scan code">
                             <button id="close-btn">Close</button>`;
 
         document.body.appendChild(dialog);
@@ -112,10 +109,7 @@ export default class UserSettingsComponent extends Component {
             console.log('generate`!!');
             const data = await this.generateOtpUrl();
             if (data.otpAuthUrl) {
-                const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(
-                    data.otpAuthUrl,
-                )}`;
-                this.showImageDialog(qrCodeUrl);
+                this.showImageDialog(data.otpAuthUrl);
             }
         }
         this.render(this.parent);

@@ -9,7 +9,7 @@ export function logoutRoutes(fastify: FastifyInstance) {
             1,
             600,
         );
-        res.clearCookie('access_token', { path: '/login/google/auth' });
+        res.clearCookie('access_token', { path: '/auth/login/google/auth' });
         res.clearCookie('refreshToken', { path: '/refresh' });
         res.clearCookie('authToken', { path: '/' });
         res.clearCookie('userId', { path: '/socket' });

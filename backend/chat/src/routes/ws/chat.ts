@@ -7,6 +7,7 @@ interface chatMessage {
     content: string;
     chatRoomId: string;
     userId: string;
+    // name: string;
 }
 
 export function chatRoutes(fastify: FastifyInstance) {
@@ -26,18 +27,38 @@ export function chatRoutes(fastify: FastifyInstance) {
             }
             fastify.connections.set(req.user, socket);
             socket.on('message', (message, isBinary) => {
-                const messageString = isBinary ? message.toString('utf8') : message;
+                let messageString: string;
+
+                if (isBinary || message instanceof Buffer) {
+                    // Handle binary messages or Buffers
+                    if (message instanceof Buffer) {
+                        messageString = message.toString('utf8');
+                    } else if (message instanceof ArrayBuffer) {
+                        messageString = Buffer.from(message).toString('utf8');
+                    } else {
+                        console.error('Unsupported binary message type:', message);
+                        return;
+                    }
+                } else {
+                    // Handle non-binary messages
+                    if (typeof message === 'string') {
+                        messageString = message;
+                    } else {
+                        console.error('Unsupported non-binary message type:', message);
+                        return;
+                    }
+                }
+
                 console.log(messageString);
                 try {
                     const chatMessage: chatMessage = JSON.parse(messageString) as chatMessage;
                     console.log('Received message:', chatMessage);
-                    // store message in db
+                    // Store message in db
                     fastify.connections.get(chatMessage.userId)?.send(JSON.stringify({
                         type: 'chatMessage',
                         data: chatMessage,
                     }));
-                }
-                catch (error) {
+                } catch (error) {
                     console.error('Error parsing message:', error);
                     console.error('Received message:', message);
                 }

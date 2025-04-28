@@ -66,29 +66,35 @@ export default class ChatComponent extends Component {
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
         if (this.socket) {
-            this.setupWebSocket();
+            this.setupWebSocket(friendName);
         }
         
     }
 
-    private setupWebSocket(): void {
+    private setupWebSocket(friendName: string): void {
         if (!this.socket) {
             console.error('WebSocket not initialized');
             return;
         }
+
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            if (data.type == 'chatMessage') {
+
+            if (data.type === 'chatMessage') {
                 console.log('Received chat message:', data.data);
-                // chatComponent.addMessage(data.data);
+                // Display the received message in the chat window
+                this.displayMessage(data.data.content, `${friendName}`);
             }
-            if (data.type == 'chatHistory') {
+
+            if (data.type === 'chatHistory') {
                 console.log('Received chat history:', data.data);
-                // chatComponent.setMessages(data.data);
+                // Display the chat history in the chat window
+                data.data.forEach((message: any) => {
+                    this.displayMessage(message.content, `${friendName}`);   
+                });
             }
         };
     }
-
 
     private async sendMessage(): Promise<void> {
         const message = this.messageInput.value.trim();
