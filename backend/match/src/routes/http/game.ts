@@ -40,19 +40,14 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 }
             }
             if (!hasDisconnected) {
+                setTimeout(() => {
                 for (const participant of match.participants) {
                     const client = app.connections.get(participant.userId);
                     if (client) {
-                        client.send(JSON.stringify({ type: 'match_started', match }));
+                        client.send(JSON.stringify({ type: 'MATCH_STARTED', match }));
                     }
                 }
-                // start match
-                await app.prisma.match.update({
-                    where: { id: match.id },
-                data: {
-                    status: 'in progress',
-                    },
-                });
+            }, 2000);
             }
         }
     }

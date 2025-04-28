@@ -56,7 +56,7 @@ export function gameRoutes(app: FastifyInstance) {
                 socket.close();
                 return;
             }
-			await gameServer.handleConnection(req.user, req.userName, socket);
+			gameServer.handleConnection(req.user, req.userName, socket);
 			gameServer.addToTeam(req.user, app.connections.size % 2);
             app.connections.set(req.user, socket);
             socket.on('message', (message: string) => {

@@ -242,7 +242,7 @@ export class GameSession {
 		}
 
 		for (let player of this.players.values()) this.sendScene(player.ws);
-		await this.updateScore();
+		this.updateScore();
 
 		console.log(this.teams);
 

@@ -39,7 +39,7 @@ export default class WebSocketService {
         this.socket.addEventListener('message', (event) => {
             console.log('Received message:', event.data);
             const data = JSON.parse(event.data);
-            if (this.isMatchSocket) this.handleMatchMessage(data);
+            if (this.isMatchSocket) this.handleTournamentMatchMessage(data);
             if (this.isAuthSocket) this.handleAuthMessage(data);
         });
 
@@ -103,9 +103,24 @@ export default class WebSocketService {
         window.dispatchEvent(new Event('userChange'));
     }
 
-    private handleMatchMessage(data: any): void {
+    private handleTournamentMatchMessage(data: any): void {
         console.log('Received match message:', data);
         switch(data.type) {
+            case 'MATCH_STARTED':
+                const match = data.match;
+                showToast(
+                    ToastState.NOTIFICATION,
+                    `Match started! ${match.gameType} redirecting to game...`,
+                    5000
+                );
+                window.history.pushState(
+                    { path: '/multiplayer/index.html' },
+                    '/multiplayer/index.html',
+                    `/multiplayer/index.html?matchId=${match.id}&tournamentId=${match.tournamentId}`
+                );
+                // TODO: remove when SPA is implemented
+                window.location.reload();
+                break;
             case 'TOURNAMENT_MATCH_READY':
                 showToast(
                     ToastState.NOTIFICATION,
