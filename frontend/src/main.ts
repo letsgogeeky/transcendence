@@ -52,10 +52,6 @@ const render = () => {
 	 * Updates the browser history using pushState().
 	 * Ensures that navigation is handled WITHOUT a full page reload.
 	 */
-    document.querySelectorAll('#app [href^="/"]').forEach((el) => {
-        const newEl = el.cloneNode(true);
-        el.parentNode?.replaceChild(newEl, el);
-    });
 
     document.querySelectorAll('#app [href^="/"]').forEach((el) =>
         el.addEventListener('click', (evt) => {
@@ -64,6 +60,8 @@ const render = () => {
                 const target = evt.target as HTMLAnchorElement;
                 const { pathname: path } = new URL(target.href);
                 window.history.pushState({ path }, path, path);
+                const newEl = el.cloneNode(true);
+                el.parentNode?.replaceChild(newEl, el);
             } catch (error) {}
         })
     );
@@ -93,7 +91,6 @@ const render = () => {
 	 */
     window.addEventListener('userChange', (e) => {
         const user = State.getState().getCurrentUser();
-        console.log('user', user);
         if (user) {
             navigator.displayTab('/register', false);
             navigator.displayTab('/login', false);
@@ -110,6 +107,16 @@ const render = () => {
             navigator.displayTab('/tournaments', false);
             navigator.displayTab('/users', false);
         }
+        document.querySelectorAll('#app [href^="/"]').forEach((el) =>
+            el.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                try {
+                    const target = evt.target as HTMLAnchorElement;
+                    const { pathname: path } = new URL(target.href);
+                    window.history.pushState({ path }, path, path);
+                } catch (error) {}
+            })
+        );
         navigator.render(root);
     });
 };

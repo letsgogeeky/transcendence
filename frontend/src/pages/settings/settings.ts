@@ -106,7 +106,6 @@ export default class UserSettingsComponent extends Component {
         State.getState().setCurrentUser(data);
 
         if (data.otpMethod == 'AUTHENTICATOR') {
-            console.log('generate`!!');
             const data = await this.generateOtpUrl();
             if (data.otpAuthUrl) {
                 this.showImageDialog(data.otpAuthUrl);

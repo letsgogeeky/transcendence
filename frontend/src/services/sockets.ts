@@ -130,7 +130,8 @@ export default class WebSocketService {
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
-                    window.location.reload();
+                    window.history.pushState({}, '', '/tournaments');
+                    window.dispatchEvent(new Event('popstate'));
                 }
                 break;
 
@@ -207,7 +208,8 @@ export default class WebSocketService {
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
-                    window.location.reload();
+                    window.history.pushState({}, '', '/tournaments');
+                    window.dispatchEvent(new Event('popstate'));
                 }
                 break;
 
@@ -219,7 +221,8 @@ export default class WebSocketService {
                 );
                 // Redirect to tournament results if on tournament page
                 if (window.location.pathname.includes('/tournament')) {
-                    window.location.reload();
+                    window.history.pushState({}, '', '/tournaments');
+                    window.dispatchEvent(new Event('popstate'));
                 }
                 break;
 

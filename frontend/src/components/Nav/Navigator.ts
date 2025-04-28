@@ -23,7 +23,7 @@ export default class NavigatorComponent extends Component {
 
     changeSelection(path: string) {
         const selectedRoute = this.navbar.routes.find(
-            (route) => route.path == path,
+            (route) => route.path === path,
         );
         if (selectedRoute) {
             this.selectedRoute = selectedRoute;
