@@ -51,7 +51,7 @@ export function chatRoutes(fastify: FastifyInstance) {
 
                 console.log(messageString);
                 try {
-                    const chatMessage: chatMessage = JSON.parse(messageString) as chatMessage;
+                    const chatMessage: chatMessage = JSON.parse(messageString as string) as chatMessage;
                     console.log('Received message:', chatMessage);
                     // Store message in db
                     fastify.connections.get(chatMessage.userId)?.send(JSON.stringify({
@@ -74,7 +74,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                 socket.close();
                 return;
             });
-            socket.on('error', (error) => {
+            socket.on('error', (error: Error) => {
                 console.error('WebSocket Error:', error);
             });
             socket.on('open', () => {

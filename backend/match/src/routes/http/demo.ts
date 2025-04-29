@@ -17,6 +17,8 @@ export default function demoRoutes(app: FastifyInstance) {
                 status: "completed",
                 createdAt: new Date(2024, 1, 1),
                 updatedAt: new Date(2024, 1, 1),
+                settings: {},
+                stats: {},
             },
         });
         const score1 = await app.prisma.matchScore.create({
@@ -38,6 +40,8 @@ export default function demoRoutes(app: FastifyInstance) {
                 gameType: "Pong",
                 userId: user1.id,
                 status: "completed",
+                settings: {},
+                stats: {},
                 participants: {
                     create: [
                         {

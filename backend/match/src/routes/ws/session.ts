@@ -10,6 +10,7 @@ import { WebSocket } from "ws";
 import { paddleAi } from './paddleAi.js'
 import { Player } from './player.js';
 import { disconnect } from 'process';
+import { FastifyInstance } from 'fastify';
 
 export async function loadPhysics() {
 	const __filename = fileURLToPath(import.meta.url);
@@ -21,15 +22,19 @@ export async function loadPhysics() {
 }
 
 export type GameSettings = {
-	players: number;
-	aiPlayers?: number;
-	timeLimit?: number;
+	players: number,
+	aiPlayers?: number,
+	timeLimit?: number,
 	startScore?: number,
-	winScore?: number;
-	replaceDisconnected?: boolean;
-	terminatePlayers?: boolean;
-	teams?: string[][];
-	friendlyFire?: boolean
+	winScore?: number,
+	replaceDisconnected?: boolean,
+	terminatePlayers?: boolean,
+	teams?: string[][],
+	guests?: string[],
+	friendlyFire?: boolean,
+	kickerMode?: boolean,
+	obstacleMode?: number,
+	balls?: number
 }
 
 export enum GameStatus {
@@ -50,12 +55,15 @@ export class GameSession {
 	settings: GameSettings;
 	id: string;
 	teams: Player[][] = [];
+	guests: Player[] = [];
 	timePassed: number = 0;
+	app: FastifyInstance;
 
-    constructor(matchId: string, settings: GameSettings) {
+    constructor(matchId: string, settings: GameSettings, app: FastifyInstance) {
 		this.id = matchId;
 		this.settings = settings;
 		if (settings.aiPlayers == undefined) settings.aiPlayers = 0;
+		this.app = app;
     }
 
     private async createScene() {
@@ -63,7 +71,7 @@ export class GameSession {
         this.scene = new BABYLON.Scene(this.engine);
         const havokInstance = await loadPhysics();
         const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
-		this.scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin);
+		this.scene.enablePhysics(new BABYLON.Vector3(0, this.settings.kickerMode ? -14 : 0, 0), havokPlugin);
 
 		// const simEngine = new BABYLON.NullEngine();
 		// this.simScene = new BABYLON.Scene(simEngine);
@@ -71,7 +79,7 @@ export class GameSession {
 		// const havokPlugin2 = new BABYLON.HavokPlugin(true, havokInstance2);
 		// this.simScene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin2);
 
-		if (this.settings.players == 0) this.startGameLoop();
+		if (this.settings.players == 0) this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
     }
 
 	public handleConnection(id: string, name: string, ws: WebSocket) {
@@ -81,26 +89,36 @@ export class GameSession {
 			return;
 		}
 		this.players.set(id, new Player(id, name, ws));
+		if (this.settings.guests?.includes(id)) this.addGuest(id)
 		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
-			this.startGameLoop();
+			console.log(`Starting game loop for match ${this.id}`);
+			// set the match to in progress
+			this.app.prisma.match.update({
+				where: { id: this.id },
+				data: { status: 'in progress' }
+			}).catch(err => console.error('Error updating match status:', err));
+			this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
 		}
 		else if (this.players.size > this.settings.players) {
 			ws.send(JSON.stringify({type: 'spectator'}));
 			this.sendScene(ws);
 		}
-		ws.send(JSON.stringify({type: 'settings', data: { ...this.settings, timeLimit: (this.settings.timeLimit ?? 0) - this.timePassed }}));
+		ws.send(JSON.stringify({type: 'settings', data: { ...this.settings, timeLimit: this.settings.timeLimit! - this.timePassed }}));
 		this.sendPlayerList(ws);
     }
 
     public handleMessage(id: string, message: string) {
         try {
             const data = JSON.parse(message);
-            switch (data.type) {
-                case 'moveUp': this.players.get(id)?.paddle?.moveUp(); break;
-                case 'moveDown': this.players.get(id)?.paddle?.moveDown(); break;
-				case 'turnLeft': this.players.get(id)?.paddle?.turnLeft(); break;
-                case 'turnRight': this.players.get(id)?.paddle?.turnRight(); break;
-            }
+			const paddle = data.data? this.players.get(id)?.guest?.paddle : this.players.get(id)?.paddle;
+			switch (data.type) {
+				case 'moveUp': paddle?.moveUp(); break;
+				case 'moveDown': paddle?.moveDown(); break;
+				case 'turnLeft': paddle?.turnLeft(); break;
+				case 'turnRight': paddle?.turnRight(); break;
+				case 'stopMoving': paddle?.stopMoving(); break;
+				case 'stopTurning': paddle?.stopTurning(); break;
+			}
         } catch (e) {
             console.error('Invalid message:', message);
         }
@@ -113,28 +131,28 @@ export class GameSession {
 				disconnectedPlayer.paddle.player = undefined;
 			else this.gameEnd("Lost connection to player");
 		}
+		if (this.players.get(id)?.guest)
+			this.players.delete(this.players.get(id)!.guest!.id);
 		this.players.delete(id);
     }
 
-	public sendPlayerList(client: WebSocket) {
+	public sendPlayerList(client: WebSocket | undefined) {
 		const playerNames = Array.from(this.paddles).map(paddle => paddle.name);
 		const teams = this.teams?.map(team => team.map(player => player.paddle?.name));
-		client.send(JSON.stringify({type: 'playerList', data: {players: playerNames, teams: teams}}));
+		client?.send(JSON.stringify({type: 'playerList', data: {players: playerNames, teams: teams}}));
 	}
 
-	public sendScene(client: WebSocket) {
+	public sendScene(client: WebSocket | undefined) {
 		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
-		client.send(JSON.stringify({type: 'scene', data: sceneString}));
+		client?.send(JSON.stringify({type: 'scene', data: sceneString}));
 		this.sendPlayerList(client);
 	}
 
 	public updateScore() {
-		const scoreMap = new Map<string, number>();
-		this.paddles.forEach(paddle => {
-			scoreMap.set(paddle.name, paddle.score);
-		});
-		for (const player of this.players.values()) 
-			player.ws.send(JSON.stringify({type: 'score', data: Object.fromEntries(scoreMap)}));
+		const scoreMap = new Map(this.paddles.map(paddle => [paddle.name, paddle.score]));
+		
+		for (const player of this.players.values())
+			player.ws?.send(JSON.stringify({type: 'score', data: Object.fromEntries(scoreMap)}));
 		
 		for (const team of this.teams ?? []) {
 			let teamScore = 0;
@@ -145,7 +163,7 @@ export class GameSession {
 		}
 		for (const player of this.players.values()) {
 			if (!player.team && this.settings.winScore && player.score >= this.settings.winScore)
-				this.gameEnd();
+				this.gameEnd("Team " + team[0].teamNumber + " won!");
 			else if (player.score <= 0 && this.settings.terminatePlayers) {
 				player.paddle?.die();
 				this.paddles = this.paddles.filter(p => p != player.paddle);
@@ -167,7 +185,7 @@ export class GameSession {
 		})
 		const targets = this.paddles.map(paddle => paddle.target).filter(target => target !== undefined);
 		this.players.forEach((player) => {
-		    player.ws.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+		    player.ws?.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
 		});
     }
 
@@ -182,17 +200,35 @@ export class GameSession {
 			this.settings.teams[teamNumber].push(id);
 	}
 
+	addGuest(id: string) {
+		const name = "guest" + this.guests?.length + 1;	
+		const guest = new Player(name, name);
+		const player = this.players.get(id);
+		if (player) {
+			player.guest = guest;
+			this.guests.push(guest);
+			this.players.set(name, guest);
+		}
+		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
+			this.startGameLoop();
+		}
+	}
+
 	private gameEnd(message?: string) {
-		let winner: Player;
+		let winner: Paddle;
 		if (this.players.size > 0) {
-			winner = Array.from(this.players.values()).reduce((max, current) =>
+			winner = Array.from(this.paddles).reduce((max, current) =>
 				current.score > max.score ? current : max);
 		}
 		this.players.forEach((player) => {
-			player.ws.send(JSON.stringify({type: 'gameEnd', data: 
-				message ? message : `Game ended. ${winner.name ?? "No one"} won!`}))
+			player.ws?.send(JSON.stringify({type: 'gameEnd', data: 
+				message ? message : `Game over: ${winner.name ?? "No one"} won!`}))
 		});
 		this.status = GameStatus.ENDED;
+		this.app.prisma.match.update({
+			where: { id: this.id },
+			data: { status: 'ended' }
+		}).catch(err => console.error('Error updating match status:', err));
 	}
 
     private async startGameLoop() {
@@ -201,14 +237,18 @@ export class GameSession {
 		let startTime = Date.now();
         let lastTime = Date.now();
 
-		this.paddles = buildScene(this.settings.players + this.settings.aiPlayers!, this.scene);
-		this.balls.push(new Ball(this, this.scene));
+		this.paddles = buildScene(this.settings.players + this.settings.aiPlayers!, this.settings.obstacleMode ?? 0, this.scene);
+		do {
+			this.balls.push(new Ball(this, this.scene));
+		} while (this.balls.length < (this.settings.balls ?? 1))
 		for (const paddle of this.paddles) paddle.balls = this.balls;
 		for (let ball of this.balls) ball.sceneLimit = 20 / (2 * Math.sin(Math.PI / (this.settings.players + this.settings.aiPlayers!)));
 		this.players.forEach((player) => {
 			const paddle = this.paddles.find(p => !p.player);
-			if (paddle) paddle.player = player;
-			player.paddle = paddle;
+			if (paddle) {
+				paddle.player = player;
+				player.paddle = paddle;
+			}
 		});
 		for (let i = 0; i < (this.settings.teams ?? []).length; i++)
 			this.createTeam(this.settings.teams![i], i + 1);
@@ -221,10 +261,9 @@ export class GameSession {
 				(player.paddle!.box.material as BABYLON.StandardMaterial).diffuseColor = teamColor;
 		}
 		
-		let players = 1;
 		let coms = 1;
 		for (const paddle of this.paddles) {
-			paddle.player ? paddle.name = "Player" + players++ : paddle.name = "COM" + coms++;
+			paddle.player ? paddle.name = paddle.player.name : paddle.name = "COM" + coms++;
 			if (this.settings.startScore) paddle.addPoints(this.settings.startScore);
 		}
 
@@ -242,10 +281,12 @@ export class GameSession {
 			this.timePassed += deltaTime;
             lastTime = now;
             if (this.status == GameStatus.ONGOING) {
-				this.scene.getPhysicsEngine()?._step(deltaTime);
-				for (const paddle of this.paddles) paddle.defend();
-				//for (const paddle of this.paddles) paddle.moveToTarget();
 				for (const ball of this.balls) ball.step();
+				this.scene.getPhysicsEngine()?._step(deltaTime);
+				for (const paddle of this.paddles) {
+					paddle.defend();
+					paddle.checkBounds();
+				}
 				this.broadcastSceneState();
 			} else if (this.status == GameStatus.PAUSED)
 				startTime += deltaTime;

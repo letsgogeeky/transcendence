@@ -4,13 +4,14 @@ import { WebSocket } from "ws";
 export class Player {
 	id: string;
 	name: string;
-	ws: WebSocket;
+	ws?: WebSocket;
 	paddle?: Paddle;
 	score: number = 0;
 	team?: Player[];
 	teamNumber?: number;
+	guest?: Player;
 
-	constructor(id: string, name: string, ws: WebSocket) {
+	constructor(id: string, name: string, ws?: WebSocket) {
 		this.id = id;
 		this.name = name;
 		this.ws = ws;

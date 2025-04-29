@@ -9,13 +9,14 @@ type GameMessage = {
     data: any;
 }
 
-let gameSettings = {players: 2, aiPlayers: 0, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
-	startScore: 5, terminatePlayers: false, teams: [[], []], friendlyFire: false
+const paddleMoveMessageTypes = ["moveUp", "moveDown", "turnLeft", "turnRight"];
+
+let gameSettings = {players: 1, aiPlayers: 1, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
+	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: false
 };
 
-let game1 = new GameSession("match_1", gameSettings);
+// let gameServer = new GameSession("match_1", gameSettings);
 //let game2 = new GameSession("match_2", gameSettings);
-let gameServer = game1;
 
 export function gameRoutes(app: FastifyInstance) {
     app.register(credentialAuthCheck);
@@ -26,75 +27,44 @@ export function gameRoutes(app: FastifyInstance) {
             reply.send('Game WebSocket!');
         },
         wsHandler: async (socket: WebSocket, req: FastifyRequest) => {
-		   console.log("User " + req.user + " connected");
+            let gameServer: GameSession;
+		    console.log("User " + req.user + " connected");
             if (!req.user) {
                 console.warn(`User not found for socket ${req.socket.remoteAddress}`);
                 socket.close();
                 return;
             }
-
-			// const user = await app.prisma.user.findUnique({
-			// 	where: { id: req.id },
-			// 	select: { name: true },
-			// });
-			//console.log(user);
-
-			// app.prisma.userName.findUnique({where: {id: req.user}}).then((user: { name: string; }) => {userName = user.name;});
-			// try {
-			// 	const userResponse = await app.prisma.user.findUnique({
-			// 		where: { id: req.user },
-			// 		select: {
-			// 			name: true,
-			// 			avatarUrl: true
-			// 		}
-			// 	});
-			// 	if (userResponse) {
-			// 		userName = userResponse.name;
-			// 	}
-			// } catch (error) {
-			// 	console.error('Error fetching user:', error);
-			// }
-		
-			if (gameServer.status == GameStatus.ONGOING)
-				gameServer = new GameSession("", gameSettings);
-			//gameServer = game1.clients.size < game2.clients.size ? game1 : game2;
+            //get current match for user
+            const match = await app.prisma.match.findFirst({
+                where: {
+                    status: { in: ['pending', 'in progress'] },
+                    participants: {
+                        some: { userId: req.user }
+                    }
+                }
+            });
+            if (match) {
+                console.log(`Found match ${match.id}`);
+                gameServer = app.gameSessions.get(match.id) as GameSession;
+                if (!gameServer) {
+                    console.log(`Creating new game session for match ${match.id}`);
+                    gameServer = new GameSession(match.id, match.settings as GameSettings, app);
+                    app.gameSessions.set(match.id, gameServer);
+                }
+            } else {
+                console.log(`No match found for user ${req.user}`);
+                socket.close();
+                return;
+            }
 			gameServer.handleConnection(req.user, req.userName, socket);
-			gameServer.addToTeam(req.user, app.connections.size % 2);
             app.connections.set(req.user, socket);
             socket.on('message', (message: string) => {
-                (async () => {
-					gameServer.handleMessage(req.user, message);
-                    //if (typeof message === 'string') {
-						// const match = await app.prisma.match.findUnique({
-						// 	where: {
-						// 		id: parsedMessage.match_id,
-						// 	},
-						// 	include: {
-						// 		participants: true,
-						// 	},
-						// });
-						
-
-						// const user_ids = match?.participants.map((participant: { userId: string }) => participant.userId);
-						// if (user_ids) {
-						// 	const clients = user_ids.map((user_id: string) => app.connections.get(user_id));
-						// 	clients.forEach((client: { send: (arg0: string) => void; }) => {
-						// 		if (client) {
-						// 			client.send(JSON.stringify({placeholder: ""}));
-						// 		}
-						// 	});
-						// } else {
-						// 	console.log(`No clients found for match ${parsedMessage.match_id}`);
-						// }
-                    // }
-                    // else {
-                    //     console.log(`Received non-string message from ${req.user}`);
-                    // }
-                })().catch(error => {
-                    console.error('Error handling message:', error);
-                });
+                const data = JSON.parse(message);
+				if (paddleMoveMessageTypes.includes(data.type)) {
+					gameServer.handleMessage(req.user, data);
+				}
             });
-            socket.on('close', async () => {
+            socket.on('close', () => {
                 if (!req.user) {
                     console.log(`User not found for socket ${req.socket.remoteAddress}`);
                     socket.close();
@@ -102,41 +72,9 @@ export function gameRoutes(app: FastifyInstance) {
                 }
 				if (gameServer.status == GameStatus.ENDED) {
 					gameServer.dispose();
-					gameServer = new GameSession("new_match", gameSettings);
 				}
 				gameServer.handleClose(req.user);
                 app.connections.delete(req.user);
-                // Announce user left the match
-				//const user = req.user;
-                // get current match that includes the user
-                // const match = await app.prisma.match.findFirst({
-                //     where: {
-                //         participants: {
-                //             some: {
-                //                 userId: user,
-                //             },
-                //         },
-                //     },
-                //     include: {
-                //         participants: true,
-                //     },
-                // });
-                // if (match) {
-                //     const clients = match.participants.map((participant: { userId: string }) => app.connections.get(participant.userId));
-                //     clients.forEach((client: { send: (arg0: string) => void; }) => {
-                //         if (client) {
-                //             client.send(JSON.stringify({
-                //                 type: messageTypes.JOIN_LEAVE_MATCH,
-                //                 match_id: match.id,
-                //                 data: {
-                //                     user_id: user,
-                //                 },
-                //             }));
-                //         }
-                //     });
-                // }
-                // TODO: handle game end
-                // Update match if the user was in the middle of a match
 
                 console.log(`User ${req.user} disconnected`);
                 socket.close();
@@ -149,6 +87,7 @@ export function gameRoutes(app: FastifyInstance) {
             socket.on('open', () => {
                 console.log('WebSocket Opened!');
                 // TODO: handle game start
+
                 // Announce user joined the match
             });
         },
