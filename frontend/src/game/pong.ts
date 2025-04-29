@@ -1,15 +1,16 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
 
+const assetPath = "/assets/"
+
 import State from "../services/state";
 
-interface Window {
-	game: Game;
-}
 
 let keys = {
 	up: false,
 	down: false,
+	left: false,
+	right: false,
 	w: false,
 	s: false,
 	a: false,
@@ -31,22 +32,18 @@ type MeshData = {
 		rotation: BABYLON.Quaternion;
 		id: string;
 	}[]
-	targets: BABYLON.Vector3[];
+	//targets: BABYLON.Vector3[];
 }
 
 type GameSettings = {
 	players: number;
 	aiPlayers?: number;
 	timeLimit?: number;
-	startScore?: number,
-	winScore?: number;
-	replaceDisconnected?: boolean;
-	terminatePlayers?: boolean;
 	teams?: string[][];
-	friendlyFire?: boolean
+	balls?: number
 }
 
-let targets: BABYLON.Mesh[] = [];
+//let targets: BABYLON.Mesh[] = [];
 
 const loadingScreenDiv = document.createElement("div");
 loadingScreenDiv.id = "loadingScreenDiv";
@@ -63,6 +60,7 @@ class Game {
 	scene: BABYLON.Scene | undefined;
 	camera!: BABYLON.ArcRotateCamera;
 	gui!: BABYLON.GUI.AdvancedDynamicTexture;
+	lights: BABYLON.PointLight[] = [];
 	timer!: BABYLON.GUI.TextBlock;
 	settings!: GameSettings;
 	ws!: WebSocket;
@@ -95,16 +93,19 @@ class Game {
 			loadingScreenDiv.style.display = "none";
 		});
 
-		this.textures = [
-			new BABYLON.Texture("../src/game/ball.png", this.scene),
-			//new BABYLON.Texture("src/game/particle.png", this.scene)
-		]
-
-		const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene);
-    	light.intensity = 0.7;
+		const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 0, 0), this.scene);
+    	light.intensity = 1.5;
 		this.scene.clearColor = new BABYLON.Color4(0, 0, 0.1, 1);
+
+		for(let i = 0; i < (this.settings.balls ?? 1); i++) {
+			const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 0, 0), this.scene);
+			pointLight.intensity = 0.7;
+			pointLight.range = 10;
+			pointLight.diffuse = new BABYLON.Color3(1, 1, 1);
+			this.lights.push(pointLight);
+		}
 		
-		this.players = this.scene.meshes.filter(mesh => mesh.name.includes("paddle")).length;
+		this.players = this.settings.players + (this.settings.aiPlayers ?? 0);
 
 		// for (let i = 0; i < this.players; i++) {
 		// 	const target = BABYLON.MeshBuilder.CreateSphere("target", { diameter: 0.8 }, this.scene);
@@ -116,25 +117,48 @@ class Game {
 		this.camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2,
 			2.5 * 20 / (2 * Math.sin(Math.PI / this.players || 1)), BABYLON.Vector3.Zero(), this.scene);
 		this.camera.attachControl(this.canvas, true);
+		this.camera.inputs.remove(this.camera.inputs.attached.keyboard);
 
 		const ballMaterial = new BABYLON.StandardMaterial("ballMat", this.scene);
-		ballMaterial.diffuseTexture = this.textures[0];
 		ballMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
-		this.scene.getMeshByName("ball")!.material = ballMaterial;
 
+		const trailMat = new BABYLON.StandardMaterial("sourceMat", this.scene);
+		trailMat.emissiveColor = trailMat.diffuseColor = BABYLON.Color3.White();
+		trailMat.specularColor = BABYLON.Color3.Black();
+		trailMat.disableLighting = true;
+		
 		var dome = new BABYLON.PhotoDome(
 			"testdome",
-			"../src/game/space.jpg",
+			assetPath + "space.jpg",
 			{
 				resolution: 32,
-				size: 1000
+				size: 3000
 			},
 			this.scene
 		);
 
+		this.scene.meshes.filter(p => p.name.includes("wall")).
+		forEach(wall => (wall.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5));
+		
+		const balls = this.scene.meshes.filter(mesh => mesh.name.includes("ball"));
+		for (let i = 0; i < balls.length; i++) {
+			const ball = balls[i];
+			ball.material = ballMaterial;
+			const trail = new BABYLON.TrailMesh("new", ball, this.scene, 0.12, 45, true);
+			trail.material = trailMat;
+
+			this.scene.onBeforeRenderObservable.add(() => {
+				if (ball && ball.position && BABYLON.Vector3.Distance(ball.position, BABYLON.Vector3.Zero()) < 0.1) {
+					trail.reset();
+				}
+			});
+		}
+		
 		const startTime = Date.now();
 		this.scene.registerBeforeRender(() => {
-			if (this.settings.timeLimit && this.timer) {
+			dome.mesh.rotation.y -= 0.0003;
+
+			if (this.settings.timeLimit && this.timer && !this.ws.CLOSED) {
 				let remainingMs = this.settings.timeLimit - (Date.now() - startTime);
 				if (remainingMs > 0) {
 					const totalSeconds = Math.floor(remainingMs / 1000);
@@ -147,13 +171,21 @@ class Game {
 				}
 			}	
 
-			if (keys.w && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'moveUp'}));
-			else if (keys.s  && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'moveDown'}));
-			
-			if (keys.a && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'turnLeft'}));
-			else if (keys.d && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'turnRight'}));
+			if (!this.spectatorMode) {
+				if (keys.w) this.ws.send(JSON.stringify({type: 'moveUp', data: 0}));
+				else if (keys.s) this.ws.send(JSON.stringify({type: 'moveDown', data: 0}));
+				
+				if (keys.a) this.ws.send(JSON.stringify({type: 'turnLeft', data: 0}));
+				else if (keys.d) this.ws.send(JSON.stringify({type: 'turnRight', data: 0}));
+
+				if (keys.up) this.ws.send(JSON.stringify({type: 'moveUp', data: 1}));
+				else if (keys.down) this.ws.send(JSON.stringify({type: 'moveDown', data: 1}));
+
+				if (keys.left) this.ws.send(JSON.stringify({type: 'turnLeft', data: 1}));
+				else if (keys.right) this.ws.send(JSON.stringify({type: 'turnRight', data: 1}));
+			}
 	  
-			if (keys.r) window.game.resetCamera();
+			if (keys.r) this.resetCamera();
 	  
 		  });
 
@@ -184,7 +216,7 @@ class Game {
 					this.updateScore(message.data as object);
 					break;
 				case 'gameEnd':
-					window.alert(message.data as string);
+					this.gameEnd(message.data as string);
 					break;
 				case 'settings': this.settings = message.data as GameSettings;
 					break;
@@ -211,9 +243,13 @@ class Game {
 
 	updateMeshes(data: MeshData) {
 		if (this.scene) {
+			
 			for (const p of data.positions) {
 				try {
+					//if (p.id.includes("ball") && p.position.equals(BABYLON.Vector3.Zero()))
+					//	this.scene.getMeshById(p.id)!.isVisible = true;
 					this.scene.getMeshById(p.id)!.position = p.position;
+					//this.scene.getMeshById(p.id)!.isVisible = true;
 				} catch (error) {
 					console.error('Failed to update mesh:', error);
 				}	
@@ -226,11 +262,12 @@ class Game {
 				}	
 			} 
 
-			// for (let i = 0; i < data.targets.length; i++) {
-			// 	targets[i].position = data.targets[i];
-			// 	console.log(targets[i].position);
-			// 	targets[i].position._z = 1;
-			// }
+			const balls = data.positions.filter(p => p.id.includes("ball"));
+			for (let i = 0; i < balls.length; i++) {
+				this.lights[i].position.copyFrom(balls[i].position);
+				this.lights[i].position._z = -1;
+			}
+
 		}
 	}
 
@@ -283,7 +320,7 @@ class Game {
 	
 		for (const player of playerList) {
 			const playerText = new BABYLON.GUI.TextBlock();
-			console.log(teams![0] + ", " + player);
+			//console.log(teams![0] + ", " + player);
 			if (teams && teams[0]?.includes(player)) playerText.color = "red";
 			else if (teams && teams[1]?.includes(player)) playerText.color = "blue";
 			else if (teams && teams[2]?.includes(player)) playerText.color = "magenta";
@@ -299,10 +336,27 @@ class Game {
 			this.scoreBoard.set(player, playerText);
 		}
 	}
+
+	async gameEnd(message: string) {
+		const text = new BABYLON.GUI.TextBlock();
+		text.text = message;
+		text.fontSize = "72px";
+		text.color = "silver";
+		text.outlineColor = "black";
+		text.fontStyle = "bold";
+		text.fontFamily = "Arial Black";
+		text.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+		text.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+		text.shadowOffsetX = 4;
+		text.shadowOffsetY = 4;
+		text.shadowBlur = 8;
+		text.shadowColor = "black";
+		this.gui.addControl(text);
+	}
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
-	window.game = new Game();
+	let game = new Game();
 
 	window.addEventListener("keydown", function(e) {
 		if (e.key === "ArrowUp" || e.key === "Up") keys.up = true;
@@ -314,19 +368,47 @@ window.addEventListener('DOMContentLoaded', async function() {
 		if (e.key === "r" || e.key === "R") keys.r = true;
 		if (e.key === "ArrowUp" || e.key === "Up") keys.up = true;
 		if (e.key === "ArrowDown" || e.key === "Down") keys.down = true;
+		if (e.key === "ArrowLeft" || e.key === "Left") keys.left = true;
+		if (e.key === "ArrowRight" || e.key === "Right") keys.right = true;
 	});
 
 	window.addEventListener("keyup", function(e) {
-		if (e.key === "ArrowUp" || e.key === "Up") keys.up = false;
-		if (e.key === "ArrowDown" || e.key === "Down") keys.down = false;
-		if (e.key === "w" || e.key === "W") keys.w = false;
-		if (e.key === "s" || e.key === "S") keys.s = false;
-		if (e.key === "a" || e.key === "A") keys.a = false;
-		if (e.key === "d" || e.key === "D") keys.d = false;
+		if (e.key === "ArrowUp" || e.key === "Up") { 
+			keys.up = false;
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}))
+		}
+		if (e.key === "ArrowDown" || e.key === "Down") {
+			keys.down = false; 
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}));
+		}
+		if (e.key === "ArrowLeft" || e.key === "Left") {
+			keys.left = false;
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 1}));
+		}
+		if (e.key === "ArrowRight" || e.key === "Right") {
+			keys.right = false;
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 1}));
+		}
+		if (e.key === "w" || e.key === "W") {
+			keys.w = false;
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
+		}
+		if (e.key === "s" || e.key === "S") {
+			keys.s = false;
+			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
+		}
+		if (e.key === "a" || e.key === "A") { 
+			keys.a = false;
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 0}));
+		}
+		if (e.key === "d" || e.key === "D") {
+			keys.d = false;
+			game.ws.send(JSON.stringify({type: 'stopTurning', data: 0}));
+		}
 		if (e.key === "r" || e.key === "R") keys.r = false;
 	});
 
 	window.addEventListener('resize', function() {
-		window.game.engine?.resize();
+		game.engine?.resize();
 	});
 });
