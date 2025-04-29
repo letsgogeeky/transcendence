@@ -163,7 +163,7 @@ export class GameSession {
 		}
 		for (const player of this.players.values()) {
 			if (!player.team && this.settings.winScore && player.score >= this.settings.winScore)
-				this.gameEnd("Team " + team[0].teamNumber + " won!");
+				this.gameEnd("Team " + player.teamNumber + " won!");
 			else if (player.score <= 0 && this.settings.terminatePlayers) {
 				player.paddle?.die();
 				this.paddles = this.paddles.filter(p => p != player.paddle);
