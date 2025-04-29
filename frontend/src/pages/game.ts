@@ -1,6 +1,6 @@
 import Component from "../components/Component";
 // import Pong from "../components/Games/Pong";
-import { initializeGame } from "../game/pong";
+// import { initializeGame } from "../game/pong";
 // import Pong from "../components/Games/Pong";
 // import Game from "../game/pong";
 

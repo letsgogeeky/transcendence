@@ -2,11 +2,9 @@ import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 
 import State from "../../services/state";
-import Component from "../Component";
-declare global {
-	interface Window {
-		game: Pong;
-	}
+
+interface Window {
+	game: Pong;
 }
 
 let keys = {
@@ -60,8 +58,7 @@ loadingScreenDiv.innerHTML = `
   </div>`;
 document.body.appendChild(loadingScreenDiv);
 
-export default class Pong extends Component {
-	readonly element: HTMLElement;
+export default class Pong {
 	engine: BABYLON.Engine;
 	scene: BABYLON.Scene | undefined;
 	camera!: BABYLON.ArcRotateCamera;
@@ -75,9 +72,7 @@ export default class Pong extends Component {
 	scoreBoard: Map<string, GUI.TextBlock> = new Map();
 	spectatorMode: boolean = false;
 
-	constructor(className: string = '') {
-		super(className);
-		this.element = document.createElement('div');
+	constructor() {
 		this.canvas = document.createElement('canvas');
 		this.engine = new BABYLON.Engine(this.canvas, true);
 		const token = localStorage.getItem('authToken');
@@ -93,9 +88,7 @@ export default class Pong extends Component {
 	}
 
 	private async createScene(sceneString: string) {
-        if (this.scene) {
-            this.scene.dispose();
-        }
+		this.scene?.dispose();
 		this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
 		this.engine.hideLoadingUI();
 		this.scene.executeWhenReady(() => {
@@ -160,7 +153,7 @@ export default class Pong extends Component {
 			if (keys.a && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'turnLeft'}));
 			else if (keys.d && !this.spectatorMode) this.ws.send(JSON.stringify({type: 'turnRight'}));
 	  
-			if (keys.r) this.resetCamera();
+			if (keys.r) window.game.resetCamera();
 	  
 		  });
 
@@ -235,9 +228,9 @@ export default class Pong extends Component {
             if (e.key === "d" || e.key === "D") keys.d = false;
             if (e.key === "r" || e.key === "R") keys.r = false;
         });
-        // window.addEventListener('resize', function() {
-        //     window.game.engine?.resize();
-        // });
+        window.addEventListener('resize', function() {
+			game.engine?.resize();
+        });
 
 	}
 
@@ -331,11 +324,10 @@ export default class Pong extends Component {
 			this.scoreBoard.set(player, playerText);
 		}
 	}
-    public render(parent: HTMLElement | Component): void {
-        console.log("Rendering Pong");
-        this.element.appendChild(this.canvas);
-        super.render(parent);
-    }
+
+	render(element: HTMLElement) {
+		element.appendChild(this.canvas);
+	}
 }
 
 // window.addEventListener('DOMContentLoaded', async function() {
