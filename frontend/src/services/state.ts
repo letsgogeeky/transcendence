@@ -27,6 +27,9 @@ export default class State {
     }
 
     public getAuthToken(): string | null {
+        if (!this.authToken) {
+            this.authToken = localStorage.getItem('authToken');
+        }
         return this.authToken;
     }
 

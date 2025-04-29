@@ -7,6 +7,7 @@ interface chatMessage {
     content: string;
     chatRoomId: string;
     userId: string;
+    // name: string;
 }
 
 export function chatRoutes(fastify: FastifyInstance) {
@@ -25,17 +26,41 @@ export function chatRoutes(fastify: FastifyInstance) {
                 return;
             }
             fastify.connections.set(req.user, socket);
-            socket.on('message', (message) => {
-                console.log(message);
-                if (typeof message === 'string') {
-                    const chatMessage: chatMessage = JSON.parse(message) as chatMessage;
+            socket.on('message', (message, isBinary) => {
+                let messageString: string;
+
+                if (isBinary || message instanceof Buffer) {
+                    // Handle binary messages or Buffers
+                    if (message instanceof Buffer) {
+                        messageString = message.toString('utf8');
+                    } else if (message instanceof ArrayBuffer) {
+                        messageString = Buffer.from(message).toString('utf8');
+                    } else {
+                        console.error('Unsupported binary message type:', message);
+                        return;
+                    }
+                } else {
+                    // Handle non-binary messages
+                    if (typeof message === 'string') {
+                        messageString = message;
+                    } else {
+                        console.error('Unsupported non-binary message type:', message);
+                        return;
+                    }
+                }
+
+                console.log(messageString);
+                try {
+                    const chatMessage: chatMessage = JSON.parse(messageString as string) as chatMessage;
+                    console.log('Received message:', chatMessage);
+                    // Store message in db
                     fastify.connections.get(chatMessage.userId)?.send(JSON.stringify({
                         type: 'chatMessage',
                         data: chatMessage,
                     }));
-                }
-                else {
-                    console.log(`Received non-string message from ${req.user}`);
+                } catch (error) {
+                    console.error('Error parsing message:', error);
+                    console.error('Received message:', message);
                 }
             });
             socket.on('close', () => {
@@ -49,7 +74,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                 socket.close();
                 return;
             });
-            socket.on('error', (error) => {
+            socket.on('error', (error: Error) => {
                 console.error('WebSocket Error:', error);
             });
             socket.on('open', () => {

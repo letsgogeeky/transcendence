@@ -2,9 +2,11 @@ import Component from '../components/Component';
 import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import UserGridComponent from '../components/UserGrid';
-import sendRequest, { Services } from '../services/send-request';
+import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
 import ErrorComponent from './error';
+import ChatComponent from '../components/ChatComponent';
+
 
 export default class UsersPageComponent extends Component {
     readonly element: HTMLElement;
@@ -15,6 +17,7 @@ export default class UsersPageComponent extends Component {
     private pendingSent: UserGridComponent | null = null;
     private strangers: UserGridComponent | null = null;
     private userListsContainer: HTMLElement | null = null;
+    private chatSocket: WebSocket | null = null;
 
     async fetchData() {
         const withRelationsResponse = await sendRequest(
@@ -128,6 +131,12 @@ export default class UsersPageComponent extends Component {
                     callback: this.declineRequest,
                     label: 'Unfriend',
                 },
+                {
+                    callback: (friendData: any) => {
+                        this.createChatWindow(friendData.user.id, friendData.user.name);
+                    },
+                    label: 'Chat',
+                },
             ],
             true,
         );
@@ -168,6 +177,12 @@ export default class UsersPageComponent extends Component {
                 {
                     callback: this.sendFriendRequest,
                     label: 'Add Friend',
+                },
+                {
+                    callback: (friendData: any) => {
+                        this.createChatWindow(friendData.user.id, friendData.user.name);
+                    },
+                    label: 'Chat',
                 },
             ],
         );
@@ -302,5 +317,30 @@ export default class UsersPageComponent extends Component {
         this.allUsers = data;
         this.filteredUsers = data;
         this.updateUserLists();
+    }
+
+    private createChatWindow(friendId: string, friendName: string): void {
+         // connect to webscoket
+         const token = State.getState().getAuthToken();
+         this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
+         this.chatSocket.onopen = () => {
+             console.log('Chat socket connected');
+                // this.chatSocket?.send(
+                //     JSON.stringify({
+                //         type: 'chatRoom',
+                //         data: {
+                //             userId: State.getState().getCurrentUser()!.id,
+                //             friendId: friendId,
+                //         },
+                //     }),
+                // );
+         };
+         this.chatSocket.onclose = () => {
+             console.log('Chat socket closed');
+         };
+         // fetch chat history
+        const chatComponent = new ChatComponent(friendId, friendName, this.chatSocket);
+        chatComponent.render(document.body);
+       
     }
 }

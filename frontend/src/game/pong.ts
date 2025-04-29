@@ -80,7 +80,7 @@ class Game {
 			window.location.href = '/login';
 			return;
 		}
-		this.ws = new WebSocket(`wss://localhost/match/game?token=${token}&userName=${userName}`);
+		this.ws = new WebSocket(`/match/game?token=${token}&userName=${userName}`, 'wss');
 		this.connectWebSocket();
 	}
 

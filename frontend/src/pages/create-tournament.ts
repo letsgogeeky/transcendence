@@ -23,7 +23,6 @@ export default class CreateTournamentComponent extends Component {
     }
     
     static async createTournament(formData: any): Promise<Response> {
-        console.log('Create Tournament', formData);
         const tournament = {
             name: formData.name,
             options: {

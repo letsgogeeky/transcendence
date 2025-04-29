@@ -42,8 +42,17 @@ export default class LogoutComponent extends Component {
 
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
-        const logoutButton = new Button('Log out', logoutUser);
-        logoutButton.render(this.element);
+
+        // Create a styled logout button
+        const logoutButton = document.createElement('button');
+        logoutButton.textContent = 'Log out';
+        logoutButton.className =
+            'px-4 py-2 bg-white text-gray-800 font-bold rounded hover:bg-gray-200 transition-colors';
+        logoutButton.onclick = logoutUser;
+
+        // Append the button to the element
+        this.element.appendChild(logoutButton);
+
         super.render(parent);
     }
 }

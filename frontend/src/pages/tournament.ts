@@ -28,10 +28,10 @@ export default class TournamentComponent extends Component {
         const params = new URLSearchParams(window.location.search);
         const tournamentId = params.get('tournamentId');
         if (!tournamentId) {
-            window.location.href = '/tournaments';
+            window.history.pushState({}, '', '/tournaments');
+            // window.dispatchEvent(new Event('popstate'));
             return;
         }
-        console.log('Tournament ID:', tournamentId);
         const response = await sendRequest(
             `/tournament/${tournamentId}`,
             'GET',
@@ -53,12 +53,10 @@ export default class TournamentComponent extends Component {
     }
     
     async addPlayer(id: string, formData: any): Promise<Response> {
-        console.log('Add Player', formData);
         return await sendRequest(`/tournament/${id}/add-player`, 'POST', formData, Services.TOURNAMENTS, State.getState().getAuthToken());
     }
 
     async addPlayerCallback(data: any): Promise<void> {
-        console.log('Add Player Callback', data);
         await this.fetchData();
         await this.renderParticipants();
     }
@@ -125,20 +123,13 @@ export default class TournamentComponent extends Component {
     }
 
     async removePlayerCallback(data: any): Promise<void> {
-        console.log('Remove Player Callback', data);
         await this.fetchData();
         await this.renderParticipants();
     }
 
     async startTournamentCallback(data: any): Promise<void> {
-        console.log('Start Tournament Callback', data);
         await this.fetchData();
         await this.renderParticipants();
-    }
-
-    async deleteTournamentCallback(data: any): Promise<void> {
-        console.log('Delete Tournament Callback', data);
-        window.location.href = '/tournaments';
     }
 
     private async renderParticipants() {
@@ -176,7 +167,8 @@ export default class TournamentComponent extends Component {
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
-                removeButton.onclick = async () => {
+                removeButton.onclick = async (evt) => {
+                    evt.preventDefault();
                     try {
                         const response = await this.removePlayer(this.data.tournament.id, participant.userId);
                         if (response.ok) {
@@ -192,7 +184,8 @@ export default class TournamentComponent extends Component {
                 const leaveButton = document.createElement('button');
                 leaveButton.textContent = 'Leave';
                 leaveButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
-                leaveButton.onclick = async () => {
+                leaveButton.onclick = async (evt) => {
+                    evt.preventDefault();
                     if (confirm('Are you sure you want to leave this tournament?')) {
                         try {
                             const response = await this.removePlayer(this.data.tournament.id, participant.userId);
@@ -246,7 +239,6 @@ export default class TournamentComponent extends Component {
             const error = new ErrorComponent(this.data.error);
             error.render(this.element);
         } else {
-            console.log('Rendering Tournament Container');
             this.tournamentContainer = document.createElement('div');
             this.tournamentContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-gray-800 rounded-xl shadow-2xl space-y-8 border border-gray-700';
 
@@ -275,12 +267,14 @@ export default class TournamentComponent extends Component {
                 const startButton = document.createElement('button');
                 startButton.textContent = 'Start Tournament';
                 startButton.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors';
-                startButton.onclick = async () => {
+                startButton.onclick = async (evt) => {
+                    evt.preventDefault();
                     try {
                         const response = await this.startTournament(this.data.tournament.id);
-                        const data = await response.json();
-                        await this.fetchData();
-                        await this.renderParticipants();
+                        if (response.ok) {
+                            await this.fetchData();
+                            await this.renderParticipants();
+                        }
                     } catch (error) {
                         console.error('Error starting tournament:', error);
                     }
@@ -288,12 +282,15 @@ export default class TournamentComponent extends Component {
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete Tournament';
                 deleteButton.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors';
-                deleteButton.onclick = async () => {
+                deleteButton.onclick = async (evt) => {
+                    evt.preventDefault();
                     if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
                         try {
                             const response = await this.deleteTournament(this.data.tournament.id);
-                            const data = await response.json();
-                            window.location.href = '/tournaments';
+                            if (response.ok) {
+                                window.history.pushState({}, '', '/tournaments');
+                                window.dispatchEvent(new Event('popstate'));
+                            }
                         } catch (error) {
                             console.error('Error deleting tournament:', error);
                         }
