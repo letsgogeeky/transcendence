@@ -1,13 +1,10 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
 
-const assetPath = "../src/game/"
+const assetPath = "/assets/"
 
 import State from "../services/state";
 
-import State from "../services/state";
-
-const assetPath = "../src/game/"
 
 let keys = {
 	up: false,
@@ -84,7 +81,7 @@ class Game {
 			window.location.href = '/login';
 			return;
 		}
-		this.ws = new WebSocket(`wss://localhost/match/game?token=${token}&userName=${userName}`);
+		this.ws = new WebSocket(`/match/game?token=${token}&userName=${userName}`, 'wss');
 		this.connectWebSocket();
 	}
 

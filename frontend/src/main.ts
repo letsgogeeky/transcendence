@@ -1,6 +1,6 @@
 import NavigatorComponent from './components/Nav/Navigator';
 import { routes } from './router';
-import { tryRefresh } from './services/send-request';
+import { tryRefresh, noRetryRoutes } from './services/send-request';
 import State, { MyUser } from './services/state';
 
 /**
@@ -27,7 +27,7 @@ const render = () => {
     const authToken = localStorage.getItem('authToken');
     const currentUser = localStorage.getItem('currentUser')
         ? (JSON.parse(localStorage.getItem('currentUser')!) as MyUser)
-        : null; //currentUser is parsed from JSON if it exists.
+        : null;
 	// If the state doesn't already contain an auth token or user, it initializes them.
     if (authToken && !State.getState().getAuthToken()) {
         State.getState().setAuthToken(authToken);
@@ -36,15 +36,30 @@ const render = () => {
     if (!State.getState().getCurrentUser()) {
         State.getState().setCurrentUser(currentUser);
     }
-    tryRefresh();
+
 	// Gets the #app element where the content will be rendered.
     const element = document.getElementById('app');
+    if (!element) return;
+    
     const root = element as HTMLElement;
 	// Creates a NavigatorComponent to manage page routing.
     const navigator = new NavigatorComponent('main', routes);
-	// Renders the navigation bar and highlights the correct route:
-    navigator.render(root);
-    navigator.changeSelection(new URL(window.location.href).pathname);
+    
+    // Get current path
+    const currentPath = window.location.pathname;
+    
+    // Only try refresh if we're not on a public route
+    if (!noRetryRoutes.includes(currentPath)) {
+        tryRefresh().then(() => {
+            // Renders the navigation bar and highlights the correct route:
+            navigator.render(root);
+            navigator.changeSelection(currentPath);
+        });
+    } else {
+        // For public routes, render immediately
+        navigator.render(root);
+        navigator.changeSelection(currentPath);
+    }
 
 	/** INTERNAL LINKS handling:
 	 * Finds all links (<a>) inside #app that start with / (indicating an internal route).
@@ -52,10 +67,6 @@ const render = () => {
 	 * Updates the browser history using pushState().
 	 * Ensures that navigation is handled WITHOUT a full page reload.
 	 */
-    document.querySelectorAll('#app [href^="/"]').forEach((el) => {
-        const newEl = el.cloneNode(true);
-        el.parentNode?.replaceChild(newEl, el);
-    });
 
     document.querySelectorAll('#app [href^="/"]').forEach((el) =>
         el.addEventListener('click', (evt) => {
@@ -64,6 +75,8 @@ const render = () => {
                 const target = evt.target as HTMLAnchorElement;
                 const { pathname: path } = new URL(target.href);
                 window.history.pushState({ path }, path, path);
+                const newEl = el.cloneNode(true);
+                el.parentNode?.replaceChild(newEl, el);
             } catch (error) {}
         })
     );
@@ -93,7 +106,6 @@ const render = () => {
 	 */
     window.addEventListener('userChange', (e) => {
         const user = State.getState().getCurrentUser();
-        console.log('user', user);
         if (user) {
             navigator.displayTab('/register', false);
             navigator.displayTab('/login', false);
@@ -110,11 +122,22 @@ const render = () => {
             navigator.displayTab('/tournaments', false);
             navigator.displayTab('/users', false);
         }
+        document.querySelectorAll('#app [href^="/"]').forEach((el) =>
+            el.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                try {
+                    const target = evt.target as HTMLAnchorElement;
+                    const { pathname: path } = new URL(target.href);
+                    window.history.pushState({ path }, path, path);
+                } catch (error) {}
+            })
+        );
         navigator.render(root);
     });
 };
 
-render(); // Executes the entire logic when the script runs.
+// Only render once when the page loads
+render();
 
 
 /**

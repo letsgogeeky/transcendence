@@ -17,10 +17,14 @@ const credentialAuthCheck: FastifyPluginCallback = fp(
     (server, _options, done) => {
         server.addHook('onRequest', async (request, reply) => {
             try {
-                const token = request.headers['authorization']?.replace(
+                let token = request.headers['authorization']?.replace(
                     'Bearer ',
                     '',
                 );
+                if (!token) {
+                    token = (request.query as { token?: string }).token;
+                }
+                console.log(token);
                 if (!token) throw new AuthError('Unauthorized!');
                 const decoded = server.jwt.verify<{
                     id: string;
@@ -35,7 +39,10 @@ const credentialAuthCheck: FastifyPluginCallback = fp(
                 )
                     throw new AuthError('Invalid token!');
                 request.user = decoded.id;
+                request.token = token;
+                request.userName = (request.query as { userName?: string }).userName || decoded.id.substring(0, 8);
             } catch (error) {
+                console.log(error);
                 if (!(error instanceof AuthError)) {
                     return reply.status(500).send({ error: 'Unknown error' });
                 }

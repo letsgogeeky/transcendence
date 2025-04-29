@@ -88,7 +88,7 @@ export default class TournamentsComponent extends Component {
         }
     }
 
-    private createFilterUI(): HTMLElement {
+    private createFilterUI(parent: HTMLElement | Component): HTMLElement {
         const filterContainer = document.createElement('div');
         filterContainer.className = 'mb-8 flex gap-4';
 
@@ -116,25 +116,34 @@ export default class TournamentsComponent extends Component {
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
         }`;
 
-        allButton.addEventListener('click', () => {
+        allButton.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            this.currentFilter = 'all';
             const params = new URLSearchParams(window.location.search);
             params.set('filter', 'all');
             window.history.pushState({}, '', `?${params.toString()}`);
-            window.location.reload();
+            // refresh this component
+            this.render(parent);
         });
 
-        myButton.addEventListener('click', () => {
+        myButton.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            this.currentFilter = 'my';
             const params = new URLSearchParams(window.location.search);
             params.set('filter', 'my');
             window.history.pushState({}, '', `?${params.toString()}`);
-            window.location.reload();
+            // refresh this component
+            this.render(parent);
         });
 
-        adminButton.addEventListener('click', () => {
+        adminButton.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            this.currentFilter = 'admin';
             const params = new URLSearchParams(window.location.search);
             params.set('filter', 'admin');
             window.history.pushState({}, '', `?${params.toString()}`);
-            window.location.reload();
+            // refresh this component
+            this.render(parent);
         });
 
         filterContainer.append(allButton, myButton, adminButton);
@@ -158,7 +167,7 @@ export default class TournamentsComponent extends Component {
         );
     }
 
-    private async createTournamentCard(tournament: Tournament) {
+    private async createTournamentCard(tournament: Tournament, parent: HTMLElement) {
         const card = document.createElement('div');
         card.className = 'bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-700';
 
@@ -181,8 +190,9 @@ export default class TournamentsComponent extends Component {
             deleteButton.className = 'p-2 text-red-500 hover:text-red-400 transition-colors';
             deleteButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>';
 
-            deleteButton.addEventListener('click', async (e) => {
-                e.stopPropagation();
+            deleteButton.addEventListener('click', async (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
                 if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
                     try {
                         const response = await sendRequest(
@@ -193,7 +203,9 @@ export default class TournamentsComponent extends Component {
                             State.getState().getAuthToken()
                         );
                         if (response.ok) {
-                            window.location.reload();
+                            await this.loadData();
+                            window.history.pushState({}, '', '/tournaments');
+                            this.render(parent);
                         }
                     } catch (error) {
                         console.error('Error deleting tournament:', error);
@@ -250,9 +262,11 @@ export default class TournamentsComponent extends Component {
 
         card.append(header, details);
 
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (evt) => {
+            evt.preventDefault();
             window.history.pushState({}, '', `/tournament?tournamentId=${tournament.id}`);
             window.dispatchEvent(new PopStateEvent('popstate'));
+            this.render(parent);
         });
 
         return card;
@@ -261,7 +275,6 @@ export default class TournamentsComponent extends Component {
     public async render(parent: HTMLElement | Component): Promise<void> {
         if (this.isRendering) return;
         this.isRendering = true;
-
         try {
             this.element.innerHTML = '';
             const title = document.createElement('h1');
@@ -270,7 +283,7 @@ export default class TournamentsComponent extends Component {
             this.element.append(title);
 
             // Add filter UI
-            this.element.append(this.createFilterUI());
+            this.element.append(this.createFilterUI(parent));
 
             const container = document.createElement('div');
             container.className = 'w-full max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-6';
@@ -298,7 +311,7 @@ export default class TournamentsComponent extends Component {
                 container.append(emptyState);
             } else {
                 for (const tournament of filteredTournaments) {
-                    const card = await this.createTournamentCard(tournament);
+                    const card = await this.createTournamentCard(tournament, container);
                     container.append(card);
                 }
             }

@@ -15,6 +15,7 @@ import UserSettingsComponent from './pages/settings/settings';
 import TournamentComponent from './pages/tournament';
 import TournamentsComponent from './pages/tournaments';
 import UsersPageComponent from './pages/users';
+import GamePage from './pages/game';
 
 export type Route = {
     path: string; // what follows in the url after the "http://localhost:3000/"
@@ -119,6 +120,12 @@ export const routes: Route[] = [
 		path: '/tournaments',
 		title: 'Tournaments',
 		component: new TournamentsComponent(),
+		visible: false,
+	},
+	{
+		path: '/game',
+		title: 'Game',
+		component: new GamePage(),
 		visible: false,
 	},
 	{

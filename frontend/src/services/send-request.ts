@@ -15,9 +15,10 @@ export const endpoints = {
     match: '/match',
     matchMakingSocket: '/match/matchmaking',
     chat: '/chat',
+    chatSocket: '/chat/socket',
 };
 
-const noRetryRoutes = [
+export const noRetryRoutes = [
     '/login',
     '/register',
     '/reset-password',
@@ -62,7 +63,12 @@ export async function retryFetch(
             Authorization: `Bearer ${refreshSuccess}`,
         };
         if (refreshSuccess) return fetch(input, init);
-        else window.history.pushState({ path: '/login' }, '', '/login');
+        else {
+            const currentPath = window.location.pathname;
+            if (!noRetryRoutes.includes(currentPath)) {
+                window.history.pushState({ path: '/login' }, '', '/login');
+            }
+        }
     }
     return response;
 }
@@ -80,7 +86,10 @@ export default async function sendRequest(
         case Services.AUTH:
             url = endpoints.auth;
             break;
-        case Services.TOURNAMENTS || Services.MATCH:
+        case Services.TOURNAMENTS:
+            url = endpoints.match;
+            break;
+        case Services.MATCH:
             url = endpoints.match;
             break;
         default:

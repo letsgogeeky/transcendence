@@ -12,14 +12,6 @@ export default class LoginComponent extends Component {
 
     constructor() {
         super();
-
-        // Check if user is already logged in
-        const currentUser = State.getState().getCurrentUser();
-        if (currentUser) {
-            window.history.pushState({ path: '/' }, '', '/');
-            return;
-        }
-
         const container = this.element;
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
@@ -77,7 +69,6 @@ export default class LoginComponent extends Component {
 			'Log In with Google',
 			() => (window.location.href = endpoints.auth + '/login/google'),
 		);
-		// loginWithGoogle.element.className = 'text-[#007bff] font-bold border border-[#007bff] bg-[#00FFFF] py-2 px-4 rounded-lg';
 		loginWithGoogle.element.className = `w-60 border-2 border-[#007bff] text-[#007bff] text-xl font-bold py-2 rounded-lg shadow-[0_0_15px_#00FFFF] opacity-60' hover:bg-white hover:text-purple-900 relative z-10`;
 
 		// Append both to the container

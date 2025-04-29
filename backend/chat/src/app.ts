@@ -43,5 +43,5 @@ export const app = fastifyPlugin((chatServer: FastifyInstance, _options: Fastify
     chatServer.register(fastifySwaggerUi, swaggerUiOptions);
     chatServer.register(demoRoutes, { prefix: prefix + '/demo' });
     chatServer.register(chatHistoryRoutes, { prefix: prefix + '/history' });
-    chatServer.register(chatRoutes, { prefix: prefix });
+    chatServer.register(chatRoutes, { prefix: prefix + '/socket' });
 });

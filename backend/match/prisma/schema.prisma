@@ -35,14 +35,15 @@ model TournamentParticipant {
 model Match {
   id          String    @id @default(uuid())
   userId      String    // References User from auth schema
-  gameType    String    // Pong, Tic Tac Toe, etc.
+  gameType    String    // 1v1, 1vAI, 2v2, All vs All
   status      String    // pending, in progress, completed
-  tournamentId String    // References Tournament from tournament schema
+  tournamentId String?    // References Tournament from tournament schema
+  settings    Json?      // { players: 2, aiPlayers: 0, winScore: 10, timeLimit: 10000 }
+  stats       Json?      // { score: 10, time: 10000 }
   createdAt   DateTime  @default(now())
   updatedAt   DateTime?  @updatedAt  // nullable
   scores      MatchScore[]
   participants MatchParticipant[]
-  gameObjectCoordinates MatchObjectCoordinates[]
   tournament Tournament? @relation(fields: [tournamentId], references: [id])
 }
 
@@ -59,21 +60,6 @@ model MatchScore {
   matchId     String    // References Match from match schema
   userId      String    // References User from auth schema
   score       Int
-  createdAt   DateTime  @default(now())
-  match       Match     @relation(fields: [matchId], references: [id])
-}
-
-model GameObject {
-  id          String    @id @default(uuid())
-  name        String    // Pong ball, Pong paddle, etc.
-  createdAt   DateTime  @default(now())
-}
-
-model MatchObjectCoordinates {
-  id          String    @id @default(uuid())
-  matchId     String    // References Match from match schema
-  objectId    String    // References GameObject from match schema
-  coordinates Json
   createdAt   DateTime  @default(now())
   match       Match     @relation(fields: [matchId], references: [id])
 }

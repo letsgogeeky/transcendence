@@ -3,6 +3,7 @@ import { Static, Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { FastifyInstance } from 'fastify';
 import * as OTPAuth from 'otpauth';
+import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
 import credentialAuthCheck from '../plugins/credentialAuth.js';
 import { successfulLogin } from './login.js';
@@ -117,7 +118,8 @@ export function otpRoutes(fastify: FastifyInstance) {
                     where: { id: req.user },
                     data: { hasQrCode: 1 },
                 });
-                return res.send({ otpAuthUrl });
+                const qrCodeDataUrl = await QRCode.toDataURL(otpAuthUrl);
+                return res.send({ otpAuthUrl: qrCodeDataUrl });
             } else {
                 await fastify.transporter.sendMail({
                     from: '"noreply transcendence" <noreply.transcendence2025@gmail.com>',

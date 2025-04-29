@@ -187,7 +187,7 @@ export function loginRoutes(fastify: FastifyInstance) {
             httpOnly: true,
             secure: true,
             sameSite: 'lax',
-            path: '/login/google/auth',
+            path: '/auth/login/google/auth',
         });
         reply.redirect(`${fastify.config.FRONTEND}/login/google`);
     });
