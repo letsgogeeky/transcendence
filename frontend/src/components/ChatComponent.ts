@@ -83,20 +83,20 @@ export default class ChatComponent extends Component {
         // Messages container
         this.chatMessages = document.createElement('div');
         this.chatMessages.className = 'overflow-y-auto p-4 space-y-2';
-        this.chatMessages.style.position = 'absolute'; // Position it relative to the chat window
-        this.chatMessages.style.top = '90px'; // Start below the header (adjust height as needed)
-        this.chatMessages.style.bottom = '120px'; // Leave space for the input container (adjust height as needed)
-        this.chatMessages.style.width = '100%'; // Full width
-        this.chatMessages.style.boxSizing = 'border-box'; // Include padding in width calculation
-        this.chatMessages.style.overflowY = 'auto'; // Enable scrolling for messages
+        this.chatMessages.style.position = 'absolute';
+        this.chatMessages.style.top = '90px';
+        this.chatMessages.style.bottom = '120px';
+        this.chatMessages.style.width = '100%';
+        this.chatMessages.style.boxSizing = 'border-box';
+        this.chatMessages.style.overflowY = 'auto';
 
         // Input container
         const inputContainer = document.createElement('div');
         inputContainer.className = 'p-4 bg-gray-700 flex flex-col gap-2 items-center';
-        inputContainer.style.position = 'absolute'; // Ensure it stays at the bottom
-        inputContainer.style.bottom = '0'; // Align to the bottom of the chat window
-        inputContainer.style.width = '100%'; // Take full width of the chat window
-        inputContainer.style.boxSizing = 'border-box'; // Include padding in width calculation
+        inputContainer.style.position = 'absolute';
+        inputContainer.style.bottom = '0';
+        inputContainer.style.width = '100%';
+        inputContainer.style.boxSizing = 'border-box';
 
         // Message input and send button container
         const messageContainer = document.createElement('div');
@@ -107,13 +107,13 @@ export default class ChatComponent extends Component {
         this.messageInput.type = 'text';
         this.messageInput.placeholder = 'Type a message...';
         this.messageInput.className = 'flex-1 p-2 rounded bg-gray-600 text-white';
-        this.messageInput.style.minWidth = '0'; // Prevent overflow issues
+        this.messageInput.style.minWidth = '0';
 
         // Send button
         const sendButton = document.createElement('button');
         sendButton.textContent = 'Send';
         sendButton.className = 'px-4 py-2 bg-blue-500 rounded hover:bg-blue-600';
-        sendButton.style.flexShrink = '0'; // Prevent shrinking
+        sendButton.style.flexShrink = '0';
         sendButton.onclick = () => this.sendMessage();
 
         // Append message input and send button to the message container
@@ -121,9 +121,9 @@ export default class ChatComponent extends Component {
 
         // Invite to Game button
         const inviteButton = document.createElement('button');
-        inviteButton.textContent = 'Invite to Game';
+        inviteButton.textContent = 'Invite to Play';
         inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
-        inviteButton.onclick = () => this.inviteToGame();
+        inviteButton.onclick = () => this.inviteToGame(); // not implemented yet
 
         // Append all elements to the input container
         inputContainer.append(messageContainer, inviteButton);
