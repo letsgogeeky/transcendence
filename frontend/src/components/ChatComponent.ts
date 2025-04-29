@@ -20,8 +20,8 @@ export default class ChatComponent extends Component {
         super();
         this.chatWindow = document.createElement('div');
         this.chatWindow.className = 'fixed bottom-4 right-4 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
-        this.chatWindow.style.width = '300px'; // Fixed width for the chat window
-        this.chatWindow.style.height = '400px'; // Fixed height for the chat window
+        this.chatWindow.style.width = '400px';
+        this.chatWindow.style.height = '500px';
         this.chatWindow.style.overflow = 'hidden';
 
         this.element = this.chatWindow;
@@ -30,10 +30,16 @@ export default class ChatComponent extends Component {
 
         // Header
         const header = document.createElement('div');
-        header.className = 'p-4 bg-gray-700 flex justify-between items-center';
+        header.className = 'p-4 bg-gray-700 flex flex-col items-start';
+
+        // Chat name
         const title = document.createElement('h3');
         title.textContent = `Chat with ${friendName}`;
-        title.className = 'text-lg font-bold';
+        title.className = 'text-lg font-bold mb-2';
+
+        // Buttons container
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'flex gap-4';
 
         // Close button
         this.closeButton = document.createElement('button');
@@ -41,10 +47,23 @@ export default class ChatComponent extends Component {
         this.closeButton.className = 'text-sm text-red-500 hover:underline';
         this.closeButton.onclick = () => this.closeChat();
 
+        // View Profile button
+        const viewProfileButton = document.createElement('button');
+        viewProfileButton.textContent = 'View Profile';
+        viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
+        viewProfileButton.onclick = () => {
+            window.location.href = `/profile?userId=${this.chatRoomId}`;
+        };
+
         // Block/Unblock button
         const blockButton = document.createElement('button');
-        blockButton.className = 'text-sm text-yellow-500 hover:underline ml-4';
-        blockButton.textContent = 'Block'; // Default state
+        blockButton.className = 'text-sm text-yellow-500 hover:underline';
+        blockButton.textContent = 'Block'; // Default text has to change later
+        // Check if the user is blocked
+
+
+
+        
         blockButton.onclick = async () => {
             if (blockButton.textContent === 'Block') {
                 await this.blockUser();
@@ -55,27 +74,59 @@ export default class ChatComponent extends Component {
             }
         };
 
-        header.append(title, this.closeButton, blockButton);
+        // Append buttons to the container
+        buttonsContainer.append(viewProfileButton, blockButton, this.closeButton);
+
+        // Append title and buttons container to the header
+        header.append(title, buttonsContainer);
 
         // Messages container
         this.chatMessages = document.createElement('div');
-        this.chatMessages.className = 'flex-1 overflow-y-auto p-4 space-y-2';
-        this.chatMessages.style.height = 'calc(100% - 100px)'; 
-        this.chatMessages.style.overflowY = 'auto';
+        this.chatMessages.className = 'overflow-y-auto p-4 space-y-2';
+        this.chatMessages.style.position = 'absolute'; // Position it relative to the chat window
+        this.chatMessages.style.top = '90px'; // Start below the header (adjust height as needed)
+        this.chatMessages.style.bottom = '120px'; // Leave space for the input container (adjust height as needed)
+        this.chatMessages.style.width = '100%'; // Full width
+        this.chatMessages.style.boxSizing = 'border-box'; // Include padding in width calculation
+        this.chatMessages.style.overflowY = 'auto'; // Enable scrolling for messages
 
         // Input container
         const inputContainer = document.createElement('div');
-        inputContainer.className = 'p-4 bg-gray-700 flex gap-2';
+        inputContainer.className = 'p-4 bg-gray-700 flex flex-col gap-2 items-center';
+        inputContainer.style.position = 'absolute'; // Ensure it stays at the bottom
+        inputContainer.style.bottom = '0'; // Align to the bottom of the chat window
+        inputContainer.style.width = '100%'; // Take full width of the chat window
+        inputContainer.style.boxSizing = 'border-box'; // Include padding in width calculation
+
+        // Message input and send button container
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'flex gap-2 items-center w-full';
+
+        // Message input
         this.messageInput = document.createElement('input');
         this.messageInput.type = 'text';
         this.messageInput.placeholder = 'Type a message...';
         this.messageInput.className = 'flex-1 p-2 rounded bg-gray-600 text-white';
+        this.messageInput.style.minWidth = '0'; // Prevent overflow issues
+
+        // Send button
         const sendButton = document.createElement('button');
         sendButton.textContent = 'Send';
         sendButton.className = 'px-4 py-2 bg-blue-500 rounded hover:bg-blue-600';
+        sendButton.style.flexShrink = '0'; // Prevent shrinking
         sendButton.onclick = () => this.sendMessage();
 
-        inputContainer.append(this.messageInput, sendButton);
+        // Append message input and send button to the message container
+        messageContainer.append(this.messageInput, sendButton);
+
+        // Invite to Game button
+        const inviteButton = document.createElement('button');
+        inviteButton.textContent = 'Invite to Game';
+        inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
+        inviteButton.onclick = () => this.inviteToGame();
+
+        // Append all elements to the input container
+        inputContainer.append(messageContainer, inviteButton);
 
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
@@ -228,5 +279,10 @@ export default class ChatComponent extends Component {
         } catch (error) {
             console.error('Error unblocking user:', error);
         }
+    }
+
+    private inviteToGame(): void {
+        console.log('Inviting to game:', this.chatRoomId);
+        // Implement the logic to invite the user to a game
     }
 }

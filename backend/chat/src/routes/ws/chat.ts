@@ -41,7 +41,6 @@ async function ensureUserExists(idUser: string, fastify: FastifyInstance): Promi
 }
 
 async function blockUser(blockerId: string, blockedId: string, fastify: FastifyInstance): Promise<void> {
-    // Sicherstellen, dass beide Benutzer existieren
     await ensureUserExists(blockerId, fastify);
     await ensureUserExists(blockedId, fastify);
 
@@ -60,7 +59,6 @@ async function blockUser(blockerId: string, blockedId: string, fastify: FastifyI
 }
 
 async function unblockUser(blockerId: string, blockedId: string, fastify: FastifyInstance): Promise<void> {
-    // Sicherstellen, dass beide Benutzer existieren
     await ensureUserExists(blockerId, fastify);
     await ensureUserExists(blockedId, fastify);
 
@@ -146,7 +144,6 @@ export function chatRoutes(fastify: FastifyInstance) {
                         return;
                     }
 
-                    // Existing logic for chat messages and chat history
                     const combinedId = generateChatRoomId(req.user, chatMessage.chatRoomId);
                     console.log('combinedId:', combinedId);
 
@@ -239,7 +236,6 @@ export function chatRoutes(fastify: FastifyInstance) {
                         }
 
                         // Store message in db
-
                         await fastify.prisma.message.createMany({
                             data: [
                                 {
