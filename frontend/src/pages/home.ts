@@ -23,6 +23,27 @@ export default class HomeComponent extends Component {
 			this.renderBasedOnUser();    // Rebuild based on latest state of user (whether he's logged in or not)
 		});
 	}
+
+	private async isInQueue() {
+		const response = await sendRequest(`/queue/is-in-queue`, 'GET', {}, Services.MATCH);
+		if (!response.ok) {
+			const data = await response.json();
+			showToast(ToastState.ERROR, data.error);
+			return null;
+		}
+		return await response.json();
+	}
+
+	private async leaveQueue() {
+		const response = await sendRequest(`/queue/leave-queue`, 'POST', {}, Services.MATCH);
+		if (!response.ok) {
+			const data = await response.json();
+			showToast(ToastState.ERROR, data.error);
+			return;
+		}
+		showToast(ToastState.SUCCESS, 'Left queue successfully');
+		this.buildLoggedInUI();
+	}
 	
 	private renderBasedOnUser() {
 		const user = State.getState().getCurrentUser();
@@ -96,15 +117,21 @@ export default class HomeComponent extends Component {
 			}
 
 			const data = await response.json();
-			// Redirect to the game page with the match ID
-			window.location.href = `/game/${data.match.id}`;
+			if (data.match) {
+				showToast(ToastState.SUCCESS, 'Queue joined successfully');
+				this.buildLoggedInUI();
+			} else {
+				showToast(ToastState.ERROR, 'Failed to join queue. Please try again.');
+			}
 		} catch (error) {
 			console.error('Error creating game:', error);
 			showToast(ToastState.ERROR, 'Failed to create game. Please try again.');
 		}
 	}
 
-	private buildLoggedInUI() {
+	private async buildLoggedInUI() {
+		const isInQueue = await this.isInQueue();
+		this.element.innerHTML = '';
 		this.element.appendChild(loadBackgroundGif());
 
 		const contentContainer = document.createElement('div');
@@ -145,9 +172,29 @@ export default class HomeComponent extends Component {
 		buttonContainer.appendChild(createStyledButton('SINGLE PLAYER', '/singlegame', '#20A4D6'));
 		buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));
 		buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
-
 		// Append all visual sections in order
 		contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
+
+		if (isInQueue?.inQueue) {
+			// show queue countdown
+			const queueCountdown = document.createElement('div');
+			queueCountdown.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10 text-white text-lg font-bold';
+			queueCountdown.textContent = `In Queue since ${isInQueue.since}`;
+			contentContainer.append(queueCountdown);
+
+			const leaveQueueButtonContainer = document.createElement('div');
+			leaveQueueButtonContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
+
+			const leaveQueueButton = new Button(
+				'Leave Queue',
+				() => this.leaveQueue(),
+				'w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10'
+			);
+			leaveQueueButton.element.style.backgroundColor = '#E91EA3';
+			leaveQueueButton.element.style.pointerEvents = 'auto';
+			leaveQueueButtonContainer.appendChild(leaveQueueButton.element);
+			contentContainer.append(leaveQueueButtonContainer);
+		}
 		
 		// Footer
 		const copyright = document.createElement('p');

@@ -128,6 +128,9 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 startScore: 0,
                 terminatePlayers: false,
                 friendlyFire: false,
+                kickerMode: false,
+                obstacleMode: 0,
+                balls: 2,
             };
             if (body.mode === '1v1') {
                 settings.players = 2;
@@ -211,5 +214,21 @@ export function gameHttpRoutes(app: FastifyInstance) {
             console.error('Error saving game settings:', error);
             return reply.status(500).send({ error: 'Internal server error' });
         }
+    });
+
+    // leave queue (get current match for participant and delete)
+    app.post('/leave-queue', async (request, reply) => {
+        const match = await checkMatch(request.user);
+        if (match) {
+            await app.prisma.matchParticipant.deleteMany({ where: { matchId: match.id, userId: request.user } });
+            return reply.status(200).send({ message: 'Left queue successfully' });
+        }
+        return reply.status(404).send({ error: 'No match found' });
+    });
+
+    // get is in queue
+    app.get('/is-in-queue', async (request, reply) => {
+        const match = await checkMatch(request.user);
+        return reply.status(200).send({ message: 'In queue', inQueue: match !== null, since: match?.createdAt });
     });
 } 
