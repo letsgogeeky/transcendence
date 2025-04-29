@@ -49,3 +49,21 @@ model Attachment {
   messageId   String
   message     Message   @relation(fields: [messageId], references: [id])
 }
+
+model BlockedUser {
+  id          String   @id @default(uuid())
+  blockerId   String   // The user who is blocking
+  blockedId   String   // The user being blocked
+  createdAt   DateTime @default(now())
+
+  blocker     User     @relation("BlockerRelation", fields: [blockerId], references: [id])
+  blocked     User     @relation("BlockedRelation", fields: [blockedId], references: [id])
+
+  @@unique([blockerId, blockedId]) // Ensure a user cannot block the same person twice
+}
+
+model User {
+  id          String        @id @default(uuid())
+  blockedBy   BlockedUser[] @relation("BlockedRelation")
+  blocked     BlockedUser[] @relation("BlockerRelation")
+}

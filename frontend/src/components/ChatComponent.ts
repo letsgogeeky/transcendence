@@ -34,11 +34,28 @@ export default class ChatComponent extends Component {
         const title = document.createElement('h3');
         title.textContent = `Chat with ${friendName}`;
         title.className = 'text-lg font-bold';
+
+        // Close button
         this.closeButton = document.createElement('button');
         this.closeButton.textContent = 'Close';
         this.closeButton.className = 'text-sm text-red-500 hover:underline';
         this.closeButton.onclick = () => this.closeChat();
-        header.append(title, this.closeButton);
+
+        // Block/Unblock button
+        const blockButton = document.createElement('button');
+        blockButton.className = 'text-sm text-yellow-500 hover:underline ml-4';
+        blockButton.textContent = 'Block'; // Default state
+        blockButton.onclick = async () => {
+            if (blockButton.textContent === 'Block') {
+                await this.blockUser();
+                blockButton.textContent = 'Unblock';
+            } else {
+                await this.unblockUser();
+                blockButton.textContent = 'Block';
+            }
+        };
+
+        header.append(title, this.closeButton, blockButton);
 
         // Messages container
         this.chatMessages = document.createElement('div');
@@ -137,6 +154,7 @@ export default class ChatComponent extends Component {
             }
         }
     }
+    
 
     private async getMessages(): Promise<void> {
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
@@ -180,5 +198,35 @@ export default class ChatComponent extends Component {
 
     private closeChat(): void {
         this.chatWindow.remove();
+    }
+
+    private async blockUser(): Promise<void> {
+        console.log('Blocking user:', this.chatRoomId);
+        try {
+            this.socket?.send(
+                JSON.stringify({
+                    type: 'block',
+                    userId: this.chatRoomId,
+                }),
+            );
+            console.log(`User ${this.chatRoomId} blocked successfully.`);
+        } catch (error) {
+            console.error('Error blocking user:', error);
+        }
+    }
+
+    private async unblockUser(): Promise<void> {
+        console.log('Unblocking user:', this.chatRoomId);
+        try {
+            this.socket?.send(
+                JSON.stringify({
+                    type: 'unblock',
+                    userId: this.chatRoomId,
+                }),
+            );
+            console.log(`User ${this.chatRoomId} unblocked successfully.`);
+        } catch (error) {
+            console.error('Error unblocking user:', error);
+        }
     }
 }
