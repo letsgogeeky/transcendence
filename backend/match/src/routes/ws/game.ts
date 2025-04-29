@@ -10,7 +10,7 @@ type GameMessage = {
 }
 
 let gameSettings = {players: 1, aiPlayers: 1, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
-	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: false
+	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: true
 };
 
 let game1 = new GameSession("match_1", gameSettings);

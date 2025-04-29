@@ -1,13 +1,9 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
-
-const assetPath = "../src/game/"
-
-import State from "../services/state";
-
 import State from "../services/state";
 
 const assetPath = "../src/game/"
+
 
 let keys = {
 	up: false,

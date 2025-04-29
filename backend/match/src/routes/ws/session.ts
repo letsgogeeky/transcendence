@@ -152,12 +152,12 @@ export class GameSession {
 			if (this.settings.winScore && teamScore >= this.settings.winScore) 
 				this.gameEnd("Team " + team[0].teamNumber + " won!");
 		}
-		for (const player of this.players.values()) {
-			if (!player.team && this.settings.winScore && player.score >= this.settings.winScore)
+		for (const paddle of this.paddles) {
+			if (this.settings.winScore && paddle.score >= this.settings.winScore)
 				this.gameEnd();
-			else if (player.score <= 0 && this.settings.terminatePlayers) {
-				player.paddle?.die();
-				this.paddles = this.paddles.filter(p => p != player.paddle);
+			else if (paddle.score <= 0 && this.settings.terminatePlayers) {
+				paddle.die();
+				this.paddles = this.paddles.filter(p => p != paddle);
 				if (this.paddles.length <= 1) this.gameEnd();
 			}	
 		}
