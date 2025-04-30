@@ -2,8 +2,7 @@
 /// <reference types="babylonjs-gui"/>
 import State from "../services/state";
 
-const assetPath = "../src/game/"
-
+const assetPath = "../assets/"
 
 let keys = {
 	up: false,
@@ -31,7 +30,6 @@ type MeshData = {
 		rotation: BABYLON.Quaternion;
 		id: string;
 	}[]
-	//targets: BABYLON.Vector3[];
 }
 
 type GameSettings = {
@@ -42,14 +40,12 @@ type GameSettings = {
 	balls?: number
 }
 
-//let targets: BABYLON.Mesh[] = [];
-
 const loadingScreenDiv = document.createElement("div");
 loadingScreenDiv.id = "loadingScreenDiv";
 loadingScreenDiv.innerHTML = `
   <div id="loadingContent">
-    <img src="../assets/PongJamLogo.png" id="loadingImage">
-	<img src="../assets/transparent_pong.gif" id="loadingGif">
+    <img src="${assetPath}PongJamLogo.png" id="loadingImage">
+	<img src="${assetPath}transparent_pong.gif" id="loadingGif">
     <p id="loadingText">Connecting...</p>
   </div>`;
 document.body.appendChild(loadingScreenDiv);
@@ -105,13 +101,6 @@ class Game {
 		}
 		
 		this.players = this.settings.players + (this.settings.aiPlayers ?? 0);
-
-		// for (let i = 0; i < this.players; i++) {
-		// 	const target = BABYLON.MeshBuilder.CreateSphere("target", { diameter: 0.8 }, this.scene);
-		// 	target.material = new BABYLON.StandardMaterial("targetMat", this.scene);
-		// 	(target.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(1, 0, 0);
-		// 	targets.push(target);
-		// }
 
 		this.camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2,
 			2.5 * 20 / (2 * Math.sin(Math.PI / this.players || 1)), BABYLON.Vector3.Zero(), this.scene);
@@ -171,7 +160,10 @@ class Game {
 			}	
 
 			if (!this.spectatorMode) {
-				if (keys.w) this.ws.send(JSON.stringify({type: 'moveUp', data: 0}));
+				if (keys.w) {
+					this.ws.send(JSON.stringify({type: 'moveUp', data: 0}));
+					console.log(Date.now());
+				}
 				else if (keys.s) this.ws.send(JSON.stringify({type: 'moveDown', data: 0}));
 				
 				if (keys.a) this.ws.send(JSON.stringify({type: 'turnLeft', data: 0}));
@@ -245,10 +237,7 @@ class Game {
 			
 			for (const p of data.positions) {
 				try {
-					//if (p.id.includes("ball") && p.position.equals(BABYLON.Vector3.Zero()))
-					//	this.scene.getMeshById(p.id)!.isVisible = true;
 					this.scene.getMeshById(p.id)!.position = p.position;
-					//this.scene.getMeshById(p.id)!.isVisible = true;
 				} catch (error) {
 					console.error('Failed to update mesh:', error);
 				}	
@@ -390,6 +379,7 @@ window.addEventListener('DOMContentLoaded', async function() {
 		}
 		if (e.key === "w" || e.key === "W") {
 			keys.w = false;
+			console.log(e.key);
 			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
 		}
 		if (e.key === "s" || e.key === "S") {
