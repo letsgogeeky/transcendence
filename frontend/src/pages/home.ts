@@ -5,7 +5,7 @@ import LinkComponent from '../components/Link';
 import { Services } from '../services/send-request';
 import State, { MyUser } from '../services/state';
 import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
-import { createStyledButton, createStyledButtonWithHandler } from '../styles/button_styles'
+import { createStyledButtonWithHandler, applyStyledAppearance } from '../styles/button_styles'
 import { showToast, ToastState } from '../components/Toast';
 
 export default class HomeComponent extends Component {
@@ -83,7 +83,6 @@ export default class HomeComponent extends Component {
 		// }
 		// logoContainer.appendChild(loadImage('PongJamLogo.png', logoClass, 'Game Logo'));
 		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[450px] h-auto object-contain scale-[1.6]', 'Game Logo'));
-		// logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[400px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
@@ -148,7 +147,7 @@ export default class HomeComponent extends Component {
 		
 		// Preconfigured game mode buttons
 		const gameModeContainer = document.createElement('div');
-		gameModeContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
+		gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
 		
 
 		const gameModes = [
@@ -168,24 +167,9 @@ export default class HomeComponent extends Component {
 		});
 		
 		const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
-		// tournamentLink.element.className = 'font-black text-[2.5rem] px-8 py-4 text-black border-4 border-transparent transition-all pointer-events-auto font-impact';
-		tournamentLink.element.className = 'font-black text-[2.5rem] px-8 py-4 text-black border-4 border-transparent transition-all pointer-events-auto font-impact';
-		tournamentLink.element.style.webkitTextStroke = '1.5px #b98cdc';
-
-		tournamentLink.element.addEventListener('mouseenter', () => {
-			tournamentLink.element.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-			tournamentLink.element.style.borderColor = '#b98cdc'; // ✅ quotes
-			tournamentLink.element.style.borderWidth = '3px';
-		});
-
-		tournamentLink.element.addEventListener('mouseleave', () => {
-			tournamentLink.element.style.backgroundColor = '';
-			tournamentLink.element.style.borderColor = 'transparent';
-			tournamentLink.element.style.borderWidth = '3px';
-		});
-
-		;
+		applyStyledAppearance(tournamentLink.element, '#b98cdc');
 		tournamentLink.render(this.element);
+
 		gameModeContainer.appendChild(tournamentLink.element);
 
 		// const gameModes = [
@@ -206,27 +190,6 @@ export default class HomeComponent extends Component {
 		// 	gameModeContainer.appendChild(button.element);
 		// });
 
-		// Existing buttons
-		// buttonContainer.appendChild(createStyledButton('SINGLE PLAYER', '/singlegame', '#20A4D6'));
-		// buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));
-		// buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
-		
-		
-		// tournament button below
-		// const buttonContainer = document.createElement('div');
-		// buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
-		// buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
-		
-		// const tournamentLink = new LinkComponent('TOURNAMENT', '/create-tournament');
-		// tournamentLink.element.className = 'w-60 border-2 text-center border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
-		// tournamentLink.render(this.element);
-
-		// Append buttons to the container
-		// buttonContainer.appendChild(tournamentLink.element);
-
-		// Append all visual sections in order
-		// contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
-		// contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
 		contentContainer.append(logoContainer, gameModeContainer);
 
 		if (isInQueue?.inQueue) {
