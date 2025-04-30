@@ -26,9 +26,9 @@ export default class ChatComponent extends Component {
         this.chatWindow.style.height = '500px';
         this.chatWindow.style.overflow = 'hidden';
         this.chatWindow.style.position = 'fixed';
-        this.chatWindow.style.bottom = '60px'; // Default position above the tab container
-        this.chatWindow.style.right = '16px'; // Default position from the right
-        this.chatWindow.style.display = 'block'; // Default to visible
+        this.chatWindow.style.bottom = '60px';
+        this.chatWindow.style.right = '16px';
+        this.chatWindow.style.display = 'block';
 
         this.element = this.chatWindow;
 
