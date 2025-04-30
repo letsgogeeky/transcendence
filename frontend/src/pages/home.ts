@@ -75,7 +75,14 @@ export default class HomeComponent extends Component {
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
 
-		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[400px] h-auto object-contain scale-[1.6]', 'Game Logo'));
+		// if (window.innerWidth >= 2000) {
+		// 	logoClass += ' max-w-[600px]'; // for the Mac in School
+		// } else {
+		// 	logoClass += ' max-w-[400px]'; //how i designed it initially for laptop screens
+		// }
+		// logoContainer.appendChild(loadImage('PongJamLogo.png', logoClass, 'Game Logo'));
+		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[450px] h-auto object-contain scale-[1.6]', 'Game Logo'));
+		// logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[400px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
