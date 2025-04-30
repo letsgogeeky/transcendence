@@ -5,9 +5,11 @@ import UserGridComponent from '../components/UserGrid';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import { endpoints } from '../services/send-request';
+// import ChatManager from '../pages/users'; 
+import { ChatManager } from '../pages/users'; // Adjust the path based on your project structure
 
 export default class ChatComponent extends Component {
-    private chatWindow: HTMLElement;
+    public chatWindow: HTMLElement;
     private chatMessages: HTMLElement;
     private messageInput: HTMLInputElement;
     private closeButton: HTMLButtonElement;
@@ -16,26 +18,39 @@ export default class ChatComponent extends Component {
 
     readonly element: HTMLElement;
 
-
     constructor(private chatRoomId: string, private friendName: string, private ws: WebSocket | null) {
         super();
         this.chatWindow = document.createElement('div');
-        this.chatWindow.className = 'fixed bottom-4 right-4 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
+        this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
         this.chatWindow.style.width = '400px';
         this.chatWindow.style.height = '500px';
         this.chatWindow.style.overflow = 'hidden';
+        this.chatWindow.style.position = 'fixed';
+        this.chatWindow.style.bottom = '60px'; // Default position above the tab container
+        this.chatWindow.style.right = '16px'; // Default position from the right
+        this.chatWindow.style.display = 'block'; // Default to visible
 
         this.element = this.chatWindow;
 
         this.socket = ws;
 
+        // Initialize UI components
+        this.chatMessages = document.createElement('div');
+        this.messageInput = document.createElement('input');
+        this.closeButton = document.createElement('button');
+        this.blockButton = document.createElement('button');
+
+        this.setupChatUI();
+    }
+
+    private setupChatUI(): void {
         // Header
         const header = document.createElement('div');
         header.className = 'p-4 bg-gray-700 flex flex-col items-start';
 
         // Chat name
         const title = document.createElement('h3');
-        title.textContent = `Chat with ${friendName}`;
+        title.textContent = `Chat with ${this.friendName}`;
         title.className = 'text-lg font-bold mb-2';
 
         // Buttons container
@@ -43,7 +58,6 @@ export default class ChatComponent extends Component {
         buttonsContainer.className = 'flex gap-4';
 
         // Close button
-        this.closeButton = document.createElement('button');
         this.closeButton.textContent = 'Close';
         this.closeButton.className = 'text-sm text-red-500 hover:underline';
         this.closeButton.onclick = () => this.closeChat();
@@ -57,14 +71,8 @@ export default class ChatComponent extends Component {
         };
 
         // Block/Unblock button
-        this.blockButton = document.createElement('button');
         this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
         this.blockButton.textContent = 'Block'; // Default text
-
-        // Check if the user is blocked and update the button text
-        // this.isUserBlocked().then((isBlocked) => {
-        //     this.blockButton.textContent = isBlocked ? 'Unblock' : 'Block';
-        // });
 
         // Add click event for the Block/Unblock button
         this.blockButton.onclick = async () => {
@@ -84,7 +92,6 @@ export default class ChatComponent extends Component {
         header.append(title, buttonsContainer);
 
         // Messages container
-        this.chatMessages = document.createElement('div');
         this.chatMessages.className = 'overflow-y-auto p-4 space-y-2';
         this.chatMessages.style.position = 'absolute';
         this.chatMessages.style.top = '90px';
@@ -106,7 +113,6 @@ export default class ChatComponent extends Component {
         messageContainer.className = 'flex gap-2 items-center w-full';
 
         // Message input
-        this.messageInput = document.createElement('input');
         this.messageInput.type = 'text';
         this.messageInput.placeholder = 'Type a message...';
         this.messageInput.className = 'flex-1 p-2 rounded bg-gray-600 text-white';
@@ -134,7 +140,7 @@ export default class ChatComponent extends Component {
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
 
-        this.setupWebSocket(friendName);
+        this.setupWebSocket(this.friendName);
     }
 
     private async setupWebSocket(friendName: string): Promise<void> {
@@ -270,8 +276,9 @@ export default class ChatComponent extends Component {
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
     }
 
-    private closeChat(): void {
-        this.chatWindow.remove();
+    public closeChat(): void {
+        this.chatWindow.remove(); // Remove the chat window from the DOM
+        ChatManager.getInstance().closeChat(this.chatRoomId); // Notify the ChatManager to remove the tab
     }
 
     private async blockUser(): Promise<void> {
