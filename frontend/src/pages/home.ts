@@ -4,7 +4,7 @@ import sendRequest from '../services/send-request';
 import { Services } from '../services/send-request';
 import State, { MyUser } from '../services/state';
 import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
-import { createStyledButton } from '../styles/button_styles'
+import { createStyledButton, createStyledButtonWithHandler } from '../styles/button_styles'
 import { showToast, ToastState } from '../components/Toast';
 
 export default class HomeComponent extends Component {
@@ -150,37 +150,56 @@ export default class HomeComponent extends Component {
 		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
 		
 		// Buttons section
-		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
+		// const buttonContainer = document.createElement('div');
+		// buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
 
 		// Preconfigured game mode buttons
 		const gameModeContainer = document.createElement('div');
 		gameModeContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
 		
-		const gameModes = [
-			{ mode: '1v1', label: '1v1', color: '#4CAF50' },
-			{ mode: '1vAI', label: '1vAI', color: '#2196F3' },
-			{ mode: '2v2', label: '2v2', color: '#FF9800' },
-			{ mode: 'All vs All', label: 'All vs All', color: '#E91E63' }
-		];
 
+		const gameModes = [
+			{ mode: '1v1', label: '1v1', color: '#20A4D6' },
+			{ mode: '1vAI', label: '1vAI', color: '#FF69B4' },
+			{ mode: '2v2', label: '2v2', color: '#FFCC00' },
+			{ mode: 'All vs All', label: 'All vs All', color: '#73e775' }
+		];
+		
 		gameModes.forEach(({ mode, label, color }) => {
-			const button = new Button(
+			const btn = createStyledButtonWithHandler(
 				label,
 				() => this.createPreconfiguredGame(mode),
-				`w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10`
+				color
 			);
-			button.element.style.backgroundColor = color;
-			button.element.style.pointerEvents = 'auto';
-			gameModeContainer.appendChild(button.element);
+			gameModeContainer.appendChild(btn);
 		});
+		
+		// const gameModes = [
+		// 	{ mode: '1v1', label: '1v1', color: '#4CAF50' },
+		// 	{ mode: '1vAI', label: '1vAI', color: '#2196F3' },
+		// 	{ mode: '2v2', label: '2v2', color: '#FF9800' },
+		// 	{ mode: 'All vs All', label: 'All vs All', color: '#E91E63' }
+		// ];
+
+		// gameModes.forEach(({ mode, label, color }) => {
+		// 	const button = new Button(
+		// 		label,
+		// 		() => this.createPreconfiguredGame(mode),
+		// 		`w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10`
+		// 	);
+		// 	button.element.style.backgroundColor = color;
+		// 	button.element.style.pointerEvents = 'auto';
+		// 	gameModeContainer.appendChild(button.element);
+		// });
 
 		// Existing buttons
-		buttonContainer.appendChild(createStyledButton('SINGLE PLAYER', '/singlegame', '#20A4D6'));
-		buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));
-		buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
+		// buttonContainer.appendChild(createStyledButton('SINGLE PLAYER', '/singlegame', '#20A4D6'));
+		// buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));
+		// buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
+
 		// Append all visual sections in order
-		contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
+		// contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
+		contentContainer.append(logoContainer, gameModeContainer);
 
 		if (isInQueue?.inQueue) {
 			// show queue countdown
