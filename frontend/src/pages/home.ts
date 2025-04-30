@@ -167,6 +167,27 @@ export default class HomeComponent extends Component {
 			gameModeContainer.appendChild(btn);
 		});
 		
+		const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
+		// tournamentLink.element.className = 'font-black text-[2.5rem] px-8 py-4 text-black border-4 border-transparent transition-all pointer-events-auto font-impact';
+		tournamentLink.element.className = 'font-black text-[2.5rem] px-8 py-4 text-black border-4 border-transparent transition-all pointer-events-auto font-impact';
+		tournamentLink.element.style.webkitTextStroke = '1.5px #b98cdc';
+
+		tournamentLink.element.addEventListener('mouseenter', () => {
+			tournamentLink.element.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+			tournamentLink.element.style.borderColor = '#b98cdc'; // ✅ quotes
+			tournamentLink.element.style.borderWidth = '3px';
+		});
+
+		tournamentLink.element.addEventListener('mouseleave', () => {
+			tournamentLink.element.style.backgroundColor = '';
+			tournamentLink.element.style.borderColor = 'transparent';
+			tournamentLink.element.style.borderWidth = '3px';
+		});
+
+		;
+		tournamentLink.render(this.element);
+		gameModeContainer.appendChild(tournamentLink.element);
+
 		// const gameModes = [
 		// 	{ mode: '1v1', label: '1v1', color: '#4CAF50' },
 		// 	{ mode: '1vAI', label: '1vAI', color: '#2196F3' },
@@ -190,15 +211,23 @@ export default class HomeComponent extends Component {
 		// buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));
 		// buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
 		
+		
 		// tournament button below
-		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
-		buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
+		// const buttonContainer = document.createElement('div');
+		// buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
+		// buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
+		
+		// const tournamentLink = new LinkComponent('TOURNAMENT', '/create-tournament');
+		// tournamentLink.element.className = 'w-60 border-2 text-center border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
+		// tournamentLink.render(this.element);
 
+		// Append buttons to the container
+		// buttonContainer.appendChild(tournamentLink.element);
 
 		// Append all visual sections in order
 		// contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
-		contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
+		// contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
+		contentContainer.append(logoContainer, gameModeContainer);
 
 		if (isInQueue?.inQueue) {
 			// show queue countdown
