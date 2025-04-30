@@ -1,6 +1,7 @@
 import Button from '../components/button';
 import Component from '../components/Component';
 import sendRequest from '../services/send-request';
+import LinkComponent from '../components/Link';
 import { Services } from '../services/send-request';
 import State, { MyUser } from '../services/state';
 import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
@@ -88,21 +89,17 @@ export default class HomeComponent extends Component {
 		const buttonContainer = document.createElement('div');
 		buttonContainer.className = 'flex justify-center space-x-8 mt-16 relative z-10';
 
-		const loginButton = new Button(
-			'Log In',
-			() => (window.location.href = '/login'),
-			'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]'
-		);
-		
-		const signInButton = new Button(
-			'Sign Up',
-			() => (window.location.href = '/register'),
-			'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]'
-		);
-		
+		const loginLink = new LinkComponent('Log In', '/login');
+		loginLink.element.className = 'w-60 border-2 text-center border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]';
+		loginLink.render(this.element);
+
+		const signupLink = new LinkComponent('Sign Up', '/register');
+		signupLink.element.className = 'w-60 border-2 text-center border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
+		signupLink.render(this.element);
+
 		// Append buttons to the container
-		buttonContainer.appendChild(loginButton.element);
-		buttonContainer.appendChild(signInButton.element);
+		buttonContainer.appendChild(loginLink.element);
+		buttonContainer.appendChild(signupLink.element);
 
 		contentContainer.append(logoContainer, buttonContainer);
 
@@ -149,10 +146,6 @@ export default class HomeComponent extends Component {
 		
 		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
 		
-		// Buttons section
-		// const buttonContainer = document.createElement('div');
-		// buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
-
 		// Preconfigured game mode buttons
 		const gameModeContainer = document.createElement('div');
 		gameModeContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
@@ -196,10 +189,16 @@ export default class HomeComponent extends Component {
 		// buttonContainer.appendChild(createStyledButton('SINGLE PLAYER', '/singlegame', '#20A4D6'));
 		// buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));
 		// buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
+		
+		// tournament button below
+		const buttonContainer = document.createElement('div');
+		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
+		buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));
+
 
 		// Append all visual sections in order
 		// contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
-		contentContainer.append(logoContainer, gameModeContainer);
+		contentContainer.append(logoContainer, gameModeContainer, buttonContainer);
 
 		if (isInQueue?.inQueue) {
 			// show queue countdown
