@@ -30,6 +30,7 @@ export default class ForgotPasswordComponent extends Component {
             true,
             null,
             inputStyle,
+			false
         );
 
         this.form = new FormComponent(

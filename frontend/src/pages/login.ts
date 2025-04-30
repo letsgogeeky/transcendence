@@ -27,6 +27,7 @@ export default class LoginComponent extends Component {
             true,
             null,
             inputStyle,
+			false,
         );
         const passwordInput = new Input(
             'password',
@@ -35,6 +36,7 @@ export default class LoginComponent extends Component {
             true,
             null,
             inputStyle,
+			false,
         );
 
         const form = new FormComponent(

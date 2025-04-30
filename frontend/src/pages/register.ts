@@ -24,7 +24,7 @@ export default class RegisterComponent extends Component {
 		container.appendChild(signUpText);
 
         // Input Fields Styling
-		const inputStyle = 'border border-[#4D000D] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#4B1F2B] opacity-60'; 
+		const inputStyle = 'border border-[#8b5973] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#8b5973] opacity-60'; 
 
         // Email, Name, and Password Inputs
         const emailInput = new Input(
@@ -34,6 +34,7 @@ export default class RegisterComponent extends Component {
             true,
             null,
             inputStyle,
+			false
         );
         const nameInput = new Input(
             'name',
@@ -42,6 +43,7 @@ export default class RegisterComponent extends Component {
             true,
             null,
             inputStyle,
+			false
         );
         const passwordInput = new Input(
             'password',
@@ -50,6 +52,7 @@ export default class RegisterComponent extends Component {
             true,
             null,
             inputStyle,
+			false
         );
 
         // Form
@@ -71,7 +74,7 @@ export default class RegisterComponent extends Component {
             'Already have an account? LOG IN',
             '/login',
         );
-		loginLink.element.className = 'text-[#4D000D] font-bold mt-6 relative z-10';
+		loginLink.element.className = 'text-[#71435b] font-bold mt-6 relative z-10';
         loginLink.render(container);
 
         this.element = container; // Set the final element
