@@ -107,9 +107,10 @@ export class GameSession {
 		this.sendPlayerList(ws);
     }
 
-    public handleMessage(id: string, message: string) {
+    public handleMessage(id: string, data: any) {
         try {
-            const data = JSON.parse(message);
+			console.log(data.type + ": " + Date.now());
+            //const data = JSON.parse(message);
 			const paddle = data.data? this.players.get(id)?.guest?.paddle : this.players.get(id)?.paddle;
 			switch (data.type) {
 				case 'moveUp': paddle?.moveUp(); break;
@@ -120,7 +121,7 @@ export class GameSession {
 				case 'stopTurning': paddle?.stopTurning(); break;
 			}
         } catch (e) {
-            console.error('Invalid message:', message);
+            console.error('Invalid message:', data);
         }
     }
 
@@ -201,7 +202,7 @@ export class GameSession {
 	}
 
 	addGuest(id: string) {
-		const name = "guest" + this.guests?.length + 1;	
+		const name = "Guest" + this.guests?.length + 1;	
 		const guest = new Player(name, name);
 		const player = this.players.get(id);
 		if (player) {
@@ -215,14 +216,19 @@ export class GameSession {
 	}
 
 	private gameEnd(message?: string) {
-		let winner: Paddle;
-		if (this.players.size > 0) {
-			winner = Array.from(this.paddles).reduce((max, current) =>
-				current.score > max.score ? current : max);
-		}
+	let winners: Paddle[] = [];
+	if (this.players.size > 0) {
+		const paddlesArray = Array.from(this.paddles);
+		const maxScore = Math.max(...paddlesArray.map(p => p.score));
+		winners = paddlesArray.filter(p => p.score === maxScore);
+	}
+	const endMessage = winners.length > 1
+		? "Tie: " + winners.map(w => w.name ?? "Unnamed").join(", ")
+		: `Game over: ${winners[0]?.name ?? "No one"} won!`;
+		
 		this.players.forEach((player) => {
 			player.ws?.send(JSON.stringify({type: 'gameEnd', data: 
-				message ? message : `Game over: ${winner.name ?? "No one"} won!`}))
+				message ? message : endMessage}))
 		});
 		this.status = GameStatus.ENDED;
 		this.app.prisma.match.update({

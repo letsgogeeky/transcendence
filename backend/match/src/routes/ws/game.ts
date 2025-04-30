@@ -9,10 +9,10 @@ type GameMessage = {
     data: any;
 }
 
-const paddleMoveMessageTypes = ["moveUp", "moveDown", "turnLeft", "turnRight"];
+const paddleMoveMessageTypes = ["moveUp", "moveDown", "turnLeft", "turnRight", "stopMoving", "stopTurning"];
 
 let gameSettings = {players: 1, aiPlayers: 1, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
-	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: true
+	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: false
 };
 
 // let gameServer = new GameSession("match_1", gameSettings);
