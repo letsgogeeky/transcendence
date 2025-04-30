@@ -126,7 +126,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                         fastify.connections.get(req.user)?.send(
                             JSON.stringify({
                                 type: 'block',
-                                data: `User ${chatMessage.userId} has been blocked.`,
+                                data: `User ${chatMessage.name} has been blocked.`,
                             }),
                         );
                         return;
@@ -138,11 +138,39 @@ export function chatRoutes(fastify: FastifyInstance) {
                         fastify.connections.get(req.user)?.send(
                             JSON.stringify({
                                 type: 'unblock',
-                                data: `User ${chatMessage.userId} has been unblocked.`,
+                                data: `User ${chatMessage.name} has been unblocked.`,
                             }),
                         );
                         return;
                     }
+
+                    // if (chatMessage.type === 'isBlocked') {
+                    //     console.log(`Checking if user ${chatMessage.userId} is blocked by ${req.user}`);
+                    //     const blockedUsers = await getBlockedUsers(req.user, fastify);
+                    //     // check if userId is in blockedUsers
+                    //     const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === chatMessage.userId);
+                    //     console.log('isBlocked:', isBlocked);  
+                    //     if (isBlocked) {
+                    //         chatMessage.name = 'true';
+                    //         chatMessage.content = 'You blocked ', chatMessage.name;
+                    //         fastify.connections.get(req.user)?.send(
+                    //             JSON.stringify({
+                    //                 type: 'isBlocked',
+                    //                 data: chatMessage,
+                    //             }),
+                    //         );
+                    //         return;
+                    //     } else {
+                    //         chatMessage.name = 'false';
+                    //         fastify.connections.get(req.user)?.send(
+                    //             JSON.stringify({
+                    //                 type: 'isBlocked',
+                    //                 data: chatMessage,
+                    //             }),
+                    //         );
+                    //         return;
+                    //     }
+                    // }
 
                     const combinedId = generateChatRoomId(req.user, chatMessage.chatRoomId);
                     console.log('combinedId:', combinedId);
@@ -185,10 +213,22 @@ export function chatRoutes(fastify: FastifyInstance) {
                             const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === chatMessage.userId);
                             if (isBlocked) {
                                 console.log('User is blocked:', chatMessage.userId);
+                                chatMessage.name = 'Info';
+                                chatMessage.content = 'You blocked this user';
+                                // fastify.connections.get(req.user)?.send(
+                                //     JSON.stringify({
+                                //         type: 'chatMessage',
+                                //         // data: 'You blocked this user',
+                                //         data: chatMessage,
+                                //     }),
+                                // );
+                                chatMessage.name = 'true';
+                                chatMessage.type = 'isBlocked';
                                 fastify.connections.get(req.user)?.send(
                                     JSON.stringify({
-                                        type: 'chatMessage',
-                                        data: 'You blocked this user',
+                                        type: 'isBlocked',
+                                        // data: 'You blocked this user',
+                                        data: chatMessage,
                                     }),
                                 );
                                 return;
@@ -226,10 +266,13 @@ export function chatRoutes(fastify: FastifyInstance) {
                         const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === req.user);
                         if (isBlocked) {
                             console.log('User is blocked:', req.user);
-                            fastify.connections.get(chatMessage.userId)?.send(
+                            chatMessage.name = 'Info';
+                            chatMessage.content = 'You are blocked';
+                            fastify.connections.get(req.user)?.send(
                                 JSON.stringify({
-                                    type: 'error',
-                                    data: 'You are blocked',
+                                    type: 'chatMessage',
+                                    // data: 'You are blocked',
+                                    data: chatMessage
                                 }),
                             );
                             return;
@@ -256,6 +299,14 @@ export function chatRoutes(fastify: FastifyInstance) {
                             }),
                         );
                     }
+                    // if (chatMessage.type === 'note') {
+                    //     fastify.connections.get(req.user)?.send(
+                    //         JSON.stringify({
+                    //             type: 'chatMessage',
+                    //             data: chatMessage,
+                    //         }),
+                    //     );
+                    // }
                 } catch (error) {
                     console.error('Error parsing message:', error);
                     console.error('Received message:', message);

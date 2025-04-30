@@ -12,6 +12,7 @@ export default class ChatComponent extends Component {
     private messageInput: HTMLInputElement;
     private closeButton: HTMLButtonElement;
     private socket: WebSocket | null = null;
+    private blockButton: HTMLButtonElement;
 
     readonly element: HTMLElement;
 
@@ -56,26 +57,28 @@ export default class ChatComponent extends Component {
         };
 
         // Block/Unblock button
-        const blockButton = document.createElement('button');
-        blockButton.className = 'text-sm text-yellow-500 hover:underline';
-        blockButton.textContent = 'Block'; // Default text has to change later
-        // Check if the user is blocked
+        this.blockButton = document.createElement('button');
+        this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
+        this.blockButton.textContent = 'Block'; // Default text
 
+        // Check if the user is blocked and update the button text
+        // this.isUserBlocked().then((isBlocked) => {
+        //     this.blockButton.textContent = isBlocked ? 'Unblock' : 'Block';
+        // });
 
-
-        
-        blockButton.onclick = async () => {
-            if (blockButton.textContent === 'Block') {
+        // Add click event for the Block/Unblock button
+        this.blockButton.onclick = async () => {
+            if (this.blockButton.textContent === 'Block') {
                 await this.blockUser();
-                blockButton.textContent = 'Unblock';
+                this.blockButton.textContent = 'Unblock';
             } else {
                 await this.unblockUser();
-                blockButton.textContent = 'Block';
+                this.blockButton.textContent = 'Block';
             }
         };
 
         // Append buttons to the container
-        buttonsContainer.append(viewProfileButton, blockButton, this.closeButton);
+        buttonsContainer.append(viewProfileButton, this.blockButton, this.closeButton);
 
         // Append title and buttons container to the header
         header.append(title, buttonsContainer);
@@ -168,6 +171,26 @@ export default class ChatComponent extends Component {
 
                     this.displayMessage(message.content, senderName);
                 });
+
+            
+
+            }
+            if (data.type === 'block') {
+                console.log('User blocked:', data.data);
+            }
+            if (data.type === 'unblock') {
+                console.log('User unblocked:', data.data);
+            }
+            if (data.type === 'isBlocked') {
+                console.log('User block status:', data.data);
+                if (data.data.name === 'true') {
+                    console.log('User is blocked');
+                    this.blockButton.textContent = 'Unblock';
+                } else {
+                    console.log('User is not blocked', data.name, data.data.name);
+
+                    this.blockButton.textContent = 'Block';
+                }
             }
         };
 
@@ -283,6 +306,21 @@ export default class ChatComponent extends Component {
 
     private inviteToGame(): void {
         console.log('Inviting to game:', this.chatRoomId);
-        // Implement the logic to invite the user to a game
+        // not implemented yet
+    }
+
+    private async isUserBlocked(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            // Wait for the WebSocket connection to be open
+            await this.waitForSocketConnection(this.socket!);
+
+            // Send a WebSocket message to check block status
+            this.socket?.send(
+                JSON.stringify({
+                    type: 'isBlocked',
+                    userId: this.chatRoomId,
+                }),
+            );
+        });
     }
 }
