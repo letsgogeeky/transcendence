@@ -96,7 +96,7 @@ export class GameSession {
 			this.app.prisma.match.update({
 				where: { id: this.id },
 				data: { status: 'in progress' }
-			}).catch(err => console.error('Error updating match status:', err));
+			}).catch((err: any) => console.error('Error updating match status:', err));
 			this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
 		}
 		else if (this.players.size > this.settings.players) {
@@ -161,12 +161,12 @@ export class GameSession {
 			if (this.settings.winScore && teamScore >= this.settings.winScore) 
 				this.gameEnd("Team " + team[0].teamNumber + " won!");
 		}
-		for (const player of this.players.values()) {
-			if (!player.team && this.settings.winScore && player.score >= this.settings.winScore)
-				this.gameEnd("Team " + player.teamNumber + " won!");
-			else if (player.score <= 0 && this.settings.terminatePlayers) {
-				player.paddle?.die();
-				this.paddles = this.paddles.filter(p => p != player.paddle);
+		for (const paddle of this.paddles) {
+			if (this.settings.winScore && paddle.score >= this.settings.winScore)
+				this.gameEnd();
+			else if (paddle.score <= 0 && this.settings.terminatePlayers) {
+				paddle.die();
+				this.paddles = this.paddles.filter(p => p != paddle);
 				if (this.paddles.length <= 1) this.gameEnd();
 			}	
 		}
@@ -228,7 +228,7 @@ export class GameSession {
 		this.app.prisma.match.update({
 			where: { id: this.id },
 			data: { status: 'ended' }
-		}).catch(err => console.error('Error updating match status:', err));
+		}).catch((err: any) => console.error('Error updating match status:', err));
 	}
 
     private async startGameLoop() {

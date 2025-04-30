@@ -1,9 +1,8 @@
 /// <reference types="babylonjs"/>
 /// <reference types="babylonjs-gui"/>
-
-const assetPath = "/assets/"
-
 import State from "../services/state";
+
+const assetPath = "../src/game/"
 
 
 let keys = {
