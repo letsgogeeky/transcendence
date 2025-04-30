@@ -31,6 +31,7 @@ services:
             - ./uploads:/app/uploads
             - ./certs:/app/certs
             - ./backend/match/src:/app/src
+            - ./backend/match/dist:/app/dist
         env_file: './.env'
         environment:
             - DATABASE_URL=file:/app/db/match.db
