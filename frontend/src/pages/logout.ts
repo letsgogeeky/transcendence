@@ -38,6 +38,7 @@ export default class LogoutComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
+        // this.element.className = 'fixed flex items-center justify-center bg-black';
     }
 
     public render(parent: HTMLElement | Component): void {
@@ -45,16 +46,16 @@ export default class LogoutComponent extends Component {
 
         const confirmationMessage = document.createElement('p');
         confirmationMessage.textContent = 'Are you sure you want to log out?';
-        confirmationMessage.className = 'text-white font-medium mb-4';
+        confirmationMessage.className = 'py-4 text-gray-300 font-medium mb-4 text-xl';
 
         const yesButton = document.createElement('button');
         yesButton.textContent = 'Yes';
-        yesButton.className = 'px-4 py-2 bg-red-500 text-white font-bold rounded hover:bg-red-600 transition-colors mr-2';
+        yesButton.className = 'px-10 py-4 bg-red-500 text-white font-bold rounded hover:bg-red-600 transition-colors mr-4';
         yesButton.onclick = logoutUser;
 
         const noButton = document.createElement('button');
         noButton.textContent = 'No';
-        noButton.className = 'px-4 py-2 bg-gray-300 text-gray-800 font-bold rounded hover:bg-gray-400 transition-colors';
+        noButton.className = 'px-10 py-4 bg-gray-300 text-gray-800 font-bold rounded hover:bg-gray-400 transition-colors';
         noButton.onclick = () => {
             window.history.back();
         };
