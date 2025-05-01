@@ -109,6 +109,7 @@ const render = () => {
         if (user) {
             navigator.displayTab('/register', false);
             navigator.displayTab('/login', false);
+            navigator.displayTab('/about', false);
             navigator.displayTab('/settings', true);
             navigator.displayTab('/users', true);
             navigator.displayTab('/create-tournament', true);
