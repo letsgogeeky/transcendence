@@ -3,9 +3,12 @@ import Component from '../components/Component';
 import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
+import { ChatManager } from '../pages/users';
 
 export async function logoutUser(): Promise<void> {
     try {
+        const chatManager = ChatManager.getInstance();
+        chatManager.closeAllChats();
         const response = await sendRequest(
             '/logout',
             'POST',

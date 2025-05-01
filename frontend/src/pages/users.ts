@@ -65,6 +65,7 @@ export class ChatManager {
         const chat = this.activeChats.get(chatRoomId);
         if (chat) {
             this.activeChats.delete(chatRoomId);
+            chat.closeChat();
 
             const tab = this.tabContainer.querySelector(`button[data-chat-room-id="${chatRoomId}"]`);
             if (tab) {
@@ -73,6 +74,14 @@ export class ChatManager {
 
             this.updateChatPositions();
         }
+    }
+    public closeAllChats(): void {
+        this.activeChats.forEach((chat, chatRoomId) => {
+            chat.closeChat();
+            this.closeChat(chatRoomId);
+        });
+    
+        console.log('All chats have been closed.');
     }
 
     private updateChatPositions(): void {
