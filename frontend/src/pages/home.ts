@@ -151,7 +151,8 @@ export default class HomeComponent extends Component {
 		
 
 		const gameModes = [
-			{ mode: '1v1', label: '1 v 1', color: '#73e775' },
+			{ mode: '1v1guest', label: '1 v 1 (Local)', color: '#ABE770' },
+			{ mode: '1v1', label: '1 v 1 (Online)', color: '#73e775' },
 			{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
 			{ mode: '1vAI', label: '1 vs AI', color: '#FFCC00' },
 			{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
