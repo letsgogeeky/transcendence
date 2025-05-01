@@ -89,3 +89,23 @@
 - User can receive ball move from the server
 - User can see the game stats (score, etc..)
 - User can see when the game starts and when it ends
+
+
+### Subject modules
+- Major module: Use a framework to build the backend. (fastify)
+- Minor module: Use a framework or toolkit to build the front-end. (TailwindCSS)
+- Minor module: Use a database for the backend -and more. (SQLite)
+- Major module: Standard user management, authentication and users across tournaments. (Auth)
+- Major module: Implement remote authentication. (Google Auth)
+- Major module: Remote players (socket.io) **To be tested.**
+- Major module: Multiple players (socket.io, multiple clients) **To be tested.**
+- Major module: Live Chat. (socket.io) **To be tested. and continue feature-set required**
+- Major module: Implement Two-Factor Authentication (2FA) and JWT. (Auth + SQLite + fastify-jwt)
+- Minor module: Monitoring system. (Prometheus, Grafana, Node Exporter, Nginx Exporter)
+- Major module: Designing the Backend as Microservices. (Auth, Match, Chat)
+- Major module: Implementing Advanced 3D Techniques. (BabylonJS)
+
+Count of Major modules: 9
+Count of Minor modules: 3
+
+Total: 10.5

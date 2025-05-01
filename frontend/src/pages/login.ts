@@ -8,11 +8,11 @@ import State from '../services/state';
 import { loadBackgroundGif, loadImage } from '../styles/background'
 
 export default class LoginComponent extends Component {
-    readonly element: HTMLElement;
+    readonly element: HTMLElement = document.createElement('div');
 
     constructor() {
         super();
-        const container = document.createElement('div');
+        const container = this.element;
         container.className = 'text-center flex flex-col items-center justify-center min-h-screen'; // Center everything vertically and horizontally
 
 		container.appendChild(loadBackgroundGif());
@@ -27,6 +27,7 @@ export default class LoginComponent extends Component {
             true,
             null,
             inputStyle,
+			false,
         );
         const passwordInput = new Input(
             'password',
@@ -35,6 +36,7 @@ export default class LoginComponent extends Component {
             true,
             null,
             inputStyle,
+			false,
         );
 
         const form = new FormComponent(
@@ -69,7 +71,6 @@ export default class LoginComponent extends Component {
 			'Log In with Google',
 			() => (window.location.href = endpoints.auth + '/login/google'),
 		);
-		// loginWithGoogle.element.className = 'text-[#007bff] font-bold border border-[#007bff] bg-[#00FFFF] py-2 px-4 rounded-lg';
 		loginWithGoogle.element.className = `w-60 border-2 border-[#007bff] text-[#007bff] text-xl font-bold py-2 rounded-lg shadow-[0_0_15px_#00FFFF] opacity-60' hover:bg-white hover:text-purple-900 relative z-10`;
 
 		// Append both to the container
@@ -78,8 +79,6 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
-
-        this.element = container; // Set the final element
     }
 
 	static loginCallback(data: any): void {

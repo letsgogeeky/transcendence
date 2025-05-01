@@ -22,7 +22,7 @@ export async function successfulLogin(
                     ? LoginLevel.CREDENTIALS
                     : LoginLevel.FULL,
         },
-        { expiresIn: '10m', key: fastify.config.SECRET },
+        { expiresIn: '30m', key: fastify.config.SECRET },
     );
     const refreshToken = fastify.jwt.sign(
         { id: user.id },
@@ -187,7 +187,7 @@ export function loginRoutes(fastify: FastifyInstance) {
             httpOnly: true,
             secure: true,
             sameSite: 'lax',
-            path: '/login/google/auth',
+            path: '/auth/login/google/auth',
         });
         reply.redirect(`${fastify.config.FRONTEND}/login/google`);
     });

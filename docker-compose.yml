@@ -31,6 +31,7 @@ services:
             - ./uploads:/app/uploads
             - ./certs:/app/certs
             - ./backend/match/src:/app/src
+            - ./backend/match/dist:/app/dist
         env_file: './.env'
         environment:
             - DATABASE_URL=file:/app/db/match.db
@@ -125,7 +126,7 @@ services:
         volumes:
             - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
             - ./infra/prometheus/rules:/etc/prometheus/rules
-            - prometheus:/prometheus
+            - ./data/prometheus:/prometheus
         command:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--storage.tsdb.path=/prometheus'
@@ -147,7 +148,7 @@ services:
         volumes:
             - ./infra/grafana/provisioning:/etc/grafana/provisioning
             - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
-            - grafana:/var/lib/grafana
+            - ./data/grafana:/var/lib/grafana
         environment:
             - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
             - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
@@ -159,16 +160,3 @@ networks:
     app-network:
         driver: bridge
 
-volumes:
-    prometheus:
-        driver: local
-        driver_opts:
-            type: none
-            o: bind
-            device: ./data/prometheus
-    grafana:
-        driver: local
-        driver_opts:
-            type: none
-            o: bind
-            device: ./data/grafana

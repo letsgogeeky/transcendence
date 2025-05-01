@@ -9,7 +9,8 @@ import historyRoutes from './routes/http/history.js';
 import { gameRoutes } from './routes/ws/game.js';
 import { tournamentRoutes } from './routes/http/tournament.js';
 import { matchmakingRoutes } from './routes/ws/matchmaking.js';
-
+import { gameHttpRoutes } from './routes/http/game.js';
+import gameSessionPlugin from './plugins/gameSessions.js';
 const prefix = '/match';
 
 const swaggerOptions = {
@@ -39,12 +40,14 @@ const swaggerUiOptions = {
 export const app = fastifyPlugin((server: FastifyInstance, _options: FastifyPluginOptions) => {
     server.register(fastifyWebsocket, { prefix });
     server.register(socketConnectionPlugin, { prefix });
+    server.register(gameSessionPlugin);
     server.register(fastifySwagger, swaggerOptions);
     server.register(fastifySwaggerUi, swaggerUiOptions);
     // TODO: Add routes here
     server.register(demoRoutes, { prefix: prefix + '/demo' });
     server.register(historyRoutes, { prefix: prefix + '/history' });
     server.register(gameRoutes, { prefix: prefix + '/game' });
+    server.register(gameHttpRoutes, { prefix: prefix + '/queue' });
     server.register(matchmakingRoutes, { prefix: prefix + '/matchmaking' });
     server.register(tournamentRoutes, { prefix: prefix + '/tournament' });
 });

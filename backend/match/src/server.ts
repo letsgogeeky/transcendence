@@ -10,6 +10,7 @@ import prismaPlugin from "./plugins/prisma.js";
 import fastifyJwt from "@fastify/jwt";
 import fs from 'fs';
 import metrics from 'fastify-metrics';
+import { GameSession } from "./routes/ws/session.js";
 declare module '@fastify/jwt' {
     interface FastifyJWT {
         user: string;
@@ -28,6 +29,12 @@ declare module 'fastify' {
         };
         prisma: PrismaClient;
         connections: Map<string, WebSocket>;
+        gameSessions: Map<string, GameSession>;
+    }
+    interface FastifyRequest {
+        user: string;
+        token: string;
+        userName: string;
     }
 }
 

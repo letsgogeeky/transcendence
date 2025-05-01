@@ -1,8 +1,12 @@
 import Button from '../components/button';
 import Component from '../components/Component';
+import sendRequest from '../services/send-request';
+import LinkComponent from '../components/Link';
+import { Services } from '../services/send-request';
 import State, { MyUser } from '../services/state';
 import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
-import { createStyledButton } from '../styles/button_styles'
+import { createStyledButtonWithHandler, applyStyledAppearance } from '../styles/button_styles'
+import { showToast, ToastState } from '../components/Toast';
 
 export default class HomeComponent extends Component {
     readonly element: HTMLElement;
@@ -19,6 +23,27 @@ export default class HomeComponent extends Component {
 			this.element.innerHTML = ''; // Clear previous content
 			this.renderBasedOnUser();    // Rebuild based on latest state of user (whether he's logged in or not)
 		});
+	}
+
+	private async isInQueue() {
+		const response = await sendRequest(`/queue/is-in-queue`, 'GET', {}, Services.MATCH);
+		if (!response.ok) {
+			const data = await response.json();
+			showToast(ToastState.ERROR, data.error);
+			return null;
+		}
+		return await response.json();
+	}
+
+	private async leaveQueue() {
+		const response = await sendRequest(`/queue/leave-queue`, 'POST', {}, Services.MATCH);
+		if (!response.ok) {
+			const data = await response.json();
+			showToast(ToastState.ERROR, data.error);
+			return;
+		}
+		showToast(ToastState.SUCCESS, 'Left queue successfully');
+		this.buildLoggedInUI();
 	}
 	
 	private renderBasedOnUser() {
@@ -51,27 +76,29 @@ export default class HomeComponent extends Component {
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
 
-		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[400px] h-auto object-contain scale-[1.6]', 'Game Logo'));
+		// if (window.innerWidth >= 2000) {
+		// 	logoClass += ' max-w-[600px]'; // for the Mac in School
+		// } else {
+		// 	logoClass += ' max-w-[400px]'; //how i designed it initially for laptop screens
+		// }
+		// logoContainer.appendChild(loadImage('PongJamLogo.png', logoClass, 'Game Logo'));
+		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[450px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
 		buttonContainer.className = 'flex justify-center space-x-8 mt-16 relative z-10';
 
-		const loginButton = new Button(
-			'Log In',
-			() => (window.location.href = '/login'),
-			'w-60 border-2 border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]'
-		);
-		
-		const signInButton = new Button(
-			'Sign Up',
-			() => (window.location.href = '/register'),
-			'w-60 border-2 border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]'
-		);
-		
+		const loginLink = new LinkComponent('Log In', '/login');
+		loginLink.element.className = 'w-60 border-2 text-center border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]';
+		loginLink.render(this.element);
+
+		const signupLink = new LinkComponent('Sign Up', '/register');
+		signupLink.element.className = 'w-60 border-2 text-center border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
+		signupLink.render(this.element);
+
 		// Append buttons to the container
-		buttonContainer.appendChild(loginButton.element);
-		buttonContainer.appendChild(signInButton.element);
+		buttonContainer.appendChild(loginLink.element);
+		buttonContainer.appendChild(signupLink.element);
 
 		contentContainer.append(logoContainer, buttonContainer);
 
@@ -79,35 +106,114 @@ export default class HomeComponent extends Component {
 		this.element.append(contentContainer, copyrightLine());
 	}
 
-	private buildLoggedInUI() {
+	private async createPreconfiguredGame(mode: string) {
+		try {
+			const body = {
+				mode: mode,
+			};
+			const response = await sendRequest(`/queue/create-preconfigured`, 'POST', body, Services.MATCH);
 
+			if (!response.ok) {
+				const data = await response.json();
+				showToast(ToastState.ERROR, data.error);
+				return;
+			}
+
+			const data = await response.json();
+			if (data.match) {
+				showToast(ToastState.SUCCESS, 'Queue joined successfully');
+				this.buildLoggedInUI();
+			} else {
+				showToast(ToastState.ERROR, 'Failed to join queue. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error creating game:', error);
+			showToast(ToastState.ERROR, 'Failed to create game. Please try again.');
+		}
+	}
+
+	private async buildLoggedInUI() {
+		const isInQueue = await this.isInQueue();
+		this.element.innerHTML = '';
 		this.element.appendChild(loadBackgroundGif());
 
 		const contentContainer = document.createElement('div');
-		contentContainer.className = 'flex flex-col items-center';
+		contentContainer.className = 'flex flex-col items-center relative z-10';
 		
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-10';
 		
 		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
 		
-		// Buttons section
-		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex flex-wrap justify-center gap-6 max-w-full mb-8 relative z-10';
+		// Preconfigured game mode buttons
+		const gameModeContainer = document.createElement('div');
+		gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
+		
 
-		// Adds buttons using the helper function
-		buttonContainer.appendChild(createStyledButton('      SINGLE PLAYER', '/singlegame', '#20A4D6')); // Light blue
-		buttonContainer.appendChild(createStyledButton('MULTIPLE PLAYERS', '/multiplayer/index.html', '#FF69B4'));   // Pink
-		buttonContainer.appendChild(createStyledButton('TOURNAMENT', '/create-tournament', '#FFCC00'));  // Yellow
-		// Append all visual sections in order
-		contentContainer.append(logoContainer, buttonContainer);
+		const gameModes = [
+			{ mode: '1v1', label: '1 v 1', color: '#73e775' },
+			{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
+			{ mode: '1vAI', label: '1 vs AI', color: '#FFCC00' },
+			{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
+		];
 		
-		// Footer
-		const copyright = document.createElement('p');
-		copyright.className = 'text-white text-xs absolute bottom-4 left-1/2 transform -translate-x-1/2';
-		copyright.textContent = '© 2025 PongJam. All rights reserved.';
+		gameModes.forEach(({ mode, label, color }) => {
+			const btn = createStyledButtonWithHandler(
+				label,
+				() => this.createPreconfiguredGame(mode),
+				color
+			);
+			gameModeContainer.appendChild(btn);
+		});
 		
+		const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
+		applyStyledAppearance(tournamentLink.element, '#b98cdc');
+		tournamentLink.render(this.element);
+
+		gameModeContainer.appendChild(tournamentLink.element);
+
+		// const gameModes = [
+		// 	{ mode: '1v1', label: '1v1', color: '#4CAF50' },
+		// 	{ mode: '1vAI', label: '1vAI', color: '#2196F3' },
+		// 	{ mode: '2v2', label: '2v2', color: '#FF9800' },
+		// 	{ mode: 'All vs All', label: 'All vs All', color: '#E91E63' }
+		// ];
+
+		// gameModes.forEach(({ mode, label, color }) => {
+		// 	const button = new Button(
+		// 		label,
+		// 		() => this.createPreconfiguredGame(mode),
+		// 		`w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10`
+		// 	);
+		// 	button.element.style.backgroundColor = color;
+		// 	button.element.style.pointerEvents = 'auto';
+		// 	gameModeContainer.appendChild(button.element);
+		// });
+
+		contentContainer.append(logoContainer, gameModeContainer);
+
+		if (isInQueue?.inQueue) {
+			// show queue countdown
+			const queueCountdown = document.createElement('div');
+			queueCountdown.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10 text-white text-lg font-bold';
+			queueCountdown.textContent = `In Queue since ${isInQueue.since}`;
+			contentContainer.append(queueCountdown);
+
+			const leaveQueueButtonContainer = document.createElement('div');
+			leaveQueueButtonContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
+
+			const leaveQueueButton = new Button(
+				'Leave Queue',
+				() => this.leaveQueue(),
+				'w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10'
+			);
+			leaveQueueButton.element.style.backgroundColor = '#E91EA3';
+			leaveQueueButton.element.style.pointerEvents = 'auto';
+			leaveQueueButtonContainer.appendChild(leaveQueueButton.element);
+			contentContainer.append(leaveQueueButtonContainer);
+		}
+
 		// Append to main element
-		this.element.append(contentContainer, copyright);
+		this.element.append(contentContainer, copyrightLine());
 	}
 }

@@ -39,6 +39,8 @@ const credentialAuthCheck: FastifyPluginCallback = fp(
                 )
                     throw new AuthError('Invalid token!');
                 request.user = decoded.id;
+                request.token = token;
+                request.userName = (request.query as { userName?: string }).userName || decoded.id.substring(0, 8);
             } catch (error) {
                 reply.status(401).send({ error: error });
             }

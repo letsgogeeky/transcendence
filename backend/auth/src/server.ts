@@ -108,11 +108,11 @@ const start = async () => {
             },
         });
         app.register(fastifyBcrypt, { saltWorkFactor: 12 });
-        app.register(registerRoutes, { prefix: '/auth'});
-        app.register(resetPasswordRoutes, { prefix: '/auth'});
+        app.register(registerRoutes, { prefix: '/auth' });
+        app.register(resetPasswordRoutes, { prefix: '/auth' });
         app.register(connectionsPlugin);
-        app.register(loginRoutes, { prefix: '/auth'});
-        app.register(friendRequestsRoutes, { prefix: '/auth'});
+        app.register(loginRoutes, { prefix: '/auth' });
+        app.register(friendRequestsRoutes, { prefix: '/auth' });
         app.register(oauthPlugin, {
             name: 'googleOAuth2',
             scope: ['email', 'profile'],
@@ -124,16 +124,16 @@ const start = async () => {
                 auth: oauthPlugin.GOOGLE_CONFIGURATION,
             },
             startRedirectPath: '/auth/login/google',
-            callbackUri: (req) =>
-                `${req.protocol}://${req.hostname}/auth/login/google/callback`,
+            callbackUri: (_req) =>
+                `${app.config.FRONTEND}/auth/login/google/callback`,
         });
-        app.register(SocketRoutes, { prefix: '/auth'});
-        app.register(refreshRoutes, { prefix: '/auth'});
-        app.register(usersRoutes, { prefix: '/auth'});
-        app.register(userRoutes, { prefix: '/auth'});
-        app.register(logoutRoutes, { prefix: '/auth'});
-        app.register(otpRoutes, { prefix: '/auth'});
-        app.register(protectedOtpRoutes, { prefix: '/auth'});
+        app.register(SocketRoutes, { prefix: '/auth' });
+        app.register(refreshRoutes, { prefix: '/auth' });
+        app.register(usersRoutes, { prefix: '/auth' });
+        app.register(userRoutes, { prefix: '/auth' });
+        app.register(logoutRoutes, { prefix: '/auth' });
+        app.register(otpRoutes, { prefix: '/auth' });
+        app.register(protectedOtpRoutes, { prefix: '/auth' });
 
         await app.listen({ port: app.config.AUTH_PORT, host: '0.0.0.0' });
     } catch (err) {
