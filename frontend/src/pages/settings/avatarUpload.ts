@@ -1,4 +1,4 @@
-import Button from '../../components/Button';
+import Button from '../../components/button';
 import Component from '../../components/Component';
 import { endpoints, retryFetch } from '../../services/send-request';
 import State from '../../services/state';
