@@ -105,6 +105,7 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         obstacleMode: 0,
         balls: 1,
         guests: [],
+        aiLevel: 5,
     };
     if (mode === '1v1guest') {
         settings.players = 2;

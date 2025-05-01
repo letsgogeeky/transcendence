@@ -1,7 +1,6 @@
 import { Paddle } from "./paddle.js";
 import { findPolygonSide } from "./scene.js";
 import * as BABYLON from '@babylonjs/core';
-import HavokPhysics from '@babylonjs/havok';
 import { GameSession } from "./session.js";
 
 export class Ball {
@@ -14,30 +13,19 @@ export class Ball {
   lastTouched: Paddle | undefined;
   secondLastTouched: Paddle | undefined;
   disposed: boolean;
-  //particleSystem: BABYLON.ParticleSystem;
   sceneLimit: number = 0;
   game: GameSession;
   touching: boolean = false;
 
   constructor(game: GameSession, scene: BABYLON.Scene) {
-    // const ballMaterial = new BABYLON.StandardMaterial("ballMat", scene);
-    // ballMaterial.diffuseTexture = new BABYLON.Texture("src/game/ball.png");
-    // ballMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
 
 	this.game = game;
 
     this.ball = BABYLON.MeshBuilder.CreateSphere("ball" + this.game.balls.length, { diameter: 0.75 }, scene);
-	//this.ball = BABYLON.MeshBuilder.CreateBox("ball", { size: 0.8 }, scene);
-    //this.ball.material = ballMaterial;
 
     this.speed = this.startSpeed;
 	this.position = this.ball.position;
 	this.position._x += Math.random() * 5;
-
-    // const pointLight = new BABYLON.PointLight("pointLight", this.ball.position, scene);
-    // pointLight.intensity = 0.8;
-    // pointLight.range = 20;
-    // pointLight.diffuse = new BABYLON.Color3(1, 1, 1);
 
     const glowLayer = new BABYLON.GlowLayer("glow", scene);
     glowLayer.addIncludedOnlyMesh(this.ball);
@@ -51,23 +39,8 @@ export class Ball {
     ballAggregate.body.setCollisionCallbackEnabled(true);
     this.aggregate = ballAggregate;
 	
-    // this.particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
-    // let particleEmitter = this.particleSystem.createSphereEmitter(0.8);
-    // this.particleSystem.particleTexture = new BABYLON.Texture("src/game/particle.png", scene);
-    // this.particleSystem.minSize = 0.02;
-    // this.particleSystem.maxSize = 0.1;
-    // this.particleSystem.minLifeTime = 0.3;
-    // this.particleSystem.maxLifeTime = 0.5;
-    // this.particleSystem.minEmitPower = 2;
-    // this.particleSystem.maxEmitPower = 4;
-    // this.particleSystem.updateSpeed = 0.005;
-    // this.particleSystem.start();
-	
-	
 	ballAggregate.body.getMassProperties().inertia!._x = 0;
 	ballAggregate.body.getMassProperties().inertia!._y = 0;
-
-	//const constraint = new BABYLON.Physics6DoFConstraint()
 
 	this.aggregate.body.getCollisionObservable().add((event) => {
 		if (this.disposed) return;
@@ -91,9 +64,7 @@ export class Ball {
   }
 
   step() {
-	//this.particleSystem.emitRate = 0;
 	if (this.disposed) return;
-	//this.particleSystem.emitRate = 1000;
 	const minSpeed = this.speed * 0.66;
 	const maxSpeed = this.speed * 1.5;
 	const currentVelocity = this.aggregate.body.getLinearVelocity().length();
@@ -103,17 +74,12 @@ export class Ball {
 	else if (currentVelocity > maxSpeed)
 		this.aggregate.body.setLinearVelocity(this.aggregate.body.getLinearVelocity().normalize().scale(maxSpeed));
 	
-	//pointLight.position = this.ball.absolutePosition;
-	//this.particleSystem.emitter = this.ball.absolutePosition;
 	this.speed += this.speedIncrease
 	if (this.position.length() > this.sceneLimit) {
 		if (this.game.paddles.length == 2 && this.position.length() < this.sceneLimit * 1.7)
 			return;
 		this.reset(true).catch(console.error);
 	}
-	//this.ball.position.z = 0;
-	//this.aggregate.body.getLinearVelocity()._z = 0;
-	//this.aggregate.body.transformNode.position._z = 0;
 
 	this.aggregate.body.setLinearVelocity(new BABYLON.Vector3(this.aggregate.body.getLinearVelocity().x,
 	 this.aggregate.body.getLinearVelocity().y, 0));
@@ -158,7 +124,6 @@ export class Ball {
   dispose() {
 	this.aggregate.dispose();
 	this.ball.dispose();
-	//this.particleSystem.dispose();
 	this.disposed = true;
   }
 }
