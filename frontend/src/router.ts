@@ -28,9 +28,9 @@ export type Route = {
 
 export const routes: Route[] = [
 	/** 1) GENERAL PAGES */
-  { 
+	{ 
 		path: '/', // The home page (/) is mapped to HomeComponent, meaning that when a user first opens the website at /, the HomeComponent is rendered:
-		title: 'Home',
+		title: 'PongJam',
 		component: new HomeComponent(),
 		visible: true 
 	},

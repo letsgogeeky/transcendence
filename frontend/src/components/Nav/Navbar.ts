@@ -1,5 +1,6 @@
 import { Route } from '../../router';
 import Component from '../Component';
+import { IconLinkComponent } from '../Link';
 
 export default class Navbar extends Component {
     readonly element: HTMLElement;
@@ -24,24 +25,28 @@ export default class Navbar extends Component {
 		this.routes.forEach((route) => {
 			if (route.visible) {
 				const li = document.createElement('li');
-				li.className = 'text-md hover:text-purple-400 transition duration-300'; // ⬅️ Changed from text-lg to text-sm
+				li.className = 'text-md hover:text-purple-400 transition duration-300';
 	
-				const a = document.createElement('a');
-				a.href = route.path;
-				a.textContent = route.title;
-				// a.className = 'block';
-				// if (route.title != 'Home')
-			
-				// if (route.title != 'Sign Up') {
-				// 	// Create Image Element for the Home Icon
-				// 	const img = document.createElement('img');
-				// 	img.src = `./assets/icons/${route.title.toLowerCase()}.png`; // Assuming icons are named like 'home.png', 'about.png'
-				// 	img.alt = route.title;
-				// 	img.className = 'w-10 h-8'; // Adjust the size as needed
+				// Check if the route title matches one that should be an icon
+				const lowerTitle = route.title.toLowerCase();
+				const iconRoutes = ['pongjam', 'settings',  'users']; // add more as needed
 	
-				// 	a.appendChild(img);
-				// }
-				li.appendChild(a);
+				if (iconRoutes.includes(lowerTitle)) {
+					// Use your icon link component
+					const iconLink = new IconLinkComponent(
+						route.title,
+						route.path,
+						'h-8 transition-transform duration-300 ease-in-out hover:scale-110 hover:opacity-80'
+					);
+					li.appendChild(iconLink.element);
+				} else {
+					// Default text link
+					const a = document.createElement('a');
+					a.href = route.path;
+					a.textContent = route.title;
+					li.appendChild(a);
+				}
+	
 				ul.appendChild(li);
 			}
 		});
@@ -49,6 +54,28 @@ export default class Navbar extends Component {
 		this.element.innerHTML = '';
 		this.element.appendChild(ul);
 	}
+
+	// // the navbar before:
+	// private renderNavList() {
+	// 	const ul = document.createElement('ul');
+	// 	ul.className = 'flex justify-around w-full';
+	
+	// 	this.routes.forEach((route) => {
+	// 		if (route.visible) {
+	// 			const li = document.createElement('li');
+	// 			li.className = 'text-md hover:text-purple-400 transition duration-300'; // ⬅️ Changed from text-lg to text-sm
+	
+	// 			const a = document.createElement('a');
+	// 			a.href = route.path;
+	// 			a.textContent = route.title;
+	// 			li.appendChild(a);
+	// 			ul.appendChild(li);
+	// 		}
+	// 	});
+	
+	// 	this.element.innerHTML = '';
+	// 	this.element.appendChild(ul);
+	// }
 
     displayTab(path: string, show: boolean) {
         const route = this.routes.find((r) => r.path == path);
