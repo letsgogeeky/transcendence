@@ -2,6 +2,8 @@
 
 import { FastifyInstance } from 'fastify';
 import credentialAuthCheck from '../../plugins/validateToken.js';
+import { GameSettings } from '../ws/session.js';
+import { notifyMatchParticipants } from '../../services/match.service.js';
 
 interface TournamentOptions {
     winCondition: string; // score or time
@@ -19,12 +21,12 @@ export function tournamentRoutes(app: FastifyInstance) {
     app.get('/', async (request, reply) => {
         // get all tournaments
         const tournaments = await app.prisma.tournament.findMany({
-                include: {
-                    participants: true,
-                    matches: true,
-                },
-            });
-            return reply.status(200).send({
+            include: {
+                participants: true,
+                matches: true,
+            },
+        });
+        return reply.status(200).send({
             tournaments,
         });
     });
@@ -32,35 +34,40 @@ export function tournamentRoutes(app: FastifyInstance) {
     app.get('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
         const tournament = await app.prisma.tournament.findUnique({
-                where: { id }, include: {
-                    participants: true,
-                    matches: true,
-                }
-            });
-            if (!tournament) {
-                return reply.status(404).send({
-                    message: 'Tournament not found',
-                });
+            where: { id }, include: {
+                participants: true,
+                matches: {
+                    include: {
+                        participants: true,
+                    },
+                },
             }
-            return reply.status(200).send({
-                tournament,
+        });
+        if (!tournament) {
+            return reply.status(404).send({
+                message: 'Tournament not found',
             });
+        }
+        return reply.status(200).send({
+            tournament,
+        });
     });
 
     // get all tournaments by participant id
     app.get('/participant/:id', async (request, reply) => {
-            const { id } = request.params as { id: string };
-            const tournaments = await app.prisma.tournament.findMany({
-                where: {
-                    participants: {
-                        some: { id },
-                    },
+        const { id } = request.params as { id: string };
+        console.log('id', id);
+        const tournaments = await app.prisma.tournament.findMany({
+            where: {
+                participants: {
+                    some: { userId: id },
                 },
-                include: {
-                    participants: true,
-                    matches: true,
-                },
-            });
+            },
+            include: {
+                participants: true,
+                matches: true,
+            },
+        });
         return reply.status(200).send({
             tournaments,
         });
@@ -85,10 +92,10 @@ export function tournamentRoutes(app: FastifyInstance) {
             },
         },
     },
-    async (request, reply) => {
-        // create a tournament
-        const { name, options, participants } = request.body as TournamentPayload;
-        if (options.winCondition === 'score' && !options.limit) {
+        async (request, reply) => {
+            // create a tournament
+            const { name, options, participants } = request.body as TournamentPayload;
+            if (options.winCondition === 'score' && !options.limit) {
                 return reply.status(400).send({
                     message: 'Win score is required for score-based tournaments',
                 });
@@ -144,13 +151,15 @@ export function tournamentRoutes(app: FastifyInstance) {
             },
         },
     },
-    async (request, reply) => {
-        const { id } = request.params as { id: string };
-        const { playerId } = request.body as { playerId: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-                participants: true,
-                matches: true,
-            } });
+        async (request, reply) => {
+            const { id } = request.params as { id: string };
+            const { playerId } = request.body as { playerId: string };
+            const tournament = await app.prisma.tournament.findUnique({
+                where: { id }, include: {
+                    participants: true,
+                    matches: true,
+                }
+            });
             if (!tournament) {
                 return reply.status(404).send({
                     message: 'Tournament not found',
@@ -162,32 +171,34 @@ export function tournamentRoutes(app: FastifyInstance) {
                     message: 'Only tournament admin can add participants',
                 });
             }
-        const tournamentParticipant = {
-            tournamentId: tournament.id,
-            userId: playerId,
-            status: 'pending',
-        }
-        await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
-
-        // Send notification to the added participant
-        const participantSocket = app.connections.get(playerId);
-        if (participantSocket) {
-            participantSocket.send(JSON.stringify({
-                type: 'TOURNAMENT_INVITATION',
+            const tournamentParticipant = {
                 tournamentId: tournament.id,
-                tournamentName: tournament.name,
-                message: `You've been invited to join tournament "${tournament.name}"`
-            }));
-        }
+                userId: playerId,
+                status: playerId === tournament.adminId ? 'ACCEPTED' : 'PENDING',
+            }
+            await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
 
-        const updatedTournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-                participants: true,
-                matches: true,
-            } });
-        return reply.status(200).send({
-            tournament: updatedTournament,
+            // Send notification to the added participant
+            const participantSocket = app.connections.get(playerId);
+            if (participantSocket) {
+                participantSocket.send(JSON.stringify({
+                    type: 'TOURNAMENT_INVITATION',
+                    tournamentId: tournament.id,
+                    tournamentName: tournament.name,
+                    message: `You've been invited to join tournament "${tournament.name}"`
+                }));
+            }
+
+            const updatedTournament = await app.prisma.tournament.findUnique({
+                where: { id }, include: {
+                    participants: true,
+                    matches: true,
+                }
+            });
+            return reply.status(200).send({
+                tournament: updatedTournament,
+            });
         });
-    });
     // start a tournament
     app.post('/:id/start', {
         schema: {
@@ -199,12 +210,14 @@ export function tournamentRoutes(app: FastifyInstance) {
             },
         },
     },
-    async (request, reply) => {
-        const { id } = request.params as { id: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-                participants: true,
-                matches: true,
-            } });
+        async (request, reply) => {
+            const { id } = request.params as { id: string };
+            const tournament = await app.prisma.tournament.findUnique({
+                where: { id }, include: {
+                    participants: true,
+                    matches: true,
+                }
+            });
             if (!tournament) {
                 return reply.status(404).send({
                     message: 'Tournament not found',
@@ -220,24 +233,73 @@ export function tournamentRoutes(app: FastifyInstance) {
                     message: 'Tournament must have at least 2 participants',
                 });
             }
+            // check if all participants are accepted
+            const acceptedParticipants = tournament.participants.filter((participant) => participant.status === 'ACCEPTED');
+            if (acceptedParticipants.length < tournament.participants.length) {
+                return reply.status(400).send({
+                    message: 'All participants must be accepted to start the tournament',
+                });
+            }
             // split participants into arrays of 2
             const participants = tournament.participants;
             const matches = [];
+            const tournamentSettings: GameSettings = {
+                players: 2,
+                aiPlayers: 0,
+                winScore: 0,
+                timeLimit: 0,
+                replaceDisconnected: false,
+                startScore: 0,
+                terminatePlayers: false,
+                friendlyFire: false,
+                kickerMode: false,
+                obstacleMode: 0,
+                balls: 1
+            }
+            const options = tournament.options as unknown as TournamentOptions;
+            if (options.winCondition === 'score') {
+                tournamentSettings.winScore = options.limit;
+            } else if (options.winCondition === 'time') {
+                tournamentSettings.timeLimit = options.limit;
+            }
             for (let i = 0; i < participants.length; i += 2) {
+                const firstParticipant = participants[i];
+                let secondParticipant = participants[i + 1];
+                if (!secondParticipant) {
+                    secondParticipant = participants[0];
+                }
                 const match = await app.prisma.match.create({
                     data: {
-                        tournamentId: tournament.id,
-                        userId: participants[i].id,
-                        gameType: 'Pong',
+                        userId: firstParticipant.userId,
+                        gameType: '1v1',
                         status: 'pending',
-                        settings: {},
+                        settings: tournamentSettings,
                         stats: {},
+                        tournamentId: tournament.id,
                         participants: {
-                            connect: [participants[i], participants[i + 1]],
+                            create: [
+                                {
+                                    userId: firstParticipant.userId,
+                                    joinedAt: new Date(),
+                                },
+                                {
+                                    userId: secondParticipant.userId,
+                                    joinedAt: new Date(),
+                                },
+                            ],
                         },
                     },
                 });
                 matches.push(match);
+            }
+            // set tournament status to in progress
+            await app.prisma.tournament.update({ where: { id }, data: { status: 'in progress' } });
+            // notify first match participants
+            const notified = await notifyMatchParticipants(matches[0].id, app);
+            if (!notified) {
+                return reply.status(500).send({
+                    message: 'Failed to notify match participants',
+                });
             }
             return reply.status(200).send({
                 matches,
@@ -249,9 +311,11 @@ export function tournamentRoutes(app: FastifyInstance) {
     app.post('/:id/leave', async (request, reply) => {
         const { id } = request.params as { id: string };
         const { userId } = request.body as { userId: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-            participants: true,
-        } });
+        const tournament = await app.prisma.tournament.findUnique({
+            where: { id }, include: {
+                participants: true,
+            }
+        });
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',
@@ -314,10 +378,12 @@ export function tournamentRoutes(app: FastifyInstance) {
     // delete a tournament
     app.delete('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-            participants: true,
-            matches: true,
-        } });
+        const tournament = await app.prisma.tournament.findUnique({
+            where: { id }, include: {
+                participants: true,
+                matches: true,
+            }
+        });
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',

@@ -16,7 +16,7 @@ export async function logoutUser(): Promise<void> {
         if (!response.ok) {
             throw new Error(`Error: ${responseBody.error}`);
         }
-        showToast(ToastState.SUCCESS, JSON.stringify(responseBody));
+        showToast(ToastState.SUCCESS, 'Successfully logged out');
         State.getState().setAuthToken(null);
         localStorage.removeItem('authToken');
         localStorage.removeItem('currentUser');
@@ -38,20 +38,31 @@ export default class LogoutComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
+        // this.element.className = 'fixed flex items-center justify-center bg-black';
     }
 
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
 
-        // Create a styled logout button
-        const logoutButton = document.createElement('button');
-        logoutButton.textContent = 'Log out';
-        logoutButton.className =
-            'px-4 py-2 bg-white text-gray-800 font-bold rounded hover:bg-gray-200 transition-colors';
-        logoutButton.onclick = logoutUser;
+        const confirmationMessage = document.createElement('p');
+        confirmationMessage.textContent = 'Are you sure you want to log out?';
+        confirmationMessage.className = 'py-4 text-gray-300 font-medium mb-4 text-xl';
 
-        // Append the button to the element
-        this.element.appendChild(logoutButton);
+        const yesButton = document.createElement('button');
+        yesButton.textContent = 'Yes';
+        yesButton.className = 'px-10 py-4 bg-red-500 text-white font-bold rounded hover:bg-red-600 transition-colors mr-4';
+        yesButton.onclick = logoutUser;
+
+        const noButton = document.createElement('button');
+        noButton.textContent = 'No';
+        noButton.className = 'px-10 py-4 bg-gray-300 text-gray-800 font-bold rounded hover:bg-gray-400 transition-colors';
+        noButton.onclick = () => {
+            window.history.back();
+        };
+
+        this.element.appendChild(confirmationMessage);
+        this.element.appendChild(yesButton);
+        this.element.appendChild(noButton);
 
         super.render(parent);
     }
