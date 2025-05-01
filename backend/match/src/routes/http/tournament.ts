@@ -21,12 +21,12 @@ export function tournamentRoutes(app: FastifyInstance) {
     app.get('/', async (request, reply) => {
         // get all tournaments
         const tournaments = await app.prisma.tournament.findMany({
-                include: {
-                    participants: true,
-                    matches: true,
-                },
-            });
-            return reply.status(200).send({
+            include: {
+                participants: true,
+                matches: true,
+            },
+        });
+        return reply.status(200).send({
             tournaments,
         });
     });
@@ -34,39 +34,40 @@ export function tournamentRoutes(app: FastifyInstance) {
     app.get('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
         const tournament = await app.prisma.tournament.findUnique({
-                where: { id }, include: {
-                    participants: true,
-                    matches: {
-                        include: {
-                            participants: true,
-                        },
+            where: { id }, include: {
+                participants: true,
+                matches: {
+                    include: {
+                        participants: true,
                     },
-                }
-            });
-            if (!tournament) {
-                return reply.status(404).send({
-                    message: 'Tournament not found',
-                });
+                },
             }
-            return reply.status(200).send({
-                tournament,
+        });
+        if (!tournament) {
+            return reply.status(404).send({
+                message: 'Tournament not found',
             });
+        }
+        return reply.status(200).send({
+            tournament,
+        });
     });
 
     // get all tournaments by participant id
     app.get('/participant/:id', async (request, reply) => {
-            const { id } = request.params as { id: string };
-            const tournaments = await app.prisma.tournament.findMany({
-                where: {
-                    participants: {
-                        some: { id },
-                    },
+        const { id } = request.params as { id: string };
+        console.log('id', id);
+        const tournaments = await app.prisma.tournament.findMany({
+            where: {
+                participants: {
+                    some: { userId: id },
                 },
-                include: {
-                    participants: true,
-                    matches: true,
-                },
-            });
+            },
+            include: {
+                participants: true,
+                matches: true,
+            },
+        });
         return reply.status(200).send({
             tournaments,
         });
@@ -91,10 +92,10 @@ export function tournamentRoutes(app: FastifyInstance) {
             },
         },
     },
-    async (request, reply) => {
-        // create a tournament
-        const { name, options, participants } = request.body as TournamentPayload;
-        if (options.winCondition === 'score' && !options.limit) {
+        async (request, reply) => {
+            // create a tournament
+            const { name, options, participants } = request.body as TournamentPayload;
+            if (options.winCondition === 'score' && !options.limit) {
                 return reply.status(400).send({
                     message: 'Win score is required for score-based tournaments',
                 });
@@ -150,13 +151,15 @@ export function tournamentRoutes(app: FastifyInstance) {
             },
         },
     },
-    async (request, reply) => {
-        const { id } = request.params as { id: string };
-        const { playerId } = request.body as { playerId: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-                participants: true,
-                matches: true,
-            } });
+        async (request, reply) => {
+            const { id } = request.params as { id: string };
+            const { playerId } = request.body as { playerId: string };
+            const tournament = await app.prisma.tournament.findUnique({
+                where: { id }, include: {
+                    participants: true,
+                    matches: true,
+                }
+            });
             if (!tournament) {
                 return reply.status(404).send({
                     message: 'Tournament not found',
@@ -168,32 +171,34 @@ export function tournamentRoutes(app: FastifyInstance) {
                     message: 'Only tournament admin can add participants',
                 });
             }
-        const tournamentParticipant = {
-            tournamentId: tournament.id,
-            userId: playerId,
-            status: playerId === tournament.adminId ? 'ACCEPTED' : 'PENDING',
-        }
-        await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
-
-        // Send notification to the added participant
-        const participantSocket = app.connections.get(playerId);
-        if (participantSocket) {
-            participantSocket.send(JSON.stringify({
-                type: 'TOURNAMENT_INVITATION',
+            const tournamentParticipant = {
                 tournamentId: tournament.id,
-                tournamentName: tournament.name,
-                message: `You've been invited to join tournament "${tournament.name}"`
-            }));
-        }
+                userId: playerId,
+                status: playerId === tournament.adminId ? 'ACCEPTED' : 'PENDING',
+            }
+            await app.prisma.tournamentParticipant.create({ data: tournamentParticipant });
 
-        const updatedTournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-                participants: true,
-                matches: true,
-            } });
-        return reply.status(200).send({
-            tournament: updatedTournament,
+            // Send notification to the added participant
+            const participantSocket = app.connections.get(playerId);
+            if (participantSocket) {
+                participantSocket.send(JSON.stringify({
+                    type: 'TOURNAMENT_INVITATION',
+                    tournamentId: tournament.id,
+                    tournamentName: tournament.name,
+                    message: `You've been invited to join tournament "${tournament.name}"`
+                }));
+            }
+
+            const updatedTournament = await app.prisma.tournament.findUnique({
+                where: { id }, include: {
+                    participants: true,
+                    matches: true,
+                }
+            });
+            return reply.status(200).send({
+                tournament: updatedTournament,
+            });
         });
-    });
     // start a tournament
     app.post('/:id/start', {
         schema: {
@@ -205,12 +210,14 @@ export function tournamentRoutes(app: FastifyInstance) {
             },
         },
     },
-    async (request, reply) => {
-        const { id } = request.params as { id: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-                participants: true,
-                matches: true,
-            } });
+        async (request, reply) => {
+            const { id } = request.params as { id: string };
+            const tournament = await app.prisma.tournament.findUnique({
+                where: { id }, include: {
+                    participants: true,
+                    matches: true,
+                }
+            });
             if (!tournament) {
                 return reply.status(404).send({
                     message: 'Tournament not found',
@@ -304,9 +311,11 @@ export function tournamentRoutes(app: FastifyInstance) {
     app.post('/:id/leave', async (request, reply) => {
         const { id } = request.params as { id: string };
         const { userId } = request.body as { userId: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-            participants: true,
-        } });
+        const tournament = await app.prisma.tournament.findUnique({
+            where: { id }, include: {
+                participants: true,
+            }
+        });
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',
@@ -369,10 +378,12 @@ export function tournamentRoutes(app: FastifyInstance) {
     // delete a tournament
     app.delete('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
-        const tournament = await app.prisma.tournament.findUnique({ where: { id }, include: {
-            participants: true,
-            matches: true,
-        } });
+        const tournament = await app.prisma.tournament.findUnique({
+            where: { id }, include: {
+                participants: true,
+                matches: true,
+            }
+        });
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',

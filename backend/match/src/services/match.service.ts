@@ -11,7 +11,8 @@ export async function notifyMatchParticipants(matchId: string, app: FastifyInsta
         return false;
     }
     // check if match is full
-    if (match.participants.length >= (match.settings as GameSettings).players) {
+    const guestsCount = (match.settings as GameSettings).guests?.length ?? 0;
+    if (match.participants.length >= ((match.settings as GameSettings).players - guestsCount)) {
         // notify all participants in match
         let hasDisconnected = false;
         for (const participant of match.participants) {
@@ -88,4 +89,60 @@ export async function proceedTournament(tournamentId: string, app: FastifyInstan
     }
     // proceed to next match
     await proceedTournament(tournamentId, app, count + 1);
+}
+
+export async function createMatch(app: FastifyInstance, mode: string, userId: string) {
+    const settings: GameSettings = {
+        players: 0,
+        aiPlayers: 0,
+        winScore: 0,
+        timeLimit: 0,
+        replaceDisconnected: false,
+        startScore: 0,
+        terminatePlayers: false,
+        friendlyFire: false,
+        kickerMode: false,
+        obstacleMode: 0,
+        balls: 1,
+        guests: [],
+        aiLevel: 5,
+    };
+    if (mode === '1v1guest') {
+        settings.players = 2;
+        settings.guests = [userId];
+    } else if (mode === '1v1') {
+        settings.players = 2;
+        settings.replaceDisconnected = false;
+    } else if (mode === '1vAI') {
+        settings.players = 1;
+        settings.aiPlayers = 1;
+        settings.replaceDisconnected = false;
+    } else if (mode === '2v2') {
+        settings.players = 4;
+        settings.replaceDisconnected = true;
+    } else if (mode === 'All vs All') {
+        settings.players = 4;
+        settings.replaceDisconnected = true;
+    } else {
+        return null;
+    }
+    settings.winScore = 10;
+    settings.timeLimit = 60000;
+    settings.startScore = 0;
+
+    const newMatch = await app.prisma.match.create({
+        data: {
+            userId: userId,
+            gameType: mode,
+            status: 'pending',
+            settings: settings,
+            participants: {
+                create: {
+                    userId: userId,
+                    joinedAt: new Date(),
+                },
+            },
+        },
+    });
+    return newMatch;
 }

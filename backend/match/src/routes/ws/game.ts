@@ -3,20 +3,7 @@ import { WebSocket } from "ws";
 import { GameSession, GameSettings, GameStatus } from "./session.js";
 import credentialAuthCheck from "../../plugins/validateToken.js";
 
-type GameMessage = {
-    type: string;
-    match_id: string;
-    data: any;
-}
-
 const paddleMoveMessageTypes = ["moveUp", "moveDown", "turnLeft", "turnRight", "stopMoving", "stopTurning"];
-
-let gameSettings = {players: 1, aiPlayers: 1, winScore: 10, timeLimit: 3 * 60 * 1000, replaceDisconnected: true,
-	startScore: 5, terminatePlayers: true, teams: [], friendlyFire: false, obstacleMode: 0, balls: 2, kickerMode: false
-};
-
-// let gameServer = new GameSession("match_1", gameSettings);
-//let game2 = new GameSession("match_2", gameSettings);
 
 export function gameRoutes(app: FastifyInstance) {
     app.register(credentialAuthCheck);
@@ -34,7 +21,7 @@ export function gameRoutes(app: FastifyInstance) {
                 socket.close();
                 return;
             }
-            //get current match for user
+
             const match = await app.prisma.match.findFirst({
                 where: {
                     status: { in: ['pending', 'in progress'] },

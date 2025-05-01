@@ -37,12 +37,12 @@ export class Paddle {
 	}
 
   	moveUp(): void {
-		//if (BABYLON.Vector3.Distance(this.box.position.clone().add(this.up.scale(0.8)), this.startPos) < this.limit && !this.disposed)
+		if (!this.disposed)
 			this.aggregate.body.setLinearVelocity(this.up.scale(this.speed));
 	}
 	
 	moveDown(): void {
-		//if (BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up.scale(0.8)), this.startPos) < this.limit && !this.disposed)
+		if (!this.disposed)
 			this.aggregate.body.setLinearVelocity(this.up.scale(-this.speed));
 	}
 
@@ -64,11 +64,6 @@ export class Paddle {
 				this.box.position = minPos.clone();
 			else 
 				this.box.position = maxPos.clone();
-
-
-		// if (BABYLON.Vector3.Distance(this.box.position.clone().add(this.up.scale(0.8)), this.startPos) 
-		// || BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up.scale(0.8)), this.startPos))
-	 	// 	this.stopMoving();
 	}
 
 	stopMoving() {
