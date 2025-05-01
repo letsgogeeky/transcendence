@@ -55,9 +55,7 @@ export class Ball {
 
 	this.disposed = false;
 
-	this.reset(false);
-
-	
+	this.reset(false).catch(console.error);
   }
 
   step() {
@@ -75,7 +73,7 @@ export class Ball {
 	if (this.position.length() > this.sceneLimit) {
 		if (this.game.paddles.length == 2 && this.position.length() < this.sceneLimit * 1.7)
 			return;
-		this.reset(true);
+		this.reset(true).catch(console.error);
 	}
 
 	this.aggregate.body.setLinearVelocity(new BABYLON.Vector3(this.aggregate.body.getLinearVelocity().x,
@@ -84,7 +82,7 @@ export class Ball {
 		this.aggregate.body.transformNode.position.y, 0);
 }
 
-  reset(scored: boolean): void {
+  async reset(scored: boolean): Promise<void> {
 	if (this.disposed) return;
 	if (scored) {
 		const i = findPolygonSide(this.position);
@@ -104,7 +102,7 @@ export class Ball {
 			if (this.game.settings.gainPoints)
 				scorer?.addPoints(1);
 		}
-		this.game.updateScore();	
+		await this.game.updateScore();
 	}
 	this.lastTouched = undefined;
 	this.secondLastTouched = undefined;

@@ -27,6 +27,7 @@ export default class ResetPasswordComponent extends Component {
             true,
             null,
             inputStyle,
+			false
         );
         const confirmPassword = new Input(
             'confirm password',
@@ -35,6 +36,7 @@ export default class ResetPasswordComponent extends Component {
             true,
             null,
             inputStyle,
+			false
         );
 
         this.form = new FormComponent(

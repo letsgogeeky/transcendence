@@ -34,8 +34,8 @@ export type GameSettings = {
 	obstacleMode?: number,
 	balls?: number
 	aiLevel?: number
-	losePoints: boolean;
 	gainPoints: boolean;
+	losePoints: boolean;
 }
 
 export enum GameStatus {
@@ -85,7 +85,7 @@ export class GameSession {
 			return;
 		}
 		this.players.set(id, new Player(id, name, ws));
-		if (this.settings.guests?.includes(id)) this.addGuest(id)
+		if (this.settings.guests?.includes(id)) this.addGuest(id);
 		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
 			console.log(`Starting game loop for match ${this.id}`);
 			// set the match to in progress
@@ -138,15 +138,30 @@ export class GameSession {
 	}
 
 	public sendScene(client: WebSocket | undefined) {
+		if (!client) return;
 		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
 		client?.send(JSON.stringify({type: 'scene', data: sceneString}));
 		this.sendPlayerList(client);
 	}
 
-	public updateScore() {
+	public async updateScore() {
 		const scoreMap = new Map(this.paddles.map(paddle => [paddle.name, paddle.score]));
-		
-		
+		const userIdToScoreMap = new Map(this.paddles.map(paddle => [paddle.player? paddle.player.id: paddle.name, paddle.score]));
+		// scoremap as json object
+		const scoreMapJson = Object.fromEntries(userIdToScoreMap);
+		const currentStats = await this.app.prisma.match.findUnique({
+			where: { id: this.id },
+			select: { stats: true }
+		});
+		console.log(currentStats?.stats);
+
+		if (scoreMapJson !== currentStats?.stats) {
+			await this.app.prisma.match.update({
+				where: { id: this.id },
+				data: { stats: scoreMapJson }
+			});
+		}
+
 		const teamScores = [];
 		for (const team of this.teams ?? []) {
 			let teamScore = 0;
@@ -213,9 +228,9 @@ export class GameSession {
 		if (teamNumber && this.teams[teamNumber]) 
 			this.teams[teamNumber].push(guest); 
 
-		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
-			this.startGameLoop();
-		}
+		// if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
+		// 	this.startGameLoop();
+		// }
 	}
 
 	private gameEnd(message?: string) {
@@ -279,7 +294,7 @@ export class GameSession {
 		}
 
 		for (let player of this.players.values()) this.sendScene(player.ws);
-		this.updateScore();
+		await this.updateScore();
 
         let frameCount = 0;
 		setInterval(() => {

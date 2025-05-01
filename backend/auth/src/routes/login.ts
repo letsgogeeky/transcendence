@@ -22,7 +22,7 @@ export async function successfulLogin(
                     ? LoginLevel.CREDENTIALS
                     : LoginLevel.FULL,
         },
-        { expiresIn: '10m', key: fastify.config.SECRET },
+        { expiresIn: '30m', key: fastify.config.SECRET },
     );
     const refreshToken = fastify.jwt.sign(
         { id: user.id },

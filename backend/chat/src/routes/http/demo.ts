@@ -46,6 +46,7 @@ export default function demoRoutes(fastify: FastifyInstance) {
                 {
                     content: 'Hello, how are you?',
                     chatRoomId: room1.id,
+                    name: user1.name,
                     userId: user1.id,
                     createdAt: new Date(2024, 1, 1),
                     updatedAt: new Date(2024, 1, 1),
@@ -53,6 +54,7 @@ export default function demoRoutes(fastify: FastifyInstance) {
                 {
                     content: 'I am fine, thank you!',
                     chatRoomId: room1.id,
+                    name: user1.name,
                     userId: user2.id,
                     createdAt: new Date(2024, 1, 2),
                     updatedAt: new Date(2024, 1, 2),
@@ -60,6 +62,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                 {
                     content: 'What is your name?',
                     chatRoomId: room1.id,
+                    name: user1.name,
+
                     userId: user1.id,
                     createdAt: new Date(2024, 1, 3),
                     updatedAt: new Date(2024, 1, 3),
@@ -67,6 +71,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                 {
                     content: 'My name is User 2',
                     chatRoomId: room1.id,
+                    name: user1.name,
+
                     userId: user2.id,
                     createdAt: new Date(2024, 1, 3),
                     updatedAt: new Date(2024, 1, 3),
@@ -75,12 +81,16 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'What is your name?',
                     chatRoomId: room1.id,
                     userId: user1.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 4),
                     updatedAt: new Date(2024, 1, 4),
                 },
                 {
                     content: 'My name is User 2',
                     chatRoomId: room1.id,
+                    name: user1.name,
+
                     userId: user2.id,
                     createdAt: new Date(2024, 1, 4),
                     updatedAt: new Date(2024, 1, 4),
@@ -280,6 +290,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'Hello, how are you?',
                     chatRoomId: room6.id,
                     userId: user2.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 1),
                     updatedAt: new Date(2024, 1, 1),
                 },
@@ -287,6 +299,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'I am fine, thank you!',
                     chatRoomId: room6.id,
                     userId: user3.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 2),
                     updatedAt: new Date(2024, 1, 2),
                 },
@@ -294,6 +308,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'What is your name?',
                     chatRoomId: room6.id,
                     userId: user2.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 3),
                     updatedAt: new Date(2024, 1, 3),
                 },
@@ -301,6 +317,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'My name is User 3',
                     chatRoomId: room6.id,
                     userId: user3.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 3),
                     updatedAt: new Date(2024, 1, 3),
                 },
@@ -308,6 +326,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'What is your name?',
                     chatRoomId: room6.id,
                     userId: user2.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 4),
                     updatedAt: new Date(2024, 1, 4),
                 },
@@ -315,6 +335,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'My name is User 2',
                     chatRoomId: room6.id,
                     userId: user2.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 4),
                     updatedAt: new Date(2024, 1, 4),
                 },
@@ -322,6 +344,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'What is your name?',
                     chatRoomId: room6.id,
                     userId: user3.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 5),
                     updatedAt: new Date(2024, 1, 5),
                 },
@@ -329,6 +353,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'My name is User 3',
                     chatRoomId: room6.id,
                     userId: user3.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 5),
                     updatedAt: new Date(2024, 1, 5),
                 },
@@ -336,6 +362,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'What is your name?',
                     chatRoomId: room6.id,
                     userId: user4.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 6),
                     updatedAt: new Date(2024, 1, 6),
                 },
@@ -343,6 +371,8 @@ export default function demoRoutes(fastify: FastifyInstance) {
                     content: 'My name is User 4',
                     chatRoomId: room6.id,
                     userId: user4.id,
+                    name: user1.name,
+
                     createdAt: new Date(2024, 1, 6),
                     updatedAt: new Date(2024, 1, 6),
                 },

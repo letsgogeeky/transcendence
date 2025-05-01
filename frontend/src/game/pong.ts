@@ -352,6 +352,14 @@ window.addEventListener('DOMContentLoaded', async function() {
 	});
 
 	window.addEventListener("keyup", function(e) {
+		if (e.key === "Escape") {
+			const confirm = prompt("Are you sure you want to quit? (y/n)");
+			if (confirm === "y") {
+				game.ws.send(JSON.stringify({type: 'quit', data: 1}));
+				game.ws.close();
+				window.location.href = '/';
+			}
+		}
 		if (e.key === "ArrowUp" || e.key === "Up") { 
 			keys.up = false;
 			game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}))
