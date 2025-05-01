@@ -15,7 +15,6 @@ export class Ball {
   disposed: boolean;
   sceneLimit: number = 0;
   game: GameSession;
-  touching: boolean = false;
 
   constructor(game: GameSession, scene: BABYLON.Scene) {
 
@@ -49,10 +48,6 @@ export class Ball {
 				if (this.lastTouched != paddle) 
 					this.secondLastTouched = this.lastTouched;
 				this.lastTouched = paddle;
-				this.touching = true;
-				setTimeout(() => {
-					this.touching = false;
-				}, 100);
 				break;
 			}
 		}
@@ -94,17 +89,20 @@ export class Ball {
 	if (scored) {
 		const i = findPolygonSide(this.position);
 		let scorer;
-		if (this.game.settings.startScore === undefined && this.lastTouched !== undefined) {
-			if (!this.touching && this.lastTouched != this.game.paddles[i])
+		if (this.lastTouched !== undefined) {
+			if (this.lastTouched != this.game.paddles[i])
 				scorer = this.lastTouched;
-			else if (!this.touching && this.secondLastTouched != undefined)
+			else if (this.secondLastTouched != undefined)
 				scorer = this.secondLastTouched;
 		}
+		console.log(this.lastTouched + " " + this.secondLastTouched);
 		if (i < this.game.paddles.length && (this.game.settings.friendlyFire 
 			|| (!this.game.paddles[i].player?.teamNumber || !scorer?.player?.teamNumber
 				 || this.game.paddles[i].player?.teamNumber !== scorer?.player?.teamNumber))) {
-			this.game.paddles[i].addPoints(-1);
-			scorer?.addPoints(1);
+			if (this.game.settings.losePoints)
+				this.game.paddles[i].addPoints(-1);
+			if (this.game.settings.gainPoints)
+				scorer?.addPoints(1);
 		}
 		this.game.updateScore();	
 	}

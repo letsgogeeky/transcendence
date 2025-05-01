@@ -34,6 +34,8 @@ export type GameSettings = {
 	obstacleMode?: number,
 	balls?: number
 	aiLevel?: number
+	losePoints: boolean;
+	gainPoints: boolean;
 }
 
 export enum GameStatus {
@@ -182,9 +184,8 @@ export class GameSession {
 			if (player.paddle)
 				meshRotations.push({rotation: player.paddle.aggregate.transformNode.rotationQuaternion, id: player.paddle.box.id});
 		})
-		const targets = this.paddles.map(paddle => paddle.target).filter(target => target !== undefined);
 		this.players.forEach((player) => {
-		    player.ws?.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+		    player.ws?.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations}}));
 		});
     }
 
@@ -258,7 +259,7 @@ export class GameSession {
 				player.paddle = paddle;
 			}
 		});
-		
+
 		for (let i = 0; i < (this.settings.teams ?? []).length; i++)
 			this.createTeam(this.settings.teams![i], i + 1);
 
@@ -293,7 +294,7 @@ export class GameSession {
 				for (const ball of this.balls) ball.step();
 				this.scene.getPhysicsEngine()?._step(deltaTime);
 				for (const paddle of this.paddles) {
-					if (frameCount % (10 - this.settings.aiLevel!) == 0)
+					if (frameCount % (20 - 2 * this.settings.aiLevel!) == 0)
 						paddle.defend();
 					paddle.checkBounds();
 				}

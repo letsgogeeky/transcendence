@@ -141,7 +141,7 @@ class Game {
 		this.scene.registerBeforeRender(() => {
 			dome.mesh.rotation.y -= 0.0003;
 
-			if (this.settings.timeLimit && this.timer && !this.ws.CLOSED) {
+			if (this.settings.timeLimit && this.timer && this.ws.readyState != WebSocket.CLOSED) {
 				let remainingMs = this.settings.timeLimit - (Date.now() - startTime);
 				if (remainingMs > 0) {
 					const totalSeconds = Math.floor(remainingMs / 1000);
@@ -155,10 +155,7 @@ class Game {
 			}	
 
 			if (!this.spectatorMode) {
-				if (keys.w) {
-					this.ws.send(JSON.stringify({type: 'moveUp', data: 0}));
-					console.log(Date.now());
-				}
+				if (keys.w) this.ws.send(JSON.stringify({type: 'moveUp', data: 0}));
 				else if (keys.s) this.ws.send(JSON.stringify({type: 'moveDown', data: 0}));
 				
 				if (keys.a) this.ws.send(JSON.stringify({type: 'turnLeft', data: 0}));
@@ -199,7 +196,7 @@ class Game {
 					this.createUI(message.data.players as string[], message.data.teams as string[][]);
 					break;
 				case 'score':
-					this.updateScore(message.data as object);
+					this.updateScore(message.data as any);
 					break;
 				case 'gameEnd':
 					this.gameEnd(message.data as string);
@@ -282,7 +279,7 @@ class Game {
 
 		if (this.settings.timeLimit && this.settings.timeLimit > 0) {
 			const timerText = new BABYLON.GUI.TextBlock();
-			timerText.fontSize = 26;
+			timerText.fontSize = 28;
 			timerText.color = "white";
 			timerText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
 			timerText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
@@ -373,6 +370,7 @@ window.addEventListener('DOMContentLoaded', async function() {
 		}
 		if (e.key === "w" || e.key === "W") {
 			keys.w = false;
+			console.log(e.key);
 			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
 		}
 		if (e.key === "s" || e.key === "S") {

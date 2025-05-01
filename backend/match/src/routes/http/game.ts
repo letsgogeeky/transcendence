@@ -131,7 +131,9 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 kickerMode: false,
                 obstacleMode: 0,
                 balls: 1,
-				aiLevel: 10
+				aiLevel: 1,
+				losePoints: false,
+				gainPoints: true
             };
             if (body.mode === '1v1') {
                 settings.players = 2;
