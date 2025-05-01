@@ -87,7 +87,7 @@ export const routes: Route[] = [
 	//	   A. Regarding User(s)
 	{
 		path: '/settings',
-		title: 'User settings',
+		title: 'Settings',
 		component: new UserSettingsComponent(),
 		visible: false,
 	},
