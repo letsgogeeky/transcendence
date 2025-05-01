@@ -17,9 +17,6 @@ function createShape(sides: number, sideLength: number, mode: number, scene: BAB
   const points = getRegularPolygonPoints(sides, sideLength);
   if (polygon !== undefined) polygon.dispose();
 
-//   for (let w of walls) w.dispose();
-//   for (let p of paddles) p.dispose();
-//   for (let p of paddleBoxes) p.dispose();
   walls.length = 0;
   paddles.length = 0;
   paddleBoxes.length = 0;

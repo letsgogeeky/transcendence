@@ -130,7 +130,8 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 friendlyFire: false,
                 kickerMode: false,
                 obstacleMode: 0,
-                balls: 2,
+                balls: 1,
+				aiLevel: 10
             };
             if (body.mode === '1v1') {
                 settings.players = 2;
