@@ -195,23 +195,33 @@ export default class HomeComponent extends Component {
 		if (isInQueue?.inQueue) {
 			// show queue countdown
 			const queueCountdown = document.createElement('div');
-			queueCountdown.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10 text-white text-lg font-bold';
-			queueCountdown.textContent = `In Queue since ${isInQueue.since}`;
+			queueCountdown.className = 'flex flex-wrap text-[#dccde4] justify-center gap-4 mt-20 mb-8 relative z-10 text-lg font-bold';
+			queueCountdown.textContent = `⏳ In Queue since ${isInQueue.since}`;
 			contentContainer.append(queueCountdown);
-
+		
 			const leaveQueueButtonContainer = document.createElement('div');
 			leaveQueueButtonContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
 
 			const leaveQueueButton = new Button(
-				'Leave Queue',
+				'Leave Queue 🔚 ',
 				() => this.leaveQueue(),
-				'w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10'
+				'w-auto text-xl font-bold py-2 px-4 rounded-lg relative z-10 cursor-pointer border-[3px] text-[#a42242] border-[#a42242] bg-[#dccde4] hover:brightness-105 whitespace-nowrap'
 			);
-			leaveQueueButton.element.style.backgroundColor = '#E91EA3';
-			leaveQueueButton.element.style.pointerEvents = 'auto';
-			leaveQueueButtonContainer.appendChild(leaveQueueButton.element);
+		
+			// Hover sparkle effect
+			const buttonEl = leaveQueueButton.element;
+			buttonEl.addEventListener('mouseenter', () => {
+				buttonEl.style.boxShadow = '0 0 10px 2px #a42242';
+			});
+			buttonEl.addEventListener('mouseleave', () => {
+				buttonEl.style.boxShadow = 'none';
+			});
+			leaveQueueButtonContainer.appendChild(buttonEl);
+			
+			// leaveQueueButtonContainer.appendChild(leaveQueueButton);
 			contentContainer.append(leaveQueueButtonContainer);
 		}
+		
 
 		// Append to main element
 		this.element.append(contentContainer, copyrightLine());
