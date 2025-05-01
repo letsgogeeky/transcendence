@@ -39,7 +39,7 @@ export default class Navbar extends Component {
 					const iconLink = new IconLinkComponent(
 						route.title,
 						route.path,
-						'h-8 transition-transform duration-300 ease-in-out hover:scale-110 hover:opacity-80'
+						'h-6 transition-transform duration-300 ease-in-out hover:scale-110 hover:opacity-80'
 					);
 					li.appendChild(iconLink.element);
 				} else {
@@ -57,7 +57,7 @@ export default class Navbar extends Component {
 		this.element.innerHTML = '';
 		this.element.appendChild(ul);
 	}
-	
+
 	displayTab(path: string, show: boolean) {
 		const route = this.routes.find((r) => r.path == path);
 		if (route) route.visible = show;
