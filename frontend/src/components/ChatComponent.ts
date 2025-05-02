@@ -5,6 +5,8 @@ import UserGridComponent from '../components/UserGrid';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import { endpoints } from '../services/send-request';
+import { showToast, ToastState } from '../components/Toast';
+
 // import ChatManager from '../pages/users'; 
 import { ChatManager } from '../pages/users'; // Adjust the path based on your project structure
 
@@ -67,7 +69,11 @@ export default class ChatComponent extends Component {
         viewProfileButton.textContent = 'View Profile';
         viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
         viewProfileButton.onclick = () => {
-            window.location.href = `/profile?userId=${this.chatRoomId}`;
+            window.history.pushState(
+                {},
+                'view profile',
+                '/profile?userId=' + this.chatRoomId,
+            );
         };
 
         // Block/Unblock button
@@ -128,11 +134,11 @@ export default class ChatComponent extends Component {
         // Append message input and send button to the message container
         messageContainer.append(this.messageInput, sendButton);
 
-        // Invite to Game button
+        // Invite to Play button
         const inviteButton = document.createElement('button');
         inviteButton.textContent = 'Invite to Play';
         inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
-        inviteButton.onclick = () => this.inviteToGame(); // not implemented yet
+        inviteButton.onclick = () => this.inviteToPlay(); // not implemented yet
 
         // Append all elements to the input container
         inputContainer.append(messageContainer, inviteButton);
@@ -177,10 +183,52 @@ export default class ChatComponent extends Component {
 
                     this.displayMessage(message.content, senderName);
                 });
-
-            
-
+                
             }
+
+            if (data.type === 'inviteToPlay') {
+                const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+
+                const acceptGame = () => {
+                    // start a game with data.data.
+                    console.log('Start match:', data.data.userId, data.name);
+
+
+
+                    // this.sendMessage(JSON.stringify({
+                    //     type: 'ACCEPT_TOURNAMENT',
+                    //     tournamentId: data.tournamentId
+                    // }));
+                    showToast(
+                        ToastState.SUCCESS,
+                        `Your game will start soon against "${data.data.name}"`,
+                        3000
+                    );
+                };
+                const rejectGame = () => {
+                    // this.sendMessage(JSON.stringify({
+                    //     type: 'REJECT_TOURNAMENT',
+                    //     tournamentId: data.tournamentId
+                    // }));
+                    showToast(
+                        ToastState.NOTIFICATION,
+                        `You have declined the invitation`,
+                        3000
+                    );
+                };
+                showToast(
+                    ToastState.NOTIFICATION,
+                    `You've been invited to play vs: "${data.data.name}"`,
+                    0,
+                    [
+                        { text: 'Accept', action: acceptGame },
+                        { text: 'Reject', action: rejectGame }
+                    ]
+                );
+                    console.log('inviteToPlay x:', data.data);
+                    this.displayMessage(data.data.content, data.data.name);
+            }
+
             if (data.type === 'block') {
                 console.log('User blocked:', data.data);
             }
@@ -311,9 +359,24 @@ export default class ChatComponent extends Component {
         }
     }
 
-    private inviteToGame(): void {
+    private inviteToPlay(): void {
         console.log('Inviting to game:', this.chatRoomId);
-        // not implemented yet
+        const myName = State.getState().getCurrentUser()?.name || 'Unknown';
+        // const participantSocket = app.connections.get(playerId);
+        try {
+            this.socket?.send(
+                JSON.stringify({
+                    type: 'inviteToPlay',
+                    chatRoomId: this.chatRoomId,
+                    userId: this.chatRoomId,
+                    content: "Invite to play",
+                    name: myName,
+                }),
+            );
+            console.log(`User ${this.chatRoomId} InviteToPlay successfully ...`);
+        } catch (error) {
+            console.error('Error InviteToPlay user:', error);
+        }
     }
 
     private async isUserBlocked(): Promise<boolean> {
