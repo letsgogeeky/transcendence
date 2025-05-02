@@ -5,6 +5,9 @@ import UserGridComponent from '../components/UserGrid';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import { endpoints } from '../services/send-request';
+// import LinkComponent from '../components/Link';
+import LinkComponent from '../components/Link';
+
 // import ChatManager from '../pages/users'; 
 import { ChatManager } from '../pages/users'; 
 import NavigatorComponent from '../components/Nav/Navigator';
@@ -73,8 +76,11 @@ export default class ChatComponent extends Component {
         viewProfileButton.textContent = 'View Profile';
         viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
         viewProfileButton.onclick = () => {
-            const targetPath = `/profile?userId=${this.chatRoomId}`;
-            this.navigator.changeSelection(targetPath);
+                    window.history.pushState(
+                        {},
+                        'view profile',
+                        '/profile?userId=' + this.chatRoomId,
+                    );
         };
 
         // Block/Unblock button
