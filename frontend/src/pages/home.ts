@@ -152,60 +152,93 @@ export default class HomeComponent extends Component {
 		this.element.innerHTML = '';
 		this.element.appendChild(loadBackgroundGif());
 
-		const contentContainer = document.createElement('div');
-		contentContainer.className = 'flex flex-col items-center relative z-10';
+		// const contentContainer = document.createElement('div');
+		// contentContainer.className = 'flex flex-col items-center relative z-10';
 		
-		const logoContainer = document.createElement('div');
-		logoContainer.className = 'flex justify-center items-center w-full mb-10';
+		// const logoContainer = document.createElement('div');
+		// logoContainer.className = 'flex justify-center items-center w-full mb-10';
 		
-		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
+		// logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
 		
-		// Preconfigured game mode buttons
-		const gameModeContainer = document.createElement('div');
-		gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
-
-		const gameModes = [
-			{ mode: '1v1guest', label: `1 v 1 (Local)`, color: '#ABE770' },
-			{ mode: '1v1', label: '1 v 1 (Online)', color: '#73e775' },
-			{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
-			{ mode: '1vAI', label: `1 vs AI (Level ${level.level})`, color: '#FFCC00' },
-			{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
-		];
-		
-		gameModes.forEach(({ mode, label, color }) => {
-			const btn = createStyledButtonWithHandler(
-				label,
-				() => this.createPreconfiguredGame(mode),
-				color
-			);
-			gameModeContainer.appendChild(btn);
-		});
-		
-		const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
-		applyStyledAppearance(tournamentLink.element, '#b98cdc');
-		tournamentLink.render(this.element);
-
-		gameModeContainer.appendChild(tournamentLink.element);
+		// // Preconfigured game mode buttons
+		// const gameModeContainer = document.createElement('div');
+		// gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
 
 		// const gameModes = [
-		// 	{ mode: '1v1', label: '1v1', color: '#4CAF50' },
-		// 	{ mode: '1vAI', label: '1vAI', color: '#2196F3' },
-		// 	{ mode: '2v2', label: '2v2', color: '#FF9800' },
-		// 	{ mode: 'All vs All', label: 'All vs All', color: '#E91E63' }
+		// 	{ mode: '1v1guest', label: `1 v 1 (Local)`, color: '#ABE770' },
+		// 	{ mode: '1v1', label: '1 v 1 (Online)', color: '#73e775' },
+		// 	{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
+		// 	{ mode: '1vAI', label: `1 vs AI (Level ${level.level})`, color: '#FFCC00' },
+		// 	{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
 		// ];
-
+		
 		// gameModes.forEach(({ mode, label, color }) => {
-		// 	const button = new Button(
+		// 	const btn = createStyledButtonWithHandler(
 		// 		label,
 		// 		() => this.createPreconfiguredGame(mode),
-		// 		`w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10`
+		// 		color
 		// 	);
-		// 	button.element.style.backgroundColor = color;
-		// 	button.element.style.pointerEvents = 'auto';
-		// 	gameModeContainer.appendChild(button.element);
+		// 	gameModeContainer.appendChild(btn);
 		// });
+		
+		// const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
+		// applyStyledAppearance(tournamentLink.element, '#b98cdc');
+		// tournamentLink.render(this.element);
 
-		contentContainer.append(logoContainer, gameModeContainer);
+		// gameModeContainer.appendChild(tournamentLink.element);
+
+		// contentContainer.append(logoContainer, gameModeContainer);
+
+		const contentContainer = document.createElement('div');
+		contentContainer.className = 'flex flex-col items-center relative z-10';
+
+		// Centered PLAY GIF
+		const logoContainer = document.createElement('div');
+		logoContainer.className = 'flex justify-center items-center w-full mb-10';
+		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
+		contentContainer.appendChild(logoContainer);
+
+		// Flex container for the three sections: Local, Remote, Tournament
+		const sectionsContainer = document.createElement('div');
+		sectionsContainer.className = 'flex justify-center gap-12 w-full max-w-5xl relative z-10';
+
+		// Helper to create section blocks
+		const createSection = (title: string, buttons: HTMLElement[]) => {
+			const section = document.createElement('div');
+			section.className = 'flex flex-col items-center gap-4';
+			const sectionTitle = document.createElement('h1');
+			sectionTitle.textContent = title;
+			sectionTitle.className = 'text-white text-xl font-bold mb-2';
+			section.appendChild(sectionTitle);
+			buttons.forEach(btn => section.appendChild(btn));
+			return section;
+		};
+
+		// Local buttons
+		const btn1v1Local = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1guest'), '#ABE770');
+		const btnVsAI = createStyledButtonWithHandler(`against AI (Level ${level.level})`, () => this.createPreconfiguredGame('1vAI'), '#FFCC00');
+		const localSection = createSection('Locally', [btn1v1Local, btnVsAI]);
+
+		// Remote buttons
+		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#73e775');
+		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#FF69B4');
+		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#20A4D6');
+		const remoteSection = createSection('Remotely', [btn1v1Online, btn2v2, btnAllVsAll]);
+
+		// Tournament buttons
+		const createTournamentLink = new LinkComponent('Create Tournament', '/create-tournament');
+		applyStyledAppearance(createTournamentLink.element, '#b98cdc');
+
+		const viewTournamentsLink = new LinkComponent('View Tournaments', '/tournaments');
+		applyStyledAppearance(viewTournamentsLink.element, '#b98cdc');
+
+		const tournamentSection = createSection('Tournaments', [createTournamentLink.element, viewTournamentsLink.element]);
+
+		// Append sections to main container
+		sectionsContainer.append(localSection, remoteSection, tournamentSection);
+		contentContainer.appendChild(sectionsContainer);
+
+		this.element.appendChild(contentContainer);
 
 		if (isInQueue?.inQueue) {
 			// show queue countdown
