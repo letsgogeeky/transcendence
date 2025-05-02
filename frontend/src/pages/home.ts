@@ -200,12 +200,14 @@ export default class HomeComponent extends Component {
 
 		// Flex container for the three sections: Local, Remote, Tournament
 		const sectionsContainer = document.createElement('div');
-		sectionsContainer.className = 'flex justify-center gap-12 w-full max-w-5xl relative z-10';
+		sectionsContainer.className = 'flex flex-wrap justify-center gap-20 w-full';
+
 
 		// Helper to create section blocks
 		const createSection = (title: string, buttons: HTMLElement[], color: string) => {
 			const section = document.createElement('div');
-			section.className = 'flex flex-col items-center gap-4';
+			// section.className = 'flex w-86 flex-col items-center gap-4';
+			section.className = 'flex flex-col items-center gap-4 w-72';
 		
 			const sectionTitle = document.createElement('h1');
 			sectionTitle.textContent = title;
@@ -221,24 +223,24 @@ export default class HomeComponent extends Component {
 		};
 
 		// Local buttons
-		const btn1v1Local = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1guest'), '#ABE770');
-		const btnVsAI = createStyledButtonWithHandler(`against AI (Level ${level.level})`, () => this.createPreconfiguredGame('1vAI'), '#FFCC00');
+		const btn1v1Local = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1guest'), '#f9de91');
+		const btnVsAI = createStyledButtonWithHandler(`against AI (Level ${level.level})`, () => this.createPreconfiguredGame('1vAI'), '#cb9a0d');
 		const localSection = createSection('LOCALLY', [btn1v1Local, btnVsAI], '#FFCC00'); // yellow
 		
 		// Remote buttons
-		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#73e775');
-		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#FF69B4');
-		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#20A4D6');
+		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#baddf3');
+		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#2acdf5');
+		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#077eb9');
 		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll], '#20A4D6'); // blue
 
 		// Tournament buttons
 		const createTournamentLink = new LinkComponent('Create Tournament', '/create-tournament');
-		applyStyledAppearance(createTournamentLink.element, '#b98cdc');
+		applyStyledAppearance(createTournamentLink.element, '#f5b3eb');
 
 		const viewTournamentsLink = new LinkComponent('View Tournaments', '/tournaments');
-		applyStyledAppearance(viewTournamentsLink.element, '#b98cdc');
+		applyStyledAppearance(viewTournamentsLink.element, '#c433a1');
 
-		const tournamentSection = createSection('TOURNAMENTS', [createTournamentLink.element, viewTournamentsLink.element], '#eb5ba5'); // magenta
+		const tournamentSection = createSection('TOURNAMENT', [createTournamentLink.element, viewTournamentsLink.element], '#eb5ba5'); // magenta
 
 		// Append sections to main container
 		sectionsContainer.append(localSection, remoteSection, tournamentSection);
@@ -259,13 +261,13 @@ export default class HomeComponent extends Component {
 			const leaveQueueButton = new Button(
 				'Leave Queue 🔚 ',
 				() => this.leaveQueue(),
-				'w-auto text-xl font-bold py-2 px-4 rounded-lg relative z-10 cursor-pointer border-[3px] text-[#a42242] border-[#a42242] bg-[#dccde4] hover:brightness-105 whitespace-nowrap'
+				'w-auto text-xl font-bold py-2 px-4 rounded-lg relative z-10 cursor-pointer border-[3px] text-[#87184b] border-[#87184b] bg-[#dccde4] hover:brightness-105 whitespace-nowrap'
 			);
 		
 			// Hover sparkle effect
 			const buttonEl = leaveQueueButton.element;
 			buttonEl.addEventListener('mouseenter', () => {
-				buttonEl.style.boxShadow = '0 0 10px 2px #a42242';
+				buttonEl.style.boxShadow = '0 0 10px 2px #87184b';
 			});
 			buttonEl.addEventListener('mouseleave', () => {
 				buttonEl.style.boxShadow = 'none';
