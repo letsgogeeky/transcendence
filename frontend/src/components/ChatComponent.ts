@@ -6,7 +6,8 @@ import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import { endpoints } from '../services/send-request';
 // import ChatManager from '../pages/users'; 
-import { ChatManager } from '../pages/users'; // Adjust the path based on your project structure
+import { ChatManager } from '../pages/users'; 
+import NavigatorComponent from '../components/Nav/Navigator';
 
 export default class ChatComponent extends Component {
     public chatWindow: HTMLElement;
@@ -18,7 +19,12 @@ export default class ChatComponent extends Component {
 
     readonly element: HTMLElement;
 
-    constructor(private chatRoomId: string, private friendName: string, private ws: WebSocket | null) {
+    constructor(
+        private chatRoomId: string,
+        private friendName: string,
+        private ws: WebSocket | null,
+        private navigator: NavigatorComponent
+    ) {
         super();
         this.chatWindow = document.createElement('div');
         this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
@@ -67,7 +73,8 @@ export default class ChatComponent extends Component {
         viewProfileButton.textContent = 'View Profile';
         viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
         viewProfileButton.onclick = () => {
-            window.location.href = `/profile?userId=${this.chatRoomId}`;
+            const targetPath = `/profile?userId=${this.chatRoomId}`;
+            this.navigator.changeSelection(targetPath);
         };
 
         // Block/Unblock button
