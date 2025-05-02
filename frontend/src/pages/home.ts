@@ -203,12 +203,15 @@ export default class HomeComponent extends Component {
 		sectionsContainer.className = 'flex justify-center gap-12 w-full max-w-5xl relative z-10';
 
 		// Helper to create section blocks
-		const createSection = (title: string, buttons: HTMLElement[]) => {
+		const createSection = (title: string, buttons: HTMLElement[], color: string) => {
 			const section = document.createElement('div');
 			section.className = 'flex flex-col items-center gap-4';
+		
 			const sectionTitle = document.createElement('h1');
 			sectionTitle.textContent = title;
-			sectionTitle.className = 'text-white text-xl font-bold mb-2';
+			sectionTitle.className = `text-[32px] font-extrabold mb-2`;
+			sectionTitle.style.color = color;
+		
 			section.appendChild(sectionTitle);
 			buttons.forEach(btn => section.appendChild(btn));
 			return section;
@@ -217,13 +220,13 @@ export default class HomeComponent extends Component {
 		// Local buttons
 		const btn1v1Local = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1guest'), '#ABE770');
 		const btnVsAI = createStyledButtonWithHandler(`against AI (Level ${level.level})`, () => this.createPreconfiguredGame('1vAI'), '#FFCC00');
-		const localSection = createSection('Locally', [btn1v1Local, btnVsAI]);
-
+		const localSection = createSection('LOCALLY', [btn1v1Local, btnVsAI], '#FFCC00'); // yellow
+		
 		// Remote buttons
 		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#73e775');
 		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#FF69B4');
 		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#20A4D6');
-		const remoteSection = createSection('Remotely', [btn1v1Online, btn2v2, btnAllVsAll]);
+		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll], '#20A4D6'); // blue
 
 		// Tournament buttons
 		const createTournamentLink = new LinkComponent('Create Tournament', '/create-tournament');
@@ -232,7 +235,7 @@ export default class HomeComponent extends Component {
 		const viewTournamentsLink = new LinkComponent('View Tournaments', '/tournaments');
 		applyStyledAppearance(viewTournamentsLink.element, '#b98cdc');
 
-		const tournamentSection = createSection('Tournaments', [createTournamentLink.element, viewTournamentsLink.element]);
+		const tournamentSection = createSection('TOURNAMENTS', [createTournamentLink.element, viewTournamentsLink.element], '#DC57BA'); // magenta
 
 		// Append sections to main container
 		sectionsContainer.append(localSection, remoteSection, tournamentSection);
