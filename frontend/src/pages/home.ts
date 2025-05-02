@@ -209,9 +209,12 @@ export default class HomeComponent extends Component {
 		
 			const sectionTitle = document.createElement('h1');
 			sectionTitle.textContent = title;
-			sectionTitle.className = `text-[32px] font-extrabold mb-2`;
-			sectionTitle.style.color = color;
-		
+			// sectionTitle.className = 'text-[32px] font-extrabold mb-2';
+			sectionTitle.className = 'font-black text-[2.5rem] px-8 py-4 text-black transition-all pointer-events-auto font-impact rounded-xl';
+			sectionTitle.style.webkitTextStroke = `1.5px ${color}`;
+			sectionTitle.style.textShadow = `0 0 6px ${color}, 0 0 12px ${color}`;
+			sectionTitle.style.fontFamily = 'Arial Black, Gadget, sans-serif';
+
 			section.appendChild(sectionTitle);
 			buttons.forEach(btn => section.appendChild(btn));
 			return section;
@@ -235,7 +238,7 @@ export default class HomeComponent extends Component {
 		const viewTournamentsLink = new LinkComponent('View Tournaments', '/tournaments');
 		applyStyledAppearance(viewTournamentsLink.element, '#b98cdc');
 
-		const tournamentSection = createSection('TOURNAMENTS', [createTournamentLink.element, viewTournamentsLink.element], '#DC57BA'); // magenta
+		const tournamentSection = createSection('TOURNAMENTS', [createTournamentLink.element, viewTournamentsLink.element], '#eb5ba5'); // magenta
 
 		// Append sections to main container
 		sectionsContainer.append(localSection, remoteSection, tournamentSection);
