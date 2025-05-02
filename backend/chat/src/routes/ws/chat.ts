@@ -155,7 +155,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                             JSON.stringify({
                                 type: 'inviteToPlay',
                                 data: chatMessage,
-                                name: req.user,
+                                id: req.user,
                             }),
                         );
                     }

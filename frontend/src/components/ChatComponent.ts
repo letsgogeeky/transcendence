@@ -190,15 +190,11 @@ export default class ChatComponent extends Component {
                 const myId = State.getState().getCurrentUser()?.id || 'Unknown';
 
                 const acceptGame = () => {
-                    // start a game with data.data.
-                    console.log('Start match:', data.data.userId, data.name);
+                    // start a game with data.data.userId vs data.id
+                    
 
+                    console.log('Start match:', data.data.userId, data.id);
 
-
-                    // this.sendMessage(JSON.stringify({
-                    //     type: 'ACCEPT_TOURNAMENT',
-                    //     tournamentId: data.tournamentId
-                    // }));
                     showToast(
                         ToastState.SUCCESS,
                         `Your game will start soon against "${data.data.name}"`,
@@ -206,10 +202,7 @@ export default class ChatComponent extends Component {
                     );
                 };
                 const rejectGame = () => {
-                    // this.sendMessage(JSON.stringify({
-                    //     type: 'REJECT_TOURNAMENT',
-                    //     tournamentId: data.tournamentId
-                    // }));
+
                     showToast(
                         ToastState.NOTIFICATION,
                         `You have declined the invitation`,
