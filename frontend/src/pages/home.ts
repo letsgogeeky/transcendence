@@ -132,8 +132,23 @@ export default class HomeComponent extends Component {
 		}
 	}
 
+	private async getPlayerLevelAgainstAI() {
+		const user = State.getState().getCurrentUser();
+		if (!user) {
+			return 1;
+		}
+		const response = await sendRequest(`/queue/get-player-level-against-ai`, 'GET', {}, Services.MATCH);
+		if (!response.ok) {
+			const data = await response.json();
+			showToast(ToastState.ERROR, data.error);
+			return 1;
+		}
+		return await response.json();
+	}
+
 	private async buildLoggedInUI() {
 		const isInQueue = await this.isInQueue();
+		const level = await this.getPlayerLevelAgainstAI();
 		this.element.innerHTML = '';
 		this.element.appendChild(loadBackgroundGif());
 
@@ -148,13 +163,12 @@ export default class HomeComponent extends Component {
 		// Preconfigured game mode buttons
 		const gameModeContainer = document.createElement('div');
 		gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
-		
 
 		const gameModes = [
-			{ mode: '1v1guest', label: '1 v 1 (Local)', color: '#ABE770' },
+			{ mode: '1v1guest', label: `1 v 1 (Local)`, color: '#ABE770' },
 			{ mode: '1v1', label: '1 v 1 (Online)', color: '#73e775' },
 			{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
-			{ mode: '1vAI', label: '1 vs AI', color: '#FFCC00' },
+			{ mode: '1vAI', label: `1 vs AI (Level ${level.level})`, color: '#FFCC00' },
 			{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
 		];
 		

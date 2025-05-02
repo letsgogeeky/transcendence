@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import credentialAuthCheck from "../../plugins/validateToken.js";
 import { GameSettings } from "../ws/session.js";
-import { checkMatch, createMatch, notifyMatchParticipants } from "../../services/match.service.js";
+import { checkMatch, createMatch, getPlayerLevelAgainstAI, notifyMatchParticipants } from "../../services/match.service.js";
 // List of game modes
 // 1. 1v1
 // 2. 1vAI
@@ -147,5 +147,10 @@ export function gameHttpRoutes(app: FastifyInstance) {
     app.get('/is-in-queue', async (request, reply) => {
         const match = await checkMatch(request.user, app);
         return reply.status(200).send({ message: 'In queue', inQueue: match !== null, since: match?.createdAt });
+    });
+
+    app.get('/get-player-level-against-ai', async (request, reply) => {
+        const level = await getPlayerLevelAgainstAI(request.user, app);
+        return reply.status(200).send({ message: 'Player level', level });
     });
 } 

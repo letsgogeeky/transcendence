@@ -91,6 +91,40 @@ export async function proceedTournament(tournamentId: string, app: FastifyInstan
     await proceedTournament(tournamentId, app, count + 1);
 }
 
+export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstance) {
+    const lastMatchVsAI = await app.prisma.match.findFirst({
+        where: {
+            status: 'ended',
+            gameType: '1vAI',
+            participants: { some: { userId: userId } },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+    if (!lastMatchVsAI) {
+        return 1;
+    }
+    const settings = lastMatchVsAI.settings as GameSettings;
+    console.log("settings", settings);
+    const stats = lastMatchVsAI.stats as Record<string, number>;
+    if (!stats) {
+        return 1;
+    }
+    // find highest score
+    const playerScore = stats[userId];
+    // AI score
+    const aiScore = stats['COM1'];
+    console.log("scores", playerScore, aiScore);
+    if (playerScore === undefined || aiScore === undefined) {
+        return 1;
+    }
+    if (playerScore > aiScore) {
+        return (settings.aiLevel ?? 1) + 1;
+    }
+    return settings.aiLevel ?? 1;
+}
+
 export async function createMatch(app: FastifyInstance, mode: string, userId: string) {
     const settings: GameSettings = {
         players: 0,
@@ -105,11 +139,12 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         obstacleMode: 0,
         balls: 1,
         guests: [],
-        aiLevel: 5,
+        aiLevel: 1,
     };
     if (mode === '1v1guest') {
         settings.players = 2;
         settings.guests = [userId];
+        settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
     } else if (mode === '1v1') {
         settings.players = 2;
         settings.replaceDisconnected = false;
