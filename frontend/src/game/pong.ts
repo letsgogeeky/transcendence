@@ -16,11 +16,6 @@ let keys = {
 	r: false
 }
 
-type GameMessage = {
-    type: string;
-    data: any;
-}
-
 type MeshData = {
 	positions: {
 		position: BABYLON.Vector3;
@@ -259,8 +254,8 @@ class Game {
 		}
 	}
 
-	updateScore(data: object) {
-		const playerScores = new Map(Object.entries(data));
+	updateScore(data: any) {
+		const playerScores = new Map(Object.entries(data.playerScores));
 		for (const [name, score] of playerScores.entries()) {
 			const text = this.scoreBoard.get(name);
 			if (text) text.text = `${name}: ${score}`;
@@ -308,7 +303,6 @@ class Game {
 	
 		for (const player of playerList) {
 			const playerText = new BABYLON.GUI.TextBlock();
-			//console.log(teams![0] + ", " + player);
 			if (teams && teams[0]?.includes(player)) playerText.color = "red";
 			else if (teams && teams[1]?.includes(player)) playerText.color = "blue";
 			else if (teams && teams[2]?.includes(player)) playerText.color = "magenta";
@@ -361,6 +355,14 @@ window.addEventListener('DOMContentLoaded', async function() {
 	});
 
 	window.addEventListener("keyup", function(e) {
+		if (e.key === "Escape") {
+			const confirm = prompt("Are you sure you want to quit? (y/n)");
+			if (confirm === "y") {
+				game.ws.send(JSON.stringify({type: 'quit', data: 1}));
+				game.ws.close();
+				window.location.href = '/';
+			}
+		}
 		if (e.key === "ArrowUp" || e.key === "Up") { 
 			keys.up = false;
 			game.ws.send(JSON.stringify({type: 'stopMoving', data: 1}))
@@ -379,7 +381,6 @@ window.addEventListener('DOMContentLoaded', async function() {
 		}
 		if (e.key === "w" || e.key === "W") {
 			keys.w = false;
-			console.log(e.key);
 			game.ws.send(JSON.stringify({type: 'stopMoving', data: 0}));
 		}
 		if (e.key === "s" || e.key === "S") {

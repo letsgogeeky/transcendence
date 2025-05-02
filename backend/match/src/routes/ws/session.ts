@@ -7,9 +7,7 @@ import { Paddle } from './paddle.js'
 import { buildScene } from './scene.js';
 import { Ball } from './ball.js';
 import { WebSocket } from "ws";
-import { paddleAi } from './paddleAi.js'
 import { Player } from './player.js';
-import { disconnect } from 'process';
 import { FastifyInstance } from 'fastify';
 
 export async function loadPhysics() {
@@ -35,6 +33,7 @@ export type GameSettings = {
 	kickerMode?: boolean,
 	obstacleMode?: number,
 	balls?: number
+	aiLevel?: number
 }
 
 export enum GameStatus {
@@ -63,6 +62,7 @@ export class GameSession {
 		this.id = matchId;
 		this.settings = settings;
 		if (settings.aiPlayers == undefined) settings.aiPlayers = 0;
+		if (settings.aiLevel == undefined) settings.aiLevel = 5;
 		this.app = app;
     }
 
@@ -72,12 +72,6 @@ export class GameSession {
         const havokInstance = await loadPhysics();
         const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
 		this.scene.enablePhysics(new BABYLON.Vector3(0, this.settings.kickerMode ? -14 : 0, 0), havokPlugin);
-
-		// const simEngine = new BABYLON.NullEngine();
-		// this.simScene = new BABYLON.Scene(simEngine);
-		// const havokInstance2 = await loadPhysics();
-		// const havokPlugin2 = new BABYLON.HavokPlugin(true, havokInstance2);
-		// this.simScene.enablePhysics(new BABYLON.Vector3(0, 0, 0), havokPlugin2);
 
 		if (this.settings.players == 0) this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
     }
@@ -89,7 +83,7 @@ export class GameSession {
 			return;
 		}
 		this.players.set(id, new Player(id, name, ws));
-		if (this.settings.guests?.includes(id)) this.addGuest(id)
+		if (this.settings.guests?.includes(id)) this.addGuest(id);
 		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
 			console.log(`Starting game loop for match ${this.id}`);
 			// set the match to in progress
@@ -109,8 +103,6 @@ export class GameSession {
 
     public handleMessage(id: string, data: any) {
         try {
-			console.log(data.type + ": " + Date.now());
-            //const data = JSON.parse(message);
 			const paddle = data.data? this.players.get(id)?.guest?.paddle : this.players.get(id)?.paddle;
 			switch (data.type) {
 				case 'moveUp': paddle?.moveUp(); break;
@@ -144,24 +136,45 @@ export class GameSession {
 	}
 
 	public sendScene(client: WebSocket | undefined) {
+		if (!client) return;
 		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
 		client?.send(JSON.stringify({type: 'scene', data: sceneString}));
 		this.sendPlayerList(client);
 	}
 
-	public updateScore() {
+	public async updateScore() {
 		const scoreMap = new Map(this.paddles.map(paddle => [paddle.name, paddle.score]));
-		
-		for (const player of this.players.values())
-			player.ws?.send(JSON.stringify({type: 'score', data: Object.fromEntries(scoreMap)}));
-		
+		const userIdToScoreMap = new Map(this.paddles.map(paddle => [paddle.player? paddle.player.id: paddle.name, paddle.score]));
+		// scoremap as json object
+		const scoreMapJson = Object.fromEntries(userIdToScoreMap);
+		const currentStats = await this.app.prisma.match.findUnique({
+			where: { id: this.id },
+			select: { stats: true }
+		});
+		console.log(currentStats?.stats);
+
+		if (scoreMapJson !== currentStats?.stats) {
+			await this.app.prisma.match.update({
+				where: { id: this.id },
+				data: { stats: scoreMapJson }
+			});
+		}
+
+		const teamScores = [];
 		for (const team of this.teams ?? []) {
 			let teamScore = 0;
-			for (const player of team) teamScore += player.score;
-			//for (const player of team) player.ws.send(JSON.stringify({type: 'teamScore', data: teamScore}));
+			for (const player of team) {
+				teamScore += player.score;
+				teamScores.push(teamScore);
+			}
 			if (this.settings.winScore && teamScore >= this.settings.winScore) 
 				this.gameEnd("Team " + team[0].teamNumber + " won!");
 		}
+
+		for (const player of this.players.values())
+			player.ws?.send(JSON.stringify({type: 'score', 
+			data: {playerScores: Object.fromEntries(scoreMap), teamScores: teamScores}}));
+
 		for (const paddle of this.paddles) {
 			if (this.settings.winScore && paddle.score >= this.settings.winScore)
 				this.gameEnd();
@@ -201,18 +214,22 @@ export class GameSession {
 			this.settings.teams[teamNumber].push(id);
 	}
 
-	addGuest(id: string) {
-		const name = "Guest" + this.guests?.length + 1;	
+	addGuest(id: string, teamNumber?: number) {
+		const name = "Guest" + this.guests.length + 1;	
 		const guest = new Player(name, name);
 		const player = this.players.get(id);
-		if (player) {
+		if (player && this.players.size < this.settings.players) {
 			player.guest = guest;
 			this.guests.push(guest);
 			this.players.set(name, guest);
 		}
-		if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
-			this.startGameLoop();
-		}
+
+		if (teamNumber && this.teams[teamNumber]) 
+			this.teams[teamNumber].push(guest); 
+
+		// if (this.status == GameStatus.WAITING && this.players.size == this.settings.players) {
+		// 	this.startGameLoop();
+		// }
 	}
 
 	private gameEnd(message?: string) {
@@ -256,8 +273,10 @@ export class GameSession {
 				player.paddle = paddle;
 			}
 		});
+		
 		for (let i = 0; i < (this.settings.teams ?? []).length; i++)
 			this.createTeam(this.settings.teams![i], i + 1);
+
 		for (let i = 1; i < (this.teams ?? []).length + 1; i++) {
 			const r = (i & 1) ? 1 : 0;
 			const g = (i & 4) ? 1 : 0;
@@ -274,11 +293,10 @@ export class GameSession {
 		}
 
 		for (let player of this.players.values()) this.sendScene(player.ws);
-		this.updateScore();
+		await this.updateScore();
 
-		console.log(this.teams);
-
-        setInterval(() => {
+        let frameCount = 0;
+		setInterval(() => {
             const now = Date.now();
 			if (this.settings.timeLimit && this.status == GameStatus.ONGOING 
 				&& now - startTime > this.settings.timeLimit)
@@ -290,16 +308,15 @@ export class GameSession {
 				for (const ball of this.balls) ball.step();
 				this.scene.getPhysicsEngine()?._step(deltaTime);
 				for (const paddle of this.paddles) {
-					paddle.defend();
+					if (frameCount % (10 - this.settings.aiLevel!) == 0)
+						paddle.defend();
 					paddle.checkBounds();
 				}
 				this.broadcastSceneState();
 			} else if (this.status == GameStatus.PAUSED)
 				startTime += deltaTime;
+			frameCount++;
         }, 1000 / 30);
-		// setInterval(() => {
-		// 	paddleAi(this.paddles, this.balls, this.simScene);
-		// }, 1000);
     }
 
 	public dispose() {

@@ -73,9 +73,11 @@ export default class TournamentComponent extends Component {
         return await sendRequest(`/tournament/${id}/add-player`, 'POST', formData, Services.TOURNAMENTS, State.getState().getAuthToken());
     }
 
-    async addPlayerCallback(data: any): Promise<void> {
+    async addPlayerCallback(response: Response): Promise<void> {
+        console.log('addPlayerCallback');
         await this.fetchData();
-        await this.renderParticipants();
+        // await this.renderParticipants();
+        this.render(this.parent);
     }
 
     async getUsers(): Promise<any[]> {
@@ -139,9 +141,11 @@ export default class TournamentComponent extends Component {
         );
     }
 
-    async removePlayerCallback(data: any): Promise<void> {
+    async removePlayerCallback(response: Response): Promise<void> {
+        console.log('removePlayerCallback');
         await this.fetchData();
-        await this.renderParticipants();
+        // await this.renderParticipants();
+        this.render(this.parent);
     }
 
     async startTournamentCallback(response: Response): Promise<void> {
@@ -151,7 +155,7 @@ export default class TournamentComponent extends Component {
             return;
         }
         await this.fetchData();
-        await this.renderParticipants();
+        this.render(this.parent);
     }
 
     private async renderParticipants() {
@@ -198,8 +202,7 @@ export default class TournamentComponent extends Component {
                     try {
                         const response = await this.removePlayer(this.data.tournament.id, participant.userId);
                         if (response.ok) {
-                            await this.fetchData();
-                            await this.renderParticipants();
+                            await this.removePlayerCallback(response);
                         }
                     } catch (error) {
                         console.error('Error removing player:', error);
