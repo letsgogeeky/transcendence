@@ -380,6 +380,14 @@ export default class UsersPageComponent extends Component {
         const searchContainer = document.createElement('div');
         searchContainer.className = 'flex justify-center mb-6 w-full';
 
+        // Create group chat button
+        const groupChatButton = document.createElement('button');
+        groupChatButton.textContent = 'Group Chat';
+        groupChatButton.className = 'px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 mb-6';
+        groupChatButton.onclick = () => {
+            window.history.pushState({}, 'Group Chat', '/group-chat');
+        };
+
         // Create search input wrapper
         const searchWrapper = document.createElement('div');
         searchWrapper.className = 'w-full max-w-md';
@@ -399,6 +407,8 @@ export default class UsersPageComponent extends Component {
         searchWrapper.appendChild(searchInput);
         searchContainer.appendChild(searchWrapper);
         this.element.appendChild(searchContainer);
+        this.element.appendChild(groupChatButton);
+
 
         // Create container for user lists
         this.userListsContainer = document.createElement('div');
