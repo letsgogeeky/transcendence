@@ -38,33 +38,37 @@ export default class UsersPageComponent extends Component {
         const errorText = document.createElement('p');
         errorText.textContent = 'users';
         this.element.appendChild(errorText);
+        console.log('constructor users:');
+        ChatManager.getInstance();
 
         // Initialize a single WebSocket connection
-        this.initializeChatSocket();
+        // this.initializeChatSocket();
+        // initialize ChatManager
+        // this.chatSocket = ChatManager.getInstance().getChatSocket();
     }
 
-    private initializeChatSocket(): void {
-        const token = State.getState().getAuthToken();
-        this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
+    // private initializeChatSocket(): void {
+    //     const token = State.getState().getAuthToken();
+    //     this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
 
-        this.chatSocket.onopen = () => {
-            console.log('Global chat socket connected');
-        };
+    //     this.chatSocket.onopen = () => {
+    //         console.log('Global chat socket connected');
+    //     };
 
-        this.chatSocket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+    //     this.chatSocket.onerror = (error) => {
+    //         console.error('WebSocket error:', error);
+    //     };
 
-        this.chatSocket.onclose = (event) => {
-            console.log('Global chat socket closed:', event.reason);
-        };
+    //     this.chatSocket.onclose = (event) => {
+    //         console.log('Global chat socket closed:', event.reason);
+    //     };
 
-        this.chatSocket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log('Global WebSocket message received:', data);
-            // Handle global WebSocket messages if needed
-        };
-    }
+    //     this.chatSocket.onmessage = (event) => {
+    //         const data = JSON.parse(event.data);
+    //         console.log('Global WebSocket message received:', data);
+    //         // Handle global WebSocket messages if needed
+    //     };
+    // }
 
     private sendFriendRequest(userData: any) {
         if (!userData.request) {
@@ -352,12 +356,21 @@ export default class UsersPageComponent extends Component {
     }
 
     private createChatWindow(friendId: string, friendName: string): void {
-        if (!this.chatSocket) {
-            console.error('Chat socket is not initialized');
-            return;
-        }
-
+        // if (!this.chatSocket) {
+        //     console.error('Chat socket is not initialized');
+        //     return;
+        // }
+        
+        const chatRoomId = this.generateChatRoomId(
+            State.getState().getCurrentUser()!.id,
+            friendId,
+        );
         const chatManager = ChatManager.getInstance();
-        chatManager.openChat(friendId, friendName, this.chatSocket);
+        chatManager.openChat(chatRoomId, friendName, friendId);
+    }
+
+    private generateChatRoomId(myId: string, chatRoomId: string): string {
+        // Compare the IDs and return them in ascending order
+        return myId < chatRoomId ? `${myId}-${chatRoomId}` : `${chatRoomId}-${myId}`;
     }
 }

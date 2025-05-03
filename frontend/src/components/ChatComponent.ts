@@ -46,6 +46,8 @@ export default class ChatComponent extends Component {
         this.blockButton = document.createElement('button');
 
         this.setupChatUI();
+        console.log('constructor chatComponent:');
+
     }
 
     private setupChatUI(): void {
@@ -149,107 +151,107 @@ export default class ChatComponent extends Component {
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
 
-        this.setupWebSocket(this.friendName);
+        // this.setupWebSocket(this.friendName);
     }
 
-    private async setupWebSocket(friendName: string): Promise<void> {
-        if (!this.socket) {
-            console.error('WebSocket not initialized');
-            return;
-        }
+    // private async setupWebSocket(friendName: string): Promise<void> {
+    //     if (!this.socket) {
+    //         console.error('WebSocket not initialized');
+    //         return;
+    //     }
 
-        this.getMessages();
-
-
-
-        console.log('Chat socket connected');
+    //     this.getMessages();
 
 
 
-        this.socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+    //     console.log('Chat socket connected');
 
-            if (data.type === 'chatMessage') {
-                console.log('Received chat message:', data.data);
-                this.displayMessage(data.data.content, data.data.name);
-            }
 
-            if (data.type === 'chatHistory') {
-                console.log('Received chat history:', data.data);
-                const myId = State.getState().getCurrentUser()?.id || 'Unknown';
-                // Display the chat history in the chat window
-                data.data.forEach((message: any) => {
-                    const senderName = message.userId === myId ? 'You' : message.name;
-                    console.log('senderName: message.id: myId:', senderName, message.id, myId);
 
-                    this.displayMessage(message.content, senderName);
-                });
+    //     this.socket.onmessage = (event) => {
+    //         const data = JSON.parse(event.data);
+
+    //         if (data.type === 'chatMessage') {
+    //             console.log('Received chat message:', data.data);
+    //             this.displayMessage(data.data.content, data.data.name);
+    //         }
+
+    //         if (data.type === 'chatHistory') {
+    //             console.log('Received chat history:', data.data);
+    //             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+    //             // Display the chat history in the chat window
+    //             data.data.forEach((message: any) => {
+    //                 const senderName = message.userId === myId ? 'You' : message.name;
+    //                 console.log('senderName: message.id: myId:', senderName, message.id, myId);
+
+    //                 this.displayMessage(message.content, senderName);
+    //             });
                 
-            }
+    //         }
 
-            if (data.type === 'inviteToPlay') {
-                const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+    //         if (data.type === 'inviteToPlay') {
+    //             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
 
-                const acceptGame = () => {
-                    // start a game with data.data.userId vs data.id
+    //             const acceptGame = () => {
+    //                 // start a game with data.data.userId vs data.id
                     
 
-                    console.log('Start match:', data.data.userId, data.id);
+    //                 console.log('Start match:', data.data.userId, data.id);
 
-                    showToast(
-                        ToastState.SUCCESS,
-                        `Your game will start soon against "${data.data.name}"`,
-                        3000
-                    );
-                };
-                const rejectGame = () => {
+    //                 showToast(
+    //                     ToastState.SUCCESS,
+    //                     `Your game will start soon against "${data.data.name}"`,
+    //                     3000
+    //                 );
+    //             };
+    //             const rejectGame = () => {
 
-                    showToast(
-                        ToastState.NOTIFICATION,
-                        `You have declined the invitation`,
-                        3000
-                    );
-                };
-                showToast(
-                    ToastState.NOTIFICATION,
-                    `You've been invited to play vs: "${data.data.name}"`,
-                    0,
-                    [
-                        { text: 'Accept', action: acceptGame },
-                        { text: 'Reject', action: rejectGame }
-                    ]
-                );
-                    console.log('inviteToPlay x:', data.data);
-                    this.displayMessage(data.data.content, data.data.name);
-            }
+    //                 showToast(
+    //                     ToastState.NOTIFICATION,
+    //                     `You have declined the invitation`,
+    //                     3000
+    //                 );
+    //             };
+    //             showToast(
+    //                 ToastState.NOTIFICATION,
+    //                 `You've been invited to play vs: "${data.data.name}"`,
+    //                 0,
+    //                 [
+    //                     { text: 'Accept', action: acceptGame },
+    //                     { text: 'Reject', action: rejectGame }
+    //                 ]
+    //             );
+    //                 console.log('inviteToPlay x:', data.data);
+    //                 this.displayMessage(data.data.content, data.data.name);
+    //         }
 
-            if (data.type === 'block') {
-                console.log('User blocked:', data.data);
-            }
-            if (data.type === 'unblock') {
-                console.log('User unblocked:', data.data);
-            }
-            if (data.type === 'isBlocked') {
-                console.log('User block status:', data.data);
-                if (data.data.name === 'true') {
-                    console.log('User is blocked');
-                    this.blockButton.textContent = 'Unblock';
-                } else {
-                    console.log('User is not blocked', data.name, data.data.name);
+    //         if (data.type === 'block') {
+    //             console.log('User blocked:', data.data);
+    //         }
+    //         if (data.type === 'unblock') {
+    //             console.log('User unblocked:', data.data);
+    //         }
+    //         if (data.type === 'isBlocked') {
+    //             console.log('User block status:', data.data);
+    //             if (data.data.name === 'true') {
+    //                 console.log('User is blocked');
+    //                 this.blockButton.textContent = 'Unblock';
+    //             } else {
+    //                 console.log('User is not blocked', data.name, data.data.name);
 
-                    this.blockButton.textContent = 'Block';
-                }
-            }
-        };
+    //                 this.blockButton.textContent = 'Block';
+    //             }
+    //         }
+    //     };
 
-        this.socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+    //     this.socket.onerror = (error) => {
+    //         console.error('WebSocket error:', error);
+    //     };
 
-        this.socket.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-    }
+    //     this.socket.onclose = () => {
+    //         console.log('WebSocket connection closed');
+    //     };
+    // }
 
     private async sendMessage(): Promise<void> {
         // this.getMessages();
@@ -310,7 +312,7 @@ export default class ChatComponent extends Component {
         });
     }
 
-    private displayMessage(message: string, sender: string): void {
+    public displayMessage(message: string, sender: string): void {
         const messageElement = document.createElement('div');
         messageElement.className = 'p-2 bg-gray-700 rounded break-words max-w-full';
         messageElement.textContent = `${sender}: ${message}`;
