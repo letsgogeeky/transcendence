@@ -122,7 +122,7 @@ export default class HomeComponent extends Component {
 			const data = await response.json();
 			if (data.match) {
 				showToast(ToastState.SUCCESS, 'Queue joined successfully');
-				this.buildLoggedInUI();
+				this.renderBasedOnUser();
 			} else {
 				showToast(ToastState.ERROR, 'Failed to join queue. Please try again.');
 			}
@@ -230,5 +230,10 @@ export default class HomeComponent extends Component {
 
 		// Append to main element
 		this.element.append(contentContainer, copyrightLine());
+	}
+
+	public render(parent: HTMLElement | Component): void {
+		this.renderBasedOnUser();
+		super.render(parent);
 	}
 }

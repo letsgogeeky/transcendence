@@ -1,43 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>SPA with TypeScript & Tailwind</title>
-        <link href="src/styles/style.css" rel="stylesheet" />
-    </head>
-    <!-- <body class="bg-gray-100 flex items-center justify-center h-screen"> -->
-	<body class="custom-gradient h-screen w-screen">
-        <div id="app" class="w-full h-full"></div>
-        <script defer type="module" src="src/main.ts"></script>
-    </body>
-</html>
 
-<!-- <!DOCTYPE html>
-<html>
 <head>
-    <meta charset="utf-8">
-    <title>Pong Game</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPA with TypeScript & Tailwind</title>
+    <link href="src/styles/style.css" rel="stylesheet" />
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
+        /* html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            } */
         #gameCanvas {
             width: 100%;
             height: 100%;
             touch-action: none;
         }
+
+        #loadingContent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #loadingScreenDiv {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: purple;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #loadingImage {
+            width: 400px;
+            height: auto;
+            top: 5px;
+        }
+
+        #loadingGif {
+            width: 800px;
+            height: auto;
+        }
+
+        #loadingText {
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            margin-top: 20px;
+            font-family: sans-serif;
+        }
     </style>
 </head>
-<body>
-<canvas id="gameCanvas"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/babylonjs@latest/babylon.js"></script>
-<script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/babylonjs-gui"></script>
-<script type="module" src="src/game/pong.ts"></script>
+<!-- <body class="bg-gray-100 flex items-center justify-center h-screen"> -->
+
+<body class="custom-gradient h-screen w-screen">
+    <div id="app" class="w-full h-full"></div>
+    <script defer type="module" src="src/main.ts"></script>
+
+    <canvas id="gameCanvas"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@latest/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-gui"></script>
 </body>
-</html> -->
+
+</html>

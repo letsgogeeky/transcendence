@@ -47,6 +47,14 @@ const render = () => {
     
     // Get current path
     const currentPath = window.location.pathname;
+
+    // if (currentPath.includes('/game')) {
+    //     // For game route, only render the game component without navbar
+    //     const gameRoute = routes.find(route => route.path === '/game');
+    //     if (gameRoute?.component) {
+    //         gameRoute.component.render(root);
+    //     }
+    // }
     
     // Only try refresh if we're not on a public route
     if (!noRetryRoutes.includes(currentPath)) {
@@ -92,7 +100,18 @@ const render = () => {
 	 * - Rerenders the page only if the user navigates to /login
 	 */
     window.addEventListener('pushstate', (e) => {
+        // current path
+        const currentPath = navigator.selectedRoute.path;
         const pathName = new URL(window.location.href).pathname;
+        if (currentPath.includes('/game') && pathName.includes('/game')) {
+            return;
+        } else if (pathName.includes('/game')) {
+            navigator.navbar.hide();
+            State.getState().closeMatchSocket();
+        } else {
+            navigator.navbar.show();
+            State.getState().connectMatchSocket();
+        }
         navigator.changeSelection(pathName);
         if (pathName == '/login') navigator.render(root);
     });
@@ -137,7 +156,7 @@ const render = () => {
 };
 
 // Only render once when the page loads
-render();
+window.addEventListener('DOMContentLoaded', render);
 
 
 /**

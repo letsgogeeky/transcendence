@@ -38,13 +38,25 @@ export default class State {
         if (token) {
             if (this.authSocket?.socket?.readyState != WebSocket.OPEN)
                 this.authSocket = new WebSocketService(endpoints.authSocket);
-            if (this.matchSocket?.socket?.readyState != WebSocket.OPEN)
-                this.matchSocket = new WebSocketService(`${endpoints.matchMakingSocket}?token=${token}`);
+            this.connectMatchSocket();
         } else {
             this.authSocket = null;
             this.matchSocket = null;
         }
         window.dispatchEvent(new Event('userChange'));
+    }
+
+    public closeMatchSocket(): void {
+        console.log('Closing match socket...');
+        this.matchSocket?.socket?.close();
+        this.matchSocket = null;
+    }
+
+    public connectMatchSocket(): void {
+        if (!this.getAuthToken()) return;
+        console.log('Connecting to match socket...');
+        if (this.matchSocket?.socket?.readyState != WebSocket.OPEN && this.matchSocket?.socket?.readyState != WebSocket.CONNECTING)
+            this.matchSocket = new WebSocketService(`${endpoints.matchMakingSocket}?token=${this.getAuthToken()}`);
     }
 
     public getAuthSocket(): WebSocket | null | undefined {

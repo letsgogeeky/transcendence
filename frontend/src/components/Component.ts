@@ -37,4 +37,12 @@ export default abstract class Component {
         )
             this.element.disabled = false;
     }
+
+    // Called when the component is being removed from the DOM
+    cleanup(): void {
+        // Default cleanup - remove the element from its parent
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    }
 }
