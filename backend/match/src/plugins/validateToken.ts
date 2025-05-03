@@ -41,6 +41,8 @@ const credentialAuthCheck: FastifyPluginCallback = fp(
                 request.user = decoded.id;
                 request.token = token;
                 request.userName = (request.query as { userName?: string }).userName || decoded.id.substring(0, 8);
+                request.matchId = (request.query as { matchId?: string }).matchId || null;
+                request.tournamentId = (request.query as { tournamentId?: string }).tournamentId || null;
             } catch (error) {
                 reply.status(401).send({ error: error });
             }

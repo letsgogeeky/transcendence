@@ -15,21 +15,35 @@ export function gameRoutes(app: FastifyInstance) {
         },
         wsHandler: async (socket: WebSocket, req: FastifyRequest) => {
             let gameServer: GameSession;
-		    console.log("User " + req.user + " connected");
+		    console.log("User " + req.user + " connected to game websocket");
             if (!req.user) {
                 console.warn(`User not found for socket ${req.socket.remoteAddress}`);
                 socket.close();
                 return;
             }
-
-            const match = await app.prisma.match.findFirst({
-                where: {
-                    status: { in: ['pending', 'in progress'] },
-                    participants: {
-                        some: { userId: req.user }
+            
+            let match = null;
+            if (req.matchId) {
+                match = await app.prisma.match.findFirst({
+                    where: {
+                        status: { in: ['pending', 'in progress'] },
+                        id: req.matchId,
+                        participants: {
+                            some: { userId: req.user }
+                        }
                     }
-                }
-            });
+                });
+            } else if (req.tournamentId) {
+                match = await app.prisma.match.findFirst({
+                    where: {
+                        status: { in: ['pending', 'in progress'] },
+                        tournamentId: req.tournamentId,
+                        participants: {
+                            some: { userId: req.user }
+                        }
+                    }
+                });
+            }
             if (match) {
                 console.log(`Found match ${match.id}`);
                 gameServer = app.gameSessions.get(match.id) as GameSession;
@@ -44,9 +58,10 @@ export function gameRoutes(app: FastifyInstance) {
                 return;
             }
 			gameServer.handleConnection(req.user, req.userName, socket);
-            app.connections.set(req.user, socket);
+            app.gameConnections.set(req.user, socket);
             socket.on('message', (message: string) => {
-                const data = JSON.parse(message);
+                const data = JSON.parse(message) as { type: string, data: any };
+                console.log(`Received message from ${req.user}: ${JSON.stringify(data)}`);
 				if (paddleMoveMessageTypes.includes(data.type)) {
 					gameServer.handleMessage(req.user, data);
 				}
@@ -61,9 +76,9 @@ export function gameRoutes(app: FastifyInstance) {
 					gameServer.dispose();
 				}
 				gameServer.handleClose(req.user);
-                app.connections.delete(req.user);
+                app.gameConnections.delete(req.user);
 
-                console.log(`User ${req.user} disconnected`);
+                console.log(`User ${req.user} disconnected from game websocket`);
                 socket.close();
                 return;
             });

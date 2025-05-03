@@ -18,6 +18,11 @@ export default class Navbar extends Component {
     }
 
 	private renderNavList() {
+		// if current path is /game, hide the navbar
+		const currentPath = new URL(window.location.href).pathname;
+		if (currentPath.includes('/game')) {
+			return;
+		}
 		const ul = document.createElement('ul');
 		ul.className = 'flex justify-around w-full';
 	
@@ -55,6 +60,14 @@ export default class Navbar extends Component {
         if (route) route.visible = show;
         this.renderNavList();
     }
+
+	public hide() {
+		this.element.style.display = 'none';
+	}
+
+	public show() {
+		this.element.style.display = 'block';
+	}
 }
 
 

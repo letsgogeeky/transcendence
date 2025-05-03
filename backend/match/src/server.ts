@@ -29,12 +29,15 @@ declare module 'fastify' {
         };
         prisma: PrismaClient;
         connections: Map<string, WebSocket>;
+        gameConnections: Map<string, WebSocket>;
         gameSessions: Map<string, GameSession>;
     }
     interface FastifyRequest {
         user: string;
         token: string;
         userName: string;
+        matchId: string | null;
+        tournamentId: string | null;
     }
 }
 

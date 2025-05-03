@@ -15,12 +15,12 @@ import UserSettingsComponent from './pages/settings/settings';
 import TournamentComponent from './pages/tournament';
 import TournamentsComponent from './pages/tournaments';
 import UsersPageComponent from './pages/users';
-import GamePage from './pages/game';
+import GameComponent from './game/pong';
 
 export type Route = {
     path: string; // what follows in the url after the "http://localhost:3000/"
     title: string; // just a human-readable title for the route.
-    component: Component; // the actual component that gets rendered when the path is visited
+    component: Component | null; // the actual component that gets rendered when the path is visited
     visible: boolean; // controls whether the route appears in navigation menus.
 	//  * 			- If visible: true -> it might be listed in a navigation bar.
 	//  * 			- If visible: false, the page still exists and can be visited manually (by typing the URL), but it won’t be shown in menus.
@@ -125,7 +125,7 @@ export const routes: Route[] = [
 	{
 		path: '/game',
 		title: 'Game',
-		component: new GamePage(),
+		component: new GameComponent(),
 		visible: false,
 	},
 	{

@@ -16,19 +16,20 @@ export default class NavigatorComponent extends Component {
         this.element.id = id + '-navigator';
         this.navbar = new Navbar(id, routes);
         this.selectedRoute = this.navbar.routes[0];
-        this.content = new NavContent(id, this.selectedRoute.component);
+        this.content = new NavContent(id, this.selectedRoute.component as Component);
         this.content.element.className = 'px-4 md:px-8 lg:px-16 pt-8';
         document.title = this.selectedRoute.title;
     }
 
     changeSelection(path: string) {
-        const selectedRoute = this.navbar.routes.find(
+        console.log(`Changing selection to ${path}`);
+        const newRoute = this.navbar.routes.find(
             (route) => route.path === path,
         );
-        if (selectedRoute) {
-            this.selectedRoute = selectedRoute;
-            document.title = selectedRoute.title;
-            this.content.changeSelection(selectedRoute.component);
+        if (newRoute) {
+            this.selectedRoute = newRoute;
+            document.title = newRoute.title;
+            this.content.changeSelection(newRoute.component as Component);
         } else {
             document.title = 'Page Not found';
             const notFound = new NotFoundComponent();

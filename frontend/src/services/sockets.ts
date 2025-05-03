@@ -16,7 +16,7 @@ export default class WebSocketService {
     }
 
     private connect(): void {
-        console.log('Connecting to WebSocket...');
+        console.log(`${this.isMatchSocket ? 'Match' : 'Auth'} socket connecting to ${this.url}`);
         const authToken = State.getState().getAuthToken();
         if (!authToken) return;
         console.log(`Auth token: ${authToken}`);
@@ -24,7 +24,7 @@ export default class WebSocketService {
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {
-            console.log('WebSocket connection opened');
+            console.log(`${this.isMatchSocket ? 'Match' : 'Auth'} socket opened`);
             if (this.isAuthSocket) {
                 this.sendMessage(
                     JSON.stringify({
@@ -37,7 +37,7 @@ export default class WebSocketService {
         });
 
         this.socket.addEventListener('message', (event) => {
-            console.log('Received message:', event.data);
+            console.log(`${this.isMatchSocket ? 'Match' : 'Auth'} socket received message: ${event.data}`);
             const data = JSON.parse(event.data);
             if (this.isMatchSocket) this.handleTournamentMatchMessage(data);
             if (this.isAuthSocket) this.handleAuthMessage(data);
@@ -114,12 +114,12 @@ export default class WebSocketService {
                     5000
                 );
                 window.history.pushState(
-                    { path: '/multiplayer/index.html' },
-                    '/multiplayer/index.html',
-                    `/multiplayer/index.html?matchId=${match.id}&tournamentId=${match.tournamentId}`
+                    { path: '/game' },
+                    '/game',
+                    `/game?matchId=${match.id}&tournamentId=${match.tournamentId}`
                 );
-                // TODO: remove when SPA is implemented
-                window.location.reload();
+                // // TODO: remove when SPA is implemented
+                // window.location.reload();
                 break;
             case 'TOURNAMENT_MATCH_READY':
                 showToast(

@@ -11,7 +11,8 @@ import ChatManager from './ChatManager';
 // Ensure the rest of the code remains unchanged
 
 // import ChatManager from '../pages/users'; 
-// import { ChatManager } from './ChatManager'; // Adjust the path based on your project structure
+// import { ChatManager } from '../pages/users'; // Adjust the path based on your project structure
+import { createPreconfiguredGame } from '../services/match.request';
 
 export default class ChatComponent extends Component {
     public chatWindow: HTMLElement;
@@ -192,19 +193,26 @@ export default class ChatComponent extends Component {
     //         if (data.type === 'inviteToPlay') {
     //             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
 
-    //             const acceptGame = () => {
-    //                 // start a game with data.data.userId vs data.id
-                    
+                const acceptGame = async () => {
+                    // start a game with data.data.userId vs data.id
+                    const match = await createPreconfiguredGame("1v1", [data.data.userId, data.id]);
+                    if (match) {
+                    console.log('Start match:', data.data.userId, data.id);
 
-    //                 console.log('Start match:', data.data.userId, data.id);
-
-    //                 showToast(
-    //                     ToastState.SUCCESS,
-    //                     `Your game will start soon against "${data.data.name}"`,
-    //                     3000
-    //                 );
-    //             };
-    //             const rejectGame = () => {
+                    showToast(
+                        ToastState.SUCCESS,
+                        `Your game will start soon against "${data.data.name}"`,
+                            3000
+                        );
+                        return;
+                    }
+                    showToast(
+                        ToastState.ERROR,
+                        `Failed to create game. Please try again.`,
+                        3000
+                    );
+                };
+                const rejectGame = () => {
 
     //                 showToast(
     //                     ToastState.NOTIFICATION,

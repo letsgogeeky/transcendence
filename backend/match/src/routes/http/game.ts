@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import credentialAuthCheck from "../../plugins/validateToken.js";
 import { GameSettings } from "../ws/session.js";
-import { checkMatch, createMatch, getPlayerLevelAgainstAI, notifyMatchParticipants } from "../../services/match.service.js";
+import { checkMatch, createMatch, deleteMatch, getPlayerLevelAgainstAI, getUserMatches, notifyMatchParticipants } from "../../services/match.service.js";
 // List of game modes
 // 1. 1v1
 // 2. 1vAI
@@ -10,6 +10,7 @@ import { checkMatch, createMatch, getPlayerLevelAgainstAI, notifyMatchParticipan
 
 interface PreconfiguredGameSettings {
     mode: string;
+    userIds?: string[];
 }
 
 export function gameHttpRoutes(app: FastifyInstance) {
@@ -28,7 +29,7 @@ export function gameHttpRoutes(app: FastifyInstance) {
         // check if user is already in a match
         const match = await checkMatch(request.user, app);
         if (match) {
-            return reply.status(400).send({ error: 'You are already in a match' });
+            return reply.status(400).send({ error: 'You are already in a match!' });
         }
         try {
             const body = request.body as PreconfiguredGameSettings;
@@ -49,12 +50,12 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 const guestsCount = (match.settings as GameSettings).guests?.length ?? 0;
                 if (match.participants.length >= (match.settings as GameSettings).players - guestsCount) {
                     // create new match
-                    const newMatch = await createMatch(app, body.mode, request.user);
+                    const newMatch = await createMatch(app, body.mode, request.user, body.userIds?.length ? body.userIds : [request.user]);
                     if (!newMatch) {
-                        return reply.status(400).send({ error: 'Invalid game mode' });
+                        return reply.status(400).send({ error: 'Invalid game mode!' });
                     }
                     await notifyMatchParticipants(newMatch.id, app);
-                    return reply.status(200).send({ message: 'Game created successfully', match: newMatch });
+                    return reply.status(200).send({ message: 'Game created successfully!', match: newMatch });
                 }
                 // add user to match
                 await app.prisma.matchParticipant.create({
@@ -74,7 +75,7 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 await notifyMatchParticipants(match.id, app);
                 return reply.status(200).send({ message: 'Game created successfully', match });
             }
-            const newMatch = await createMatch(app, body.mode, request.user);
+            const newMatch = await createMatch(app, body.mode, request.user, body.userIds?.length ? body.userIds : [request.user]);
             if (!newMatch) {
                 return reply.status(400).send({ error: 'Invalid game mode' });
             }
@@ -152,5 +153,32 @@ export function gameHttpRoutes(app: FastifyInstance) {
     app.get('/get-player-level-against-ai', async (request, reply) => {
         const level = await getPlayerLevelAgainstAI(request.user, app);
         return reply.status(200).send({ message: 'Player level', level });
+    });
+
+    app.get('/get-user-matches', async (request, reply) => {
+        const matches = await getUserMatches(app, request.user);
+        return reply.status(200).send({ message: 'User matches', matches });
+    });
+
+    // delete match
+    app.delete('/delete-match/:matchId', {
+        schema: {
+            params: {
+                type: 'object',
+                properties: {
+                    matchId: { type: 'string' },
+                },
+            },
+        },
+    }, async (request, reply) => {
+        const matchId = (request.params as { matchId: string }).matchId;
+        if (!matchId) {
+            return reply.status(400).send({ error: 'Match ID is required' });
+        }
+        const match = await deleteMatch(app, matchId, request.user);
+        if (!match) {
+            return reply.status(400).send({ error: 'Cannot delete match' });
+        }
+        return reply.status(200).send({ message: 'Match deleted', match });
     });
 } 

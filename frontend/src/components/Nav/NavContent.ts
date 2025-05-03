@@ -13,13 +13,15 @@ export default class NavContent extends Component {
     }
 
     async init(parent: HTMLElement) {
-        this.render(parent);
+        // this.render(parent);
         this.childComponent.data = await this.childComponent.fetchData();
         this.element.innerHTML = '';
         this.render(parent);
     }
 
     changeSelection(childComponent: Component) {
+        // Cleanup the previous component before changing to the new one
+        this.childComponent.cleanup();
         this.childComponent = childComponent;
         this.init(this.parent);
     }

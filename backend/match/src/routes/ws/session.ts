@@ -9,6 +9,7 @@ import { Ball } from './ball.js';
 import { WebSocket } from "ws";
 import { Player } from './player.js';
 import { FastifyInstance } from 'fastify';
+import { endMatch } from '../../services/match.service.js';
 
 export async function loadPhysics() {
 	const __filename = fileURLToPath(import.meta.url);
@@ -172,7 +173,10 @@ export class GameSession {
 		}
 
 		for (const player of this.players.values())
-			player.ws?.send(JSON.stringify({type: 'score', 
+			if (!player.ws || player.ws.readyState !== WebSocket.OPEN) {
+				this.handleClose(player.id);
+			}
+			else player.ws.send(JSON.stringify({type: 'score', 
 			data: {playerScores: Object.fromEntries(scoreMap), teamScores: teamScores}}));
 
 		for (const paddle of this.paddles) {
@@ -199,7 +203,11 @@ export class GameSession {
 		})
 		const targets = this.paddles.map(paddle => paddle.target).filter(target => target !== undefined);
 		this.players.forEach((player) => {
-		    player.ws?.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+			if (player.ws && player.ws.readyState === WebSocket.OPEN) {
+				player.ws.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+			} else {
+				this.handleClose(player.id);
+			}
 		});
     }
 
@@ -248,10 +256,7 @@ export class GameSession {
 				message ? message : endMessage}))
 		});
 		this.status = GameStatus.ENDED;
-		this.app.prisma.match.update({
-			where: { id: this.id },
-			data: { status: 'ended' }
-		}).catch((err: any) => console.error('Error updating match status:', err));
+		endMatch(this.id, this.app).catch((err: any) => console.error('Error ending match:', err));
 	}
 
     private async startGameLoop() {
@@ -292,7 +297,7 @@ export class GameSession {
 			if (this.settings.startScore) paddle.addPoints(this.settings.startScore);
 		}
 
-		for (let player of this.players.values()) this.sendScene(player.ws);
+		for (const player of this.players.values()) this.sendScene(player.ws);
 		await this.updateScore();
 
         let frameCount = 0;
