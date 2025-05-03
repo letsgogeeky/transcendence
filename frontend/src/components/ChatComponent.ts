@@ -157,11 +157,9 @@ export default class ChatComponent extends Component {
             console.error('WebSocket not initialized');
             return;
         }
-        this.socket.onopen = () => {
-            console.log('Chat socket connected');
-            
-            this.getMessages();
-        };
+
+        this.getMessages();
+
 
 
         console.log('Chat socket connected');
