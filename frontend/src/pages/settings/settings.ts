@@ -9,7 +9,7 @@ import State from '../../services/state';
 import ChangePasswordComponent from '../password/change-password';
 import AvatarUploadComponent from './avatarUpload';
 import { createStyledButtonWithHandler, applyStyledAppearance } from '../../styles/button_styles'
-import { loadImage } from '../../styles/background';
+import { loadImage, copyrightLine } from '../../styles/background'
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
@@ -126,11 +126,10 @@ export default class UserSettingsComponent extends Component {
 	
 		// Append sectionsContainer to main element
 		this.element.appendChild(sectionsContainer);
+		this.element.append(copyrightLine());
 	
 		super.render(parent);
 	}
-	
-	
 
     private showImageDialog(image: string) {
         let dialog = document.createElement('dialog');

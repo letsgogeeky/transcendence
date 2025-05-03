@@ -5,7 +5,7 @@ import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
 import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
-import { loadBackgroundGif, loadImage } from '../styles/background'
+import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
 
 export default class LoginComponent extends Component {
     readonly element: HTMLElement = document.createElement('div');
@@ -79,6 +79,7 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
+		container.append(copyrightLine());
     }
 
 	static loginCallback(data: any): void {

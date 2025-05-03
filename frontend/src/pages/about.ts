@@ -3,7 +3,7 @@ import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
 import sendRequest, { Services } from '../services/send-request';
-import { loadBackgroundGif, loadImage } from '../styles/background'
+import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
 
 export default class AboutComponent extends Component {
     readonly element: HTMLElement;
@@ -24,5 +24,6 @@ export default class AboutComponent extends Component {
 		container.appendChild(signUpText);
 
         this.element = container; // Set the final element
+		this.element.append(copyrightLine());
     }
 }
