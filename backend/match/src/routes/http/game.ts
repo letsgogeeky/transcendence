@@ -29,7 +29,7 @@ export function gameHttpRoutes(app: FastifyInstance) {
         // check if user is already in a match
         const match = await checkMatch(request.user, app);
         if (match) {
-            return reply.status(400).send({ error: 'You are already in a match' });
+            return reply.status(400).send({ error: 'You are already in a match!' });
         }
         try {
             const body = request.body as PreconfiguredGameSettings;
@@ -50,12 +50,12 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 const guestsCount = (match.settings as GameSettings).guests?.length ?? 0;
                 if (match.participants.length >= (match.settings as GameSettings).players - guestsCount) {
                     // create new match
-                    const newMatch = await createMatch(app, body.mode, request.user, body.userIds);
+                    const newMatch = await createMatch(app, body.mode, request.user, body.userIds?.length ? body.userIds : [request.user]);
                     if (!newMatch) {
-                        return reply.status(400).send({ error: 'Invalid game mode' });
+                        return reply.status(400).send({ error: 'Invalid game mode!' });
                     }
                     await notifyMatchParticipants(newMatch.id, app);
-                    return reply.status(200).send({ message: 'Game created successfully', match: newMatch });
+                    return reply.status(200).send({ message: 'Game created successfully!', match: newMatch });
                 }
                 // add user to match
                 await app.prisma.matchParticipant.create({
@@ -75,7 +75,7 @@ export function gameHttpRoutes(app: FastifyInstance) {
                 await notifyMatchParticipants(match.id, app);
                 return reply.status(200).send({ message: 'Game created successfully', match });
             }
-            const newMatch = await createMatch(app, body.mode, request.user, body.userIds);
+            const newMatch = await createMatch(app, body.mode, request.user, body.userIds?.length ? body.userIds : [request.user]);
             if (!newMatch) {
                 return reply.status(400).send({ error: 'Invalid game mode' });
             }
