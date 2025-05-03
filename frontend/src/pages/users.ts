@@ -355,7 +355,8 @@ export default class UsersPageComponent extends Component {
         this.updateUserLists();
     }
 
-    private createChatWindow(friendId: string, friendName: string): void {
+    public createChatWindow(friendId: string, friendName: string): void {
+        ChatManager.getInstance().initializeChatSocket();
         // if (!this.chatSocket) {
         //     console.error('Chat socket is not initialized');
         //     return;

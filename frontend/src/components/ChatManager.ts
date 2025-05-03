@@ -1,5 +1,8 @@
 import ChatComponent from './ChatComponent';
 import State from '../services/state';
+import { showToast, ToastState } from '../components/Toast';
+import UsersPageComponent from '../pages/users';
+
 
 import { endpoints } from '../services/send-request';
 
@@ -18,6 +21,11 @@ export class ChatManager {
     }
 
     public initializeChatSocket(): void {
+        if (this.chatSocket && this.chatSocket.readyState === WebSocket.OPEN) {
+            console.log('WebSocket connection is already open.');
+            return;
+        }
+    
         const token = State.getState().getAuthToken();
         this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
 
@@ -55,6 +63,12 @@ export class ChatManager {
     }
 
     private handleIncomingMessage(data: any): void {
+        const showChat = () => {
+            // start a game with data.data.userId vs data.id
+            const usersPage = new UsersPageComponent();
+            usersPage.createChatWindow(data.data.userId, data.data.name);
+
+        };
         // check which chat room the message is for
         console.log('Incoming message:', data);
         const chatRoomId = data.data.chatRoomId;
@@ -66,7 +80,7 @@ export class ChatManager {
 
             if (chatComponent) {
                 if (data.type === 'chatMessage') {
-                    chatComponent.displayMessage(data.content, data.name);
+                    chatComponent.displayMessage(data.data.content, data.data.name);
                 } else if (data.type === 'chatHistory') {
                     data.data.forEach((message: any) => {
                         const senderName =
@@ -77,10 +91,20 @@ export class ChatManager {
                     });
                 }
             }
+        } else {
+            console.warn(`No active chat found for chatRoomId: ${chatRoomId}`);
+            showToast(
+                ToastState.NOTIFICATION,
+                `You receved a message from ${data.data.name}"`,
+                5000,
+                [
+                    { text: 'view', action: showChat },
+                ]
+            );
         }
    
    
-   
+        
    
    
    
@@ -106,6 +130,7 @@ export class ChatManager {
     //     } else {
     //         console.warn(`No active chat found for chatRoomId: ${chatRoomId}`);
     //     }
+
     }
 
     public static getInstance(): ChatManager {
