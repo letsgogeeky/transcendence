@@ -65,8 +65,8 @@ export class ChatManager {
     private handleIncomingMessage(data: any): void {
         const showChat = () => {
             // start a game with data.data.userId vs data.id
-            const usersPage = new UsersPageComponent();
-            usersPage.createChatWindow(data.data.userId, data.data.name);
+            const chatManager = ChatManager.getInstance();
+            chatManager.openChat(chatRoomId, data.data.friendName, data.data.friendId);
 
         };
         // check which chat room the message is for
@@ -118,11 +118,13 @@ export class ChatManager {
                 if (data.type === 'chatMessage') {
                     chatComponent.displayMessage(data.data.content, data.data.name);
                 } else if (data.type === 'chatHistory') {
-                    data.data.forEach((message: any) => {
-                        const senderName =
-                            message.userId === State.getState().getCurrentUser()?.id
-                                ? 'You'
-                                : message.name;
+                    console.log('Received chat history:', data.data);
+                    const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+                    // Display the chat history in the chat window
+                    data.messages.forEach((message: any) => {
+                        const senderName = message.userId === myId ? 'You' : message.name;
+                        console.log('senderName: message.id: myId:', senderName, message.id, myId);
+
                         chatComponent.displayMessage(message.content, senderName);
                     });
                 } else if (data.type === 'inviteToPlay') {
@@ -160,7 +162,7 @@ export class ChatManager {
                 }
             }
         } else {
-            console.warn(`No active chat found for chatRoomId: ${chatRoomId}`);
+            console.log(`No active chat found for chatRoomId: ${chatRoomId}`);
             showToast(
                 ToastState.NOTIFICATION,
                 `You receved a message from ${data.data.name}"`,
@@ -220,7 +222,7 @@ export class ChatManager {
         this.createTab(chatRoomId, friendName);
 
         chatComponent.render(document.body);
-
+        chatComponent.getMessages();
         this.updateChatPositions();
     }
 

@@ -9,6 +9,7 @@ import ChatComponent from '../components/ChatComponent';
 import ChatManager from '../components/ChatManager';
 
 export default class UsersPageComponent extends Component {
+    private static instance: UsersPageComponent | null = null;
     readonly element: HTMLElement;
     private allUsers: any[] = [];
     private filteredUsers: any[] = [];
@@ -32,7 +33,7 @@ export default class UsersPageComponent extends Component {
         return data;
     }
 
-    constructor() {
+    private constructor() {
         super();
         this.element = document.createElement('div');
         const errorText = document.createElement('p');
@@ -45,6 +46,13 @@ export default class UsersPageComponent extends Component {
         // this.initializeChatSocket();
         // initialize ChatManager
         // this.chatSocket = ChatManager.getInstance().getChatSocket();
+    }
+
+    public static getInstance(): UsersPageComponent {
+        if (!UsersPageComponent.instance) {
+            UsersPageComponent.instance = new UsersPageComponent();
+        }
+        return UsersPageComponent.instance;
     }
 
     // private initializeChatSocket(): void {

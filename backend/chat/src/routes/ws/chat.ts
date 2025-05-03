@@ -11,10 +11,10 @@ interface chatMessage {
     type: string;
 }
 
-function generateChatRoomId(myId: string, chatRoomId: string): string {
-    // Compare the IDs and return them in ascending order
-    return myId < chatRoomId ? `${myId}-${chatRoomId}` : `${chatRoomId}-${myId}`;
-}
+// function generateChatRoomId(myId: string, chatRoomId: string): string {
+//     // Compare the IDs and return them in ascending order
+//     return myId < chatRoomId ? `${myId}-${chatRoomId}` : `${chatRoomId}-${myId}`;
+// }
 
 async function getBlockedUsers(blockerId: string, fastify: FastifyInstance) {
     const blockedUsers = await fastify.prisma.blockedUser.findMany({
@@ -200,20 +200,19 @@ export function chatRoutes(fastify: FastifyInstance) {
                     //     }
                     // }
 
-                    const combinedId = generateChatRoomId(req.user, chatMessage.chatRoomId);
-                    console.log('combinedId:', combinedId);
+                    console.log('chatMessage.chatRoomId:', chatMessage.chatRoomId);
 
                     const chatRoom = await fastify.prisma.chatRoom.findFirst({
                         where: {
-                            id: combinedId,
+                            id: chatMessage.chatRoomId,
                         },
                     });
 
                     if (!chatRoom) {
-                        console.log('create chatRoom:', combinedId);
+                        console.log('create chatRoom:', chatMessage.chatRoomId);
                         await fastify.prisma.chatRoom.create({
                             data: {
-                                id: combinedId,
+                                id: chatMessage.chatRoomId,
                                 name: `Chat between ${req.user} and ${chatMessage.userId}`,
                                 participants: {
                                     create: [
@@ -232,7 +231,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                             },
                         });
                     } else {
-                        console.log('chatRoom already exists:', combinedId);
+                        console.log('chatRoom already exists:', chatMessage.chatRoomId);
                         console.log('chatMessage.type:', chatMessage.type);
 
                         if (chatMessage.type === 'chatHistory') {
@@ -263,7 +262,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                             } else {
                                 const chatRoomMessages = await fastify.prisma.message.findMany({
                                     where: {
-                                        chatRoomId: combinedId,
+                                        chatRoomId: chatMessage.chatRoomId,
                                     },
                                     select: {
                                         id: true,
@@ -272,6 +271,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                                         updatedAt: true,
                                         userId: true,
                                         name: true,
+                                        chatRoomId: true,
                                     },
                                     orderBy: {
                                         createdAt: 'asc',
@@ -281,13 +281,14 @@ export function chatRoutes(fastify: FastifyInstance) {
                                 fastify.connections.get(req.user)?.send(
                                     JSON.stringify({
                                         type: 'chatHistory',
-                                        data: chatRoomMessages,
+                                        data: chatMessage,
+                                        messages: chatRoomMessages,
                                     }),
                                 );
                             }
                         }
                     }
-                    chatMessage.userId
+                    // chatMessage.userId
                     // Check if the user is blocked
                     if (chatMessage.type === 'chatMessage') {
                         const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
@@ -311,7 +312,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                             data: [
                                 {
                                     content: chatMessage.content,
-                                    chatRoomId: combinedId,
+                                    chatRoomId: chatMessage.chatRoomId,
                                     userId: req.user,
                                     name: chatMessage.name,
                                     createdAt: new Date(2024, 1, 1),

@@ -47,6 +47,7 @@ export default class ChatComponent extends Component {
 
         this.setupChatUI();
         console.log('constructor chatComponent:');
+        // this.getMessages();
 
     }
 
@@ -150,7 +151,6 @@ export default class ChatComponent extends Component {
 
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
-
         // this.setupWebSocket(this.friendName);
     }
 
@@ -280,7 +280,7 @@ export default class ChatComponent extends Component {
     }
     
 
-    private async getMessages(): Promise<void> {
+    public async getMessages(): Promise<void> {
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
         console.log('getHistory:');
             try {
