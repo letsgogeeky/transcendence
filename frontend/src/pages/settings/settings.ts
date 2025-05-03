@@ -9,6 +9,7 @@ import State from '../../services/state';
 import ChangePasswordComponent from '../password/change-password';
 import AvatarUploadComponent from './avatarUpload';
 import { createStyledButtonWithHandler, applyStyledAppearance } from '../../styles/button_styles'
+import { loadImage } from '../../styles/background';
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
@@ -17,7 +18,7 @@ export default class UserSettingsComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'flex flex-col items-center gap-10';
+        // this.element.className = 'flex flex-col items-center gap-10';
     }
 
     private shouldUpdate(newData: any): boolean {
@@ -30,31 +31,46 @@ export default class UserSettingsComponent extends Component {
 		const user = State.getState().getCurrentUser();
 		if (!user) return;
 	
-		// Main container
-		// this.element.className = 'flex flex-row justify-center gap-8 items-start';
-		this.element.className = 'min-h-screen flex flex-wrap justify-center items-center gap-x-40 gap-y-2';
-
-
-
+		// Main container for all elements
+		this.element.className = 'min-h-screen flex flex-col items-center'; // Center all content vertically and horizontally
+	
+		// ======= SETTINGS HEADER (ICON + TITLE) =======
+		const settingsHeader = document.createElement('div');
+		settingsHeader.className = 'flex items-center gap-4 mb-8'; // Added gap for spacing between icon and title
+	
+		settingsHeader.appendChild(loadImage('settings1.gif', 'w-12 h-12 opacity-80', 'Settings gif'));
+	
+		// Title for settings
+		const settingsTitle = document.createElement('h1');
+		settingsTitle.textContent = 'USER SETTINGS';
+		settingsTitle.className = 'font-black text-3xl px-8 py-4 text-black transition-all pointer-events-auto font-impact rounded-xl';
+		settingsTitle.style.webkitTextStroke = `1.5px #eedee5`;
+		settingsTitle.style.textShadow = `0 0 6px #eedee5, 0 0 12px #eedee5`;
+		settingsTitle.style.fontFamily = 'Arial Black, Gadget, sans-serif';
+	
+		// Add title to settingsHeader
+		settingsHeader.appendChild(settingsTitle);
+	
+		// Append settingsHeader to main element
+		this.element.appendChild(settingsHeader);
+	
+		// ======= SECTION CONTAINER (for Avatar, Personal Info, Password) =======
+		const sectionsContainer = document.createElement('div');
+		sectionsContainer.className = 'flex justify-between gap-8 w-full'; // This will make the 3 sections align in one row with space in between
 	
 		// ======= AVATAR SECTION =======
 		const avatarSection = document.createElement('div');
 		avatarSection.className = 'flex flex-col items-center gap-4 w-64';
-		
+	
 		const avatarTitle = document.createElement('h2');
 		avatarTitle.textContent = 'Change Avatar';
 		avatarTitle.className = 'text-xl font-semibold';
 		avatarSection.appendChild(avatarTitle);
 	
-		// const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, 'w-1024 rounded-full object-cover');
-		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-48 h-48 rounded-full object-cover');
-
+		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-32 h-32 rounded-full object-cover border-2border-[#eedee5] shadow-lg');
 		avatar.render(avatarSection);
 	
-		const uploadAvatarForm = new AvatarUploadComponent(
-			null,
-			this.setUserFromResponse.bind(this),
-		);
+		const uploadAvatarForm = new AvatarUploadComponent(null, this.setUserFromResponse.bind(this));
 		uploadAvatarForm.render(avatarSection);
 	
 		// ======= PERSONAL INFO SECTION =======
@@ -102,13 +118,17 @@ export default class UserSettingsComponent extends Component {
 		const changePasswordForm = new ChangePasswordComponent();
 		changePasswordForm.render(passwordSection);
 	
-		// Append all sections to main element
-		this.element.appendChild(avatarSection);
-		this.element.appendChild(personalInfoSection);
-		this.element.appendChild(passwordSection);
+		// Append all sections to the sections container
+		sectionsContainer.appendChild(avatarSection);
+		sectionsContainer.appendChild(personalInfoSection);
+		sectionsContainer.appendChild(passwordSection);
+	
+		// Append sectionsContainer to main element
+		this.element.appendChild(sectionsContainer);
 	
 		super.render(parent);
 	}
+	
 	
 
     private showImageDialog(image: string) {
