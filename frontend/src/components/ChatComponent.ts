@@ -6,9 +6,12 @@ import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
 import { endpoints } from '../services/send-request';
 import { showToast, ToastState } from '../components/Toast';
+import ChatManager from './ChatManager';
+
+// Ensure the rest of the code remains unchanged
 
 // import ChatManager from '../pages/users'; 
-import { ChatManager } from '../pages/users'; // Adjust the path based on your project structure
+// import { ChatManager } from './ChatManager'; // Adjust the path based on your project structure
 
 export default class ChatComponent extends Component {
     public chatWindow: HTMLElement;
@@ -136,7 +139,7 @@ export default class ChatComponent extends Component {
 
         // Invite to Play button
         const inviteButton = document.createElement('button');
-        inviteButton.textContent = 'Invite to Play';
+        inviteButton.textContent = 'Invite to play';
         inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
         inviteButton.onclick = () => this.inviteToPlay(); // not implemented yet
 

@@ -3,15 +3,19 @@ import Component from '../components/Component';
 import { showToast, ToastState } from '../components/Toast';
 import sendRequest, { Services } from '../services/send-request';
 import State from '../services/state';
+import ChatManager from '../components/ChatManager';
 
 export async function logoutUser(): Promise<void> {
     try {
+        // call close all chats
+
         const response = await sendRequest(
             '/logout',
             'POST',
             null,
             Services.AUTH,
         );
+
         const responseBody = await response.json();
         if (!response.ok) {
             throw new Error(`Error: ${responseBody.error}`);
