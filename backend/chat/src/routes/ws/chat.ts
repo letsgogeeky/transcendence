@@ -132,6 +132,34 @@ export function chatRoutes(fastify: FastifyInstance) {
                         return;
                     }
 
+                    if (chatMessage.type === 'inviteToPlay') {
+                        console.log(`inviteToPlay chat.ts: ${chatMessage.userId}`);
+
+                        const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
+                        const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === req.user);
+                        if (isBlocked) {
+                            console.log('User is blocked:', req.user);
+                            chatMessage.name = 'Info';
+                            chatMessage.content = 'You are blocked';
+                            fastify.connections.get(req.user)?.send(
+                                JSON.stringify({
+                                    type: 'chatMessage',
+                                    data: chatMessage
+                                }),
+                            );
+                            return;
+                        }
+                        // chatMessage.name = 'Info';
+                        chatMessage.content = 'inviteToPlay';
+                        fastify.connections.get(chatMessage.userId)?.send(
+                            JSON.stringify({
+                                type: 'inviteToPlay',
+                                data: chatMessage,
+                                id: req.user,
+                            }),
+                        );
+                    }
+
                     if (chatMessage.type === 'unblock') {
                         console.log(`Unblocking user: ${chatMessage.userId}`);
                         await unblockUser(req.user, chatMessage.userId, fastify);
