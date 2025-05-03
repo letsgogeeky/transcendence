@@ -28,7 +28,7 @@ export default class AvatarUploadComponent extends Component {
         this.fileInput.type = 'file';
         this.fileInput.id = 'file-input';
         this.fileInput.accept = 'image/*';
-        this.fileInput.className = 'w-60 mb-4 border-2 text-center border-white bg-[#eee0f3] text-purple-900 text-large font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9] cursor-pointer';  // Styled to look like button
+        this.fileInput.className = 'w-72 mb-4 border-2 text-center border-white bg-[#eee0f3] text-purple-900 text-large font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9] cursor-pointer';  // Styled to look like button
 
         this.successCallback = successCallback;
 
@@ -36,7 +36,7 @@ export default class AvatarUploadComponent extends Component {
         const submitButton = new Button(
             'Upload Image',
             () => {},
-            'w-60 border-2 text-center border-white text-white text-large font-bold py-2 px-4 rounded-lg hover:bg-[#401d5f]',
+            'w-72 border-2 text-center border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#401d5f]',
         );
         submitButton.element.type = 'submit';
         this.submitButton = submitButton;

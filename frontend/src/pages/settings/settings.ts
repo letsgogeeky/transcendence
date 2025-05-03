@@ -66,7 +66,7 @@ export default class UserSettingsComponent extends Component {
 		avatarTitle.className = 'text-xl text-[#eedee5] font-bold mb-8';
 		avatarSection.appendChild(avatarTitle);
 	
-		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-40 h-40 rounded-full object-cover border-2border-[#eedee5] shadow-lg');
+		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-48 h-48 rounded-full object-cover border-2border-[#eedee5] shadow-lg');
 		avatar.render(avatarSection);
 	
 		const uploadAvatarForm = new AvatarUploadComponent(null, this.setUserFromResponse.bind(this));
@@ -82,8 +82,8 @@ export default class UserSettingsComponent extends Component {
 		personalInfoSection.appendChild(infoTitle);
 	
 		const inputStyle = 'border border-gray-300 rounded p-2 w-full';
-		const nameInput = new Input('username', 'text', 'name', true, null, inputStyle);
-		const emailInput = new Input('email', 'text', 'email', true, null, inputStyle);
+		const nameInput = new Input('🧑‍💻 username', 'text', 'name', true, null, inputStyle);
+		const emailInput = new Input('📧 email', 'text', 'email', true, null, inputStyle);
 		const phoneInput = new PhoneInput(true, inputStyle);
 		const otpOptions = [
 			{ value: '', text: 'no 2FA' },
@@ -91,7 +91,7 @@ export default class UserSettingsComponent extends Component {
 			{ value: 'EMAIL', text: 'Send code by email' },
 			{ value: 'AUTHENTICATOR', text: 'Scan QR code with Authenticator app' },
 		];
-		const otpMethodInput = new Select('2FA Method', 'otpMethod', otpOptions, false, inputStyle);
+		const otpMethodInput = new Select('🛡️ 2FA Method', 'otpMethod', otpOptions, false, inputStyle);
 	
 		nameInput.value = user.name || '';
 		emailInput.value = user.email || '';
@@ -99,7 +99,7 @@ export default class UserSettingsComponent extends Component {
 		otpMethodInput.value = user.otpMethod || '';
 	
 		const form = new FormComponent(
-			'update',
+			'save info',
 			[nameInput, emailInput, otpMethodInput, phoneInput],
 			(data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
 			this.setUserFromResponse.bind(this),

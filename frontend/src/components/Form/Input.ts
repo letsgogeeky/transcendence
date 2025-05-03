@@ -21,11 +21,11 @@ export default class Input extends Component {
         const labelElement = document.createElement('label');
         labelElement.htmlFor = id;
         labelElement.innerText = label;
-        labelElement.className = 'text-white text-sm font-medium';
+        labelElement.className = 'text-white text-large font-medium';
         
         this.inputElement = document.createElement('input');
         // this.inputElement.className = `w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors ${className}`;
-        this.inputElement.className = `w-full px-4 py-2 rounded-lg bg-gray-700 border text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${className}`;
+        this.inputElement.className = `w-full px-4 py-2 rounded-lg bg-[#4f445a] border text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${className}`;
 		this.inputElement.id = id;
         this.inputElement.type = type;
         this.inputElement.name = id;
@@ -36,7 +36,7 @@ export default class Input extends Component {
 			const labelElement = document.createElement('label');
 			labelElement.htmlFor = id;
 			labelElement.innerText = label;
-			labelElement.className = 'text-white text-sm font-medium';
+			labelElement.className = 'text-white text-large font-medium';
 			this.element.append(labelElement);
 		}
 		this.element.append(this.inputElement);
