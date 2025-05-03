@@ -8,6 +8,7 @@ import sendRequest, { Services } from '../../services/send-request';
 import State from '../../services/state';
 import ChangePasswordComponent from '../password/change-password';
 import AvatarUploadComponent from './avatarUpload';
+import { createStyledButtonWithHandler, applyStyledAppearance } from '../../styles/button_styles'
 
 export default class UserSettingsComponent extends Component {
     readonly element: HTMLElement;
@@ -16,7 +17,7 @@ export default class UserSettingsComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'flex flex-col items-center gap-2';
+        this.element.className = 'flex flex-col items-center gap-10';
     }
 
     private shouldUpdate(newData: any): boolean {
@@ -25,65 +26,90 @@ export default class UserSettingsComponent extends Component {
     }
 
     render(parent: HTMLElement) {
-        this.element.innerHTML = '';
-        const user = State.getState().getCurrentUser();
-        if (!user) return;
+		this.element.innerHTML = '';
+		const user = State.getState().getCurrentUser();
+		if (!user) return;
+	
+		// Main container
+		// this.element.className = 'flex flex-row justify-center gap-8 items-start';
+		this.element.className = 'min-h-screen flex flex-wrap justify-center items-center gap-x-40 gap-y-2';
 
-        const inputStyle = 'border border-gray-300 rounded p-2 w-full';
-        const nameInput = new Input(
-            'name',
-            'text',
-            'name',
-            true,
-            null,
-            inputStyle,
-        );
-        const phoneInput = new PhoneInput(true, inputStyle);
-        const otpOptions = [
-            { value: '', text: 'no 2FA' },
-            { value: 'SMS', text: 'Send code by SMS' },
-            { value: 'EMAIL', text: 'Send code by email' },
-            {
-                value: 'AUTHENTICATOR',
-                text: 'Scan QR code with Authenticator app',
-            },
-        ];
-        const otpMethodInput = new Select(
-            '2FA Method',
-            'otpMethod',
-            otpOptions,
-            false,
-            inputStyle,
-        );
 
-        nameInput.value = user.name || '';
-        phoneInput.value = user.phoneNumber || '';
-        otpMethodInput.value = user.otpMethod || '';
-        const form = new FormComponent(
-            'update',
-            [nameInput, phoneInput, otpMethodInput],
-            (data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
-            this.setUserFromResponse.bind(this),
-        );
-        form.className = 'flex flex-col gap-4 w-64';
-        form.render(this.element);
 
-        const title = document.createElement('h1');
-        this.element.append(title);
+	
+		// ======= AVATAR SECTION =======
+		const avatarSection = document.createElement('div');
+		avatarSection.className = 'flex flex-col items-center gap-4 w-64';
+		
+		const avatarTitle = document.createElement('h2');
+		avatarTitle.textContent = 'Change Avatar';
+		avatarTitle.className = 'text-xl font-semibold';
+		avatarSection.appendChild(avatarTitle);
+	
+		// const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, 'w-1024 rounded-full object-cover');
+		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-48 h-48 rounded-full object-cover');
 
-        const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!);
-        avatar.render(this.element);
-
-        const uploadAvatarForm = new AvatarUploadComponent(
-            null,
-            this.setUserFromResponse.bind(this),
-        );
-        uploadAvatarForm.render(this.element);
-
-        const changePasswordForm = new ChangePasswordComponent();
-        changePasswordForm.render(this.element);
-        super.render(parent);
-    }
+		avatar.render(avatarSection);
+	
+		const uploadAvatarForm = new AvatarUploadComponent(
+			null,
+			this.setUserFromResponse.bind(this),
+		);
+		uploadAvatarForm.render(avatarSection);
+	
+		// ======= PERSONAL INFO SECTION =======
+		const personalInfoSection = document.createElement('div');
+		personalInfoSection.className = 'flex flex-col items-center gap-4 w-64';
+	
+		const infoTitle = document.createElement('h2');
+		infoTitle.textContent = 'Personal Info';
+		infoTitle.className = 'text-xl font-semibold';
+		personalInfoSection.appendChild(infoTitle);
+	
+		const inputStyle = 'border border-gray-300 rounded p-2 w-full';
+		const nameInput = new Input('name', 'text', 'name', true, null, inputStyle);
+		const phoneInput = new PhoneInput(true, inputStyle);
+		const otpOptions = [
+			{ value: '', text: 'no 2FA' },
+			{ value: 'SMS', text: 'Send code by SMS' },
+			{ value: 'EMAIL', text: 'Send code by email' },
+			{ value: 'AUTHENTICATOR', text: 'Scan QR code with Authenticator app' },
+		];
+		const otpMethodInput = new Select('2FA Method', 'otpMethod', otpOptions, false, inputStyle);
+	
+		nameInput.value = user.name || '';
+		phoneInput.value = user.phoneNumber || '';
+		otpMethodInput.value = user.otpMethod || '';
+	
+		const form = new FormComponent(
+			'update',
+			[nameInput, phoneInput, otpMethodInput],
+			(data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
+			this.setUserFromResponse.bind(this),
+		);
+		form.className = 'flex flex-col gap-4 w-full';
+		form.render(personalInfoSection);
+	
+		// ======= CHANGE PASSWORD SECTION =======
+		const passwordSection = document.createElement('div');
+		passwordSection.className = 'flex flex-col items-center gap-4 w-64';
+	
+		const passwordTitle = document.createElement('h2');
+		passwordTitle.textContent = 'Update Password';
+		passwordTitle.className = 'text-xl font-semibold';
+		passwordSection.appendChild(passwordTitle);
+	
+		const changePasswordForm = new ChangePasswordComponent();
+		changePasswordForm.render(passwordSection);
+	
+		// Append all sections to main element
+		this.element.appendChild(avatarSection);
+		this.element.appendChild(personalInfoSection);
+		this.element.appendChild(passwordSection);
+	
+		super.render(parent);
+	}
+	
 
     private showImageDialog(image: string) {
         let dialog = document.createElement('dialog');
