@@ -8,6 +8,7 @@ import FormComponent from "../components/Form/Form";
 import Select from "../components/Form/Select";
 import { selectStyle } from "../styles/classes";
 import { showToast, ToastState } from "../components/Toast";
+import TournamentMatchCard from "../components/TournamentMatchCard";
 
 interface Match {
     id: string;
@@ -297,7 +298,7 @@ export default class TournamentComponent extends Component {
             leftSide.append(tournamentInfo);
 
             // Action buttons section
-            if (this.data.tournament.status !== 'in progress' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+            if (this.data.tournament.status !== 'in progress' && this.data.tournament.status !== 'finished' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
                 const actionButtons = document.createElement('div');
                 actionButtons.className = 'flex justify-between mt-4';
 
@@ -341,7 +342,7 @@ export default class TournamentComponent extends Component {
             leftSide.append(this.participantsSection);
 
             // Add participant form
-            if (this.data.tournament.status !== 'in progress' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+            if (this.data.tournament.status !== 'in progress' && this.data.tournament.status !== 'finished' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
                 const addParticipantSection = document.createElement('div');
                 addParticipantSection.className = 'mt-8 pt-8 border-t border-gray-700';
                 this.renderAddParticipantForm(addParticipantSection);
@@ -351,14 +352,9 @@ export default class TournamentComponent extends Component {
             container.append(leftSide);
 
             // Right side - Matches (only shown when tournament is in progress)
-            if (this.data.tournament.status === 'in progress') {
+            if (this.data.tournament.status === 'in progress' || this.data.tournament.status === 'finished') {
                 const rightSide = document.createElement('div');
                 rightSide.className = 'flex-1 space-y-8';
-
-                const matchesTitle = document.createElement('h2');
-                matchesTitle.textContent = 'Tournament Matches';
-                matchesTitle.className = 'text-2xl font-bold text-white mb-4';
-                rightSide.append(matchesTitle);
 
                 const matchesList = document.createElement('div');
                 matchesList.className = 'space-y-4';
@@ -376,88 +372,8 @@ export default class TournamentComponent extends Component {
                         const userMap = new Map(users.map(user => [user.id, user.name]));
 
                         this.data.tournament.matches.forEach((match: Match) => {
-                            const matchCard = document.createElement('div');
-                            matchCard.className = 'bg-gray-800 rounded-xl shadow-2xl p-6 border border-gray-700';
-
-                            // Add hover effect and cursor pointer for pending matches
-                            if (match.status === 'pending') {
-                                matchCard.classList.add('hover:bg-gray-700', 'transition-colors', 'cursor-pointer');
-
-                                // Check if current user is a participant
-                                const currentUserId = State.getState().getCurrentUser()?.id;
-                                const isParticipant = match.participants.some(p => p.userId === currentUserId);
-
-                                if (isParticipant) {
-                                    matchCard.onclick = () => {
-                                        window.history.pushState(
-                                            { path: '/game' },
-                                            '/game',
-                                            `/game?matchId=${match.id}&tournamentId=${this.data.tournament.id}`
-                                        );
-                                        window.location.reload();
-                                    };
-                                }
-                            }
-
-                            const matchHeader = document.createElement('div');
-                            matchHeader.className = 'flex justify-between items-center mb-4';
-
-                            const matchStatus = document.createElement('span');
-                            matchStatus.className = `px-3 py-1 rounded-full text-sm ${match.status === 'pending' ? 'bg-yellow-600' :
-                                match.status === 'in progress' ? 'bg-blue-600' :
-                                    'bg-green-600'
-                                } text-white`;
-                            matchStatus.textContent = match.status.toUpperCase();
-
-                            const matchId = document.createElement('span');
-                            matchId.className = 'text-gray-400 text-sm';
-                            matchId.textContent = `Match #${match.id.slice(0, 8)}`;
-
-                            matchHeader.append(matchStatus, matchId);
-
-                            // Add spectate button for in-progress matches
-                            if (match.status === 'in progress') {
-                                const spectateButton = document.createElement('button');
-                                spectateButton.textContent = 'Spectate';
-                                spectateButton.className = 'px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm';
-                                spectateButton.onclick = () => {
-                                    window.history.pushState(
-                                        { path: '/game' },
-                                        '/game',
-                                        `/game?matchId=${match.id}&tournamentId=${this.data.tournament.id}&spectate=true`
-                                    );
-                                    window.location.reload();
-                                };
-                                matchHeader.append(spectateButton);
-                            }
-
-                            const matchParticipants = document.createElement('div');
-                            matchParticipants.className = 'space-y-2';
-
-                            if (match.participants && match.participants.length > 0) {
-                                match.participants.forEach((participant: { userId: string }) => {
-                                    const participantDiv = document.createElement('div');
-                                    participantDiv.className = 'flex items-center space-x-2';
-
-                                    const participantName = document.createElement('span');
-                                    participantName.className = 'text-white';
-                                    participantName.textContent = userMap.get(participant.userId) || 'Unknown User';
-
-                                    if (match.stats && match.stats[participant.userId]) {
-                                        const score = document.createElement('span');
-                                        score.className = 'text-gray-400';
-                                        score.textContent = `Score: ${match.stats[participant.userId]}`;
-                                        participantDiv.append(participantName, score);
-                                    } else {
-                                        participantDiv.append(participantName);
-                                    }
-
-                                    matchParticipants.append(participantDiv);
-                                });
-                            }
-
-                            matchCard.append(matchHeader, matchParticipants);
-                            matchesList.append(matchCard);
+                            const matchCard = new TournamentMatchCard(match, userMap, this.data.tournament.id);
+                            matchCard.render(matchesList);
                         });
                     });
                 } else {

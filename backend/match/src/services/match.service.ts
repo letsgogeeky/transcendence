@@ -53,42 +53,139 @@ export async function checkMatch(userId: string, app: FastifyInstance) {
     return match || null;
 }
 
-export async function findNextMatchInTournament(tournamentId: string, app: FastifyInstance) {
+export async function findNextMatchesInTournament(tournamentId: string, app: FastifyInstance) {
+    // find all players in tournament that are not in an ongoing match
+    const players = await app.prisma.tournamentParticipant.findMany({
+        where: { tournamentId: tournamentId },
+    });
+    const playersNotInMatches = await app.prisma.matchParticipant.findMany({
+        where: { match: { status: { notIn: ['in progress'] } }, userId: { in: players.map(player => player.userId) } },
+    });
+    if (playersNotInMatches.length <= 1) {
+        return null;
+    }
     const tournament = await app.prisma.tournament.findUnique({
         where: { id: tournamentId },
         include: {
-            matches: true,
+            matches: {
+                include: {
+                    participants: true,
+                },
+            },
         },
     });
     if (!tournament) {
         return null;
     }
     const matches = tournament.matches;
-    for (const match of matches) {
-        if (match.status === 'pending') {
-            return match;
-        }
-    }
-    return null;
+    // get all matches that are pending and have the playersNotInMatches
+    const pendingMatches = matches.filter(match => match.status === 'pending' && match.participants.some(participant => playersNotInMatches.some(player => player.userId === participant.userId)));
+    console.log("pendingMatches", pendingMatches);
+    return pendingMatches || null;
 }
 
-export async function proceedTournament(tournamentId: string, app: FastifyInstance, count: number = 0) {
-    if (count > 10) {
-        // tournament is stuck with no online players
-        return;
+async function findTournamentWinner(tournamentId: string, app: FastifyInstance) {
+    const tournament = await app.prisma.tournament.findUnique({
+        where: { id: tournamentId },
+        include: {
+            matches: {
+                include: {
+                    participants: true,
+                },
+            },
+        },
+    });
+    if (!tournament) {
+        return null;
     }
-    const nextMatch = await findNextMatchInTournament(tournamentId, app);
-    if (!nextMatch) {
+    const winnderId = tournament?.matches.reduce((max, match) => {
+        const stats = match.stats as Record<string, number>;
+        const player1 = stats[match.participants[0].userId] ?? 0;
+        const player2 = stats[match.participants[1].userId] ?? 0;
+        return player1 > player2 ? match.participants[0].userId : match.participants[1].userId;
+    }, tournament?.matches[0].participants[0].userId);
+    return winnderId ?? null;
+}
+
+export async function proceedTournament(tournamentId: string, app: FastifyInstance) {
+    const nextMatches = await findNextMatchesInTournament(tournamentId, app);
+    if (!nextMatches) {
         // tournament is finished
         // announce winner
         return;
     }
-    const notified = await notifyMatchParticipants(nextMatch.id, app);
-    if (!notified) {
+    if (nextMatches.length === 0) {
+        // tournament is finished, update tournament status
+        const tournament = await app.prisma.tournament.update({
+            where: { id: tournamentId },
+            data: { status: 'finished' },
+            include: {
+                participants: true,
+            },
+        });
+        // find winner by comparing stats in matches of a tournament
+        const winner = await findTournamentWinner(tournamentId, app);
+        // announce winner
+        if (winner) {
+            const client = app.connections.get(winner);
+            if (client) {
+                client.send(JSON.stringify({ type: 'TOURNAMENT_ENDED', message: 'You won the tournament!', winner }));
+            }
+        }
+        // annount to other participants
+        for (const participant of tournament.participants.filter(participant => participant.userId !== winner)) {
+            const client = app.connections.get(participant.userId);
+            if (client) {
+                client.send(JSON.stringify({ type: 'TOURNAMENT_ENDED', message: 'You lost the tournament... OFC!', winner }));
+            }
+        }
         return;
     }
-    // proceed to next match
-    await proceedTournament(tournamentId, app, count + 1);
+    const notifiedParticipants: string[] = [];
+    for (const match of nextMatches) {
+        // if participant is not notified of any match now, notify them, otherwise skip the match for now
+        let skip = false;
+        for (const participant of match.participants) {
+            if (notifiedParticipants.includes(participant.userId)) {
+                skip = true;
+                break;
+            }
+        }
+        if (skip) {
+            continue;
+        }
+        console.log("notifying match participants", match.id);
+        const notified = await notifyMatchParticipants(match.id, app);
+        if (!notified) {
+            console.log("Failed to notify match participants", match.id);
+        } else {
+            console.log("Notified match participants", match.id);
+            for (const participant of match.participants) {
+                if (!notifiedParticipants.includes(participant.userId)) {
+                    notifiedParticipants.push(participant.userId);
+                }
+            }
+        }
+    }
+}
+
+export async function endMatch(matchId: string, app: FastifyInstance) {
+    const match = await app.prisma.match.findUnique({
+        where: { id: matchId },
+    });
+    if (!match) {
+        return;
+    }
+    if (match.status !== 'in progress') {
+        return;
+    }
+    await app.prisma.match.update({
+        where: { id: matchId },
+        data: { status: 'ended' },
+    });
+    if (match.tournamentId) {
+        await proceedTournament(match.tournamentId, app);
+    }
 }
 
 export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstance) {
@@ -106,7 +203,6 @@ export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstan
         return 1;
     }
     const settings = lastMatchVsAI.settings as GameSettings;
-    console.log("settings", settings);
     const stats = lastMatchVsAI.stats as Record<string, number>;
     if (!stats) {
         return 1;
@@ -115,7 +211,6 @@ export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstan
     const playerScore = stats[userId];
     // AI score
     const aiScore = stats['COM1'];
-    console.log("scores", playerScore, aiScore);
     if (playerScore === undefined || aiScore === undefined) {
         return 1;
     }
@@ -125,7 +220,8 @@ export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstan
     return settings.aiLevel ?? 1;
 }
 
-export async function createMatch(app: FastifyInstance, mode: string, userId: string) {
+export async function createMatch(app: FastifyInstance, mode: string, userId: string, userIds?: string[]) {
+    let expectedPlayersCount = 0;
     const settings: GameSettings = {
         players: 0,
         aiPlayers: 0,
@@ -145,26 +241,33 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         settings.players = 2;
         settings.guests = [userId];
         settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
+        expectedPlayersCount = 2;
     } else if (mode === '1v1') {
         settings.players = 2;
         settings.replaceDisconnected = false;
+        expectedPlayersCount = 2;
     } else if (mode === '1vAI') {
         settings.players = 1;
         settings.aiPlayers = 1;
         settings.replaceDisconnected = false;
+        expectedPlayersCount = 2;
     } else if (mode === '2v2') {
         settings.players = 4;
         settings.replaceDisconnected = true;
+        expectedPlayersCount = 4;
     } else if (mode === 'All vs All') {
-        settings.players = 4;
+        settings.players = 8;
         settings.replaceDisconnected = true;
+        expectedPlayersCount = 8;
     } else {
         return null;
     }
     settings.winScore = 10;
     settings.timeLimit = 60000;
     settings.startScore = 0;
-
+    if (userIds && userIds.length > 0 && userIds.length !== expectedPlayersCount) {
+        return null;
+    }
     const newMatch = await app.prisma.match.create({
         data: {
             userId: userId,
@@ -172,12 +275,46 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
             status: 'pending',
             settings: settings,
             participants: {
-                create: {
+                create: userIds?.map(userId => ({
                     userId: userId,
                     joinedAt: new Date(),
-                },
+                })),
             },
         },
     });
     return newMatch;
+}
+
+export async function getUserMatches(app: FastifyInstance, userId: string) {
+    const matches = await app.prisma.match.findMany({
+        where: {
+            participants: { some: { userId: userId } },
+        },
+        include: {
+            participants: true,
+        },
+    });
+    return matches;
+}
+
+export async function deleteMatch(app: FastifyInstance, matchId: string, userId: string) {
+    const match = await app.prisma.match.findUnique({
+        where: { id: matchId, userId: userId },
+    });
+    if (!match) {
+        return false;
+    }
+    // delete match participants
+    await app.prisma.matchParticipant.deleteMany({
+        where: { matchId: matchId },
+    });
+    // delete match scores
+    await app.prisma.matchScore.deleteMany({
+        where: { matchId: matchId },
+    });
+    // delete match
+    await app.prisma.match.delete({
+        where: { id: matchId, userId: userId },
+    });
+    return true;
 }

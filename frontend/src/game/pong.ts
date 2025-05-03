@@ -71,7 +71,9 @@ class Game {
 			window.location.href = '/login';
 			return;
 		}
-		this.ws = new WebSocket(`/match/game?token=${token}&userName=${userName}`, 'wss');
+		const matchId = window.location.search.split('matchId=')[1];
+		const tournamentId = window.location.search.split('tournamentId=')[1];
+		this.ws = new WebSocket(`/match/game?token=${token}&userName=${userName}&matchId=${matchId}&tournamentId=${tournamentId}`, 'wss');
 		this.connectWebSocket();
 	}
 

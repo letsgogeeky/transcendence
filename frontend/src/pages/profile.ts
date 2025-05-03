@@ -3,10 +3,14 @@ import Component from '../components/Component';
 import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
 import ErrorComponent from './error';
+import TournamentMatchCard from '../components/TournamentMatchCard';
 
 export default class ProfileComponent extends Component {
     readonly element: HTMLElement;
     private tournaments: any[] = [];
+    private matches: any[] = [];
+    private activeTab: 'tournaments' | 'matches' = 'tournaments';
+    private usersMap: Map<string, string> = new Map();
 
     constructor() {
         super();
@@ -22,13 +26,16 @@ export default class ProfileComponent extends Component {
             return;
         }
         console.log('User ID:', userId);
-        const [userResponse, tournamentsResponse] = await Promise.all([
+        const [userResponse, tournamentsResponse, matchesResponse] = await Promise.all([
             sendRequest(`/users/${userId}`, 'GET', null, Services.AUTH),
-            sendRequest(`/tournament/participant/${userId}`, 'GET', null, Services.TOURNAMENTS)
+            sendRequest(`/tournament/participant/${userId}`, 'GET', null, Services.TOURNAMENTS),
+            sendRequest(`/queue/get-user-matches`, 'GET', null, Services.MATCH)
         ]);
         const userData = await userResponse.json();
         const tournamentsData = await tournamentsResponse.json();
+        const matchesData = await matchesResponse.json();
         this.tournaments = tournamentsData.tournaments || [];
+        this.matches = matchesData.matches || [];
         return userData;
     }
 
@@ -48,11 +55,10 @@ export default class ProfileComponent extends Component {
         title.textContent = tournament.name;
 
         const status = document.createElement('span');
-        status.className = `px-3 py-1 rounded-full text-sm font-medium ${
-            tournament.status === 'active' ? 'bg-green-600 text-white' :
-            tournament.status === 'pending' ? 'bg-yellow-600 text-white' :
-            'bg-gray-600 text-white'
-        }`;
+        status.className = `px-3 py-1 rounded-full text-sm font-medium ${tournament.status === 'active' ? 'bg-green-600 text-white' :
+                tournament.status === 'pending' ? 'bg-yellow-600 text-white' :
+                    'bg-gray-600 text-white'
+            }`;
         status.textContent = tournament.status;
 
         header.append(title, status);
@@ -94,6 +100,52 @@ export default class ProfileComponent extends Component {
         return card;
     }
 
+    private createTabs(): HTMLElement {
+        const tabsContainer = document.createElement('div');
+        tabsContainer.className = 'flex gap-4 mb-6';
+
+        const tournamentsTab = document.createElement('button');
+        tournamentsTab.className = `px-4 py-2 rounded-lg font-medium transition-colors ${this.activeTab === 'tournaments'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`;
+        tournamentsTab.textContent = 'Tournaments';
+        tournamentsTab.onclick = () => {
+            this.activeTab = 'tournaments';
+            this.render(this.element);
+        };
+
+        const matchesTab = document.createElement('button');
+        matchesTab.className = `px-4 py-2 rounded-lg font-medium transition-colors ${this.activeTab === 'matches'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`;
+        matchesTab.textContent = 'Matches';
+        matchesTab.onclick = () => {
+            this.activeTab = 'matches';
+            this.render(this.element);
+        };
+
+        tabsContainer.append(tournamentsTab, matchesTab);
+        return tabsContainer;
+    }
+
+    private async createMatchCard(match: any) {
+        const userMap = new Map();
+        for (const participant of match.participants) {
+            if (this.usersMap.has(participant.userId)) {
+                userMap.set(participant.userId, this.usersMap.get(participant.userId)!);
+            } else {
+                const userResponse = await sendRequest(`/users/${participant.userId}`, 'GET', null, Services.AUTH);
+                const userData = await userResponse.json();
+                userMap.set(participant.userId, userData.name);
+                this.usersMap.set(participant.userId, userData.name);
+            }
+        }
+        const matchCard = new TournamentMatchCard(match, userMap, '');
+        return matchCard;
+    }
+
     render(parent: HTMLElement) {
         this.element.innerHTML = '';
         if (!this.data) {
@@ -125,32 +177,61 @@ export default class ProfileComponent extends Component {
             profileHeader.append(name, email);
             this.element.append(profileHeader);
 
-            // Tournaments Section
-            if (this.tournaments.length > 0) {
-                const tournamentsSection = document.createElement('div');
-                tournamentsSection.className = 'w-full max-w-4xl';
+            // Content Section
+            const contentSection = document.createElement('div');
+            contentSection.className = 'w-full max-w-4xl';
 
-                const tournamentsTitle = document.createElement('h2');
-                tournamentsTitle.className = 'text-2xl font-bold text-white mb-6';
-                tournamentsTitle.textContent = 'Tournaments';
-                tournamentsSection.append(tournamentsTitle);
+            // Add tabs
+            const tabs = this.createTabs();
+            contentSection.append(tabs);
 
-                const tournamentsGrid = document.createElement('div');
-                tournamentsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
+            if (this.activeTab === 'tournaments') {
+                // Tournaments Section
+                if (this.tournaments.length > 0) {
+                    const tournamentsGrid = document.createElement('div');
+                    tournamentsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
 
-                this.tournaments.forEach(tournament => {
-                    const card = this.createTournamentCard(tournament);
-                    tournamentsGrid.append(card);
-                });
+                    this.tournaments.forEach(tournament => {
+                        const card = this.createTournamentCard(tournament);
+                        tournamentsGrid.append(card);
+                    });
 
-                tournamentsSection.append(tournamentsGrid);
-                this.element.append(tournamentsSection);
+                    contentSection.append(tournamentsGrid);
+                } else {
+                    const noTournaments = document.createElement('div');
+                    noTournaments.className = 'text-center text-gray-400 mt-8';
+                    noTournaments.textContent = 'No tournaments found';
+                    contentSection.append(noTournaments);
+                }
             } else {
-                const noTournaments = document.createElement('div');
-                noTournaments.className = 'text-center text-gray-400 mt-8';
-                noTournaments.textContent = 'No tournaments found';
-                this.element.append(noTournaments);
+                // Matches Section
+                if (this.matches.length > 0) {
+                    const matchesList = document.createElement('div');
+                    matchesList.className = 'space-y-4';
+
+                    // Sort matches by creation date in descending order
+                    const sortedMatches = [...this.matches].sort((a, b) => {
+                        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        return dateB - dateA;
+                    });
+
+                    Promise.all(sortedMatches.map(match => this.createMatchCard(match))).then(matchCards => {
+                        matchCards.forEach(card => {
+                            card.render(matchesList);
+                        });
+                    });
+
+                    contentSection.append(matchesList);
+                } else {
+                    const noMatches = document.createElement('div');
+                    noMatches.className = 'text-center text-gray-400 mt-8';
+                    noMatches.textContent = 'No matches found';
+                    contentSection.append(noMatches);
+                }
             }
+
+            this.element.append(contentSection);
         }
         super.render(parent);
     }
