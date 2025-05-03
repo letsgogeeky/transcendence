@@ -125,7 +125,8 @@ export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstan
     return settings.aiLevel ?? 1;
 }
 
-export async function createMatch(app: FastifyInstance, mode: string, userId: string) {
+export async function createMatch(app: FastifyInstance, mode: string, userId: string, userIds?: string[]) {
+    let expectedPlayersCount = 0;
     const settings: GameSettings = {
         players: 0,
         aiPlayers: 0,
@@ -145,26 +146,33 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         settings.players = 2;
         settings.guests = [userId];
         settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
+        expectedPlayersCount = 2;
     } else if (mode === '1v1') {
         settings.players = 2;
         settings.replaceDisconnected = false;
+        expectedPlayersCount = 2;
     } else if (mode === '1vAI') {
         settings.players = 1;
         settings.aiPlayers = 1;
         settings.replaceDisconnected = false;
+        expectedPlayersCount = 2;
     } else if (mode === '2v2') {
         settings.players = 4;
         settings.replaceDisconnected = true;
+        expectedPlayersCount = 4;
     } else if (mode === 'All vs All') {
-        settings.players = 4;
+        settings.players = 8;
         settings.replaceDisconnected = true;
+        expectedPlayersCount = 8;
     } else {
         return null;
     }
     settings.winScore = 10;
     settings.timeLimit = 60000;
     settings.startScore = 0;
-
+    if (userIds && userIds.length > 0 && userIds.length !== expectedPlayersCount) {
+        return null;
+    }
     const newMatch = await app.prisma.match.create({
         data: {
             userId: userId,
@@ -172,12 +180,46 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
             status: 'pending',
             settings: settings,
             participants: {
-                create: {
+                create: userIds?.map(userId => ({
                     userId: userId,
                     joinedAt: new Date(),
-                },
+                })),
             },
         },
     });
     return newMatch;
+}
+
+export async function getUserMatches(app: FastifyInstance, userId: string) {
+    const matches = await app.prisma.match.findMany({
+        where: {
+            participants: { some: { userId: userId } },
+        },
+        include: {
+            participants: true,
+        },
+    });
+    return matches;
+}
+
+export async function deleteMatch(app: FastifyInstance, matchId: string, userId: string) {
+    const match = await app.prisma.match.findUnique({
+        where: { id: matchId, userId: userId },
+    });
+    if (!match) {
+        return false;
+    }
+    // delete match participants
+    await app.prisma.matchParticipant.deleteMany({
+        where: { matchId: matchId },
+    });
+    // delete match scores
+    await app.prisma.matchScore.deleteMany({
+        where: { matchId: matchId },
+    });
+    // delete match
+    await app.prisma.match.delete({
+        where: { id: matchId, userId: userId },
+    });
+    return true;
 }
