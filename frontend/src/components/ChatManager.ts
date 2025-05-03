@@ -66,7 +66,11 @@ export class ChatManager {
         const showChat = () => {
             // start a game with data.data.userId vs data.id
             const chatManager = ChatManager.getInstance();
-            chatManager.openChat(chatRoomId, data.data.friendName, data.data.friendId);
+            console.log('Incoming data:', data);
+        console.log('data.data:', data.data);
+            console.log('chatManager test:', data.data.name, data.data.userId);
+
+            chatManager.openChat(chatRoomId, data.data.name, data.data.userId);
 
         };
         // check which chat room the message is for
