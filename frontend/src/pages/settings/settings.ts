@@ -32,13 +32,12 @@ export default class UserSettingsComponent extends Component {
 		if (!user) return;
 	
 		// Main container for all elements
-		this.element.className = 'min-h-screen flex flex-col items-center'; // Center all content vertically and horizontally
+		this.element.className = 'w-full h-screen flex flex-col items-center'; // Center all content vertically and horizontally
 	
 		// ======= SETTINGS HEADER (ICON + TITLE) =======
 		const settingsHeader = document.createElement('div');
-		settingsHeader.className = 'flex items-center gap-4 mb-8'; // Added gap for spacing between icon and title
-	
-		settingsHeader.appendChild(loadImage('settings1.gif', 'w-12 h-12 opacity-80', 'Settings gif'));
+		settingsHeader.className = 'flex justify-center items-center w-full mt-16 mb-16'; // Added gap for spacing between icon and title
+		settingsHeader.appendChild(loadImage('settings_icon.gif', 'w-12 h-12 opacity-80', 'Settings gif'));
 	
 		// Title for settings
 		const settingsTitle = document.createElement('h1');
@@ -56,18 +55,18 @@ export default class UserSettingsComponent extends Component {
 	
 		// ======= SECTION CONTAINER (for Avatar, Personal Info, Password) =======
 		const sectionsContainer = document.createElement('div');
-		sectionsContainer.className = 'flex justify-between gap-8 w-full'; // This will make the 3 sections align in one row with space in between
+		sectionsContainer.className = 'flex flex-wrap justify-center gap-28 w-full';
 	
 		// ======= AVATAR SECTION =======
 		const avatarSection = document.createElement('div');
-		avatarSection.className = 'flex flex-col items-center gap-4 w-64';
+		avatarSection.className = 'flex flex-col items-center gap-4 w-72';
 	
 		const avatarTitle = document.createElement('h2');
-		avatarTitle.textContent = 'Change Avatar';
-		avatarTitle.className = 'text-xl font-semibold';
+		avatarTitle.textContent = '👤 EDIT YOUR AVATAR';
+		avatarTitle.className = 'text-xl text-[#eedee5] font-bold mb-8';
 		avatarSection.appendChild(avatarTitle);
 	
-		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-32 h-32 rounded-full object-cover border-2border-[#eedee5] shadow-lg');
+		const avatar = new AvatarImageComponent('My Avatar', user.avatarUrl!, null, 'w-40 h-40 rounded-full object-cover border-2border-[#eedee5] shadow-lg');
 		avatar.render(avatarSection);
 	
 		const uploadAvatarForm = new AvatarUploadComponent(null, this.setUserFromResponse.bind(this));
@@ -75,15 +74,16 @@ export default class UserSettingsComponent extends Component {
 	
 		// ======= PERSONAL INFO SECTION =======
 		const personalInfoSection = document.createElement('div');
-		personalInfoSection.className = 'flex flex-col items-center gap-4 w-64';
+		personalInfoSection.className = 'flex flex-col items-center gap-4 w-72';
 	
 		const infoTitle = document.createElement('h2');
-		infoTitle.textContent = 'Personal Info';
-		infoTitle.className = 'text-xl font-semibold';
+		infoTitle.textContent = '📝 PERSONAL INFO';
+		infoTitle.className = 'text-xl text-[#eedee5] font-bold mb-8';
 		personalInfoSection.appendChild(infoTitle);
 	
 		const inputStyle = 'border border-gray-300 rounded p-2 w-full';
-		const nameInput = new Input('name', 'text', 'name', true, null, inputStyle);
+		const nameInput = new Input('username', 'text', 'name', true, null, inputStyle);
+		const emailInput = new Input('email', 'text', 'email', true, null, inputStyle);
 		const phoneInput = new PhoneInput(true, inputStyle);
 		const otpOptions = [
 			{ value: '', text: 'no 2FA' },
@@ -94,12 +94,13 @@ export default class UserSettingsComponent extends Component {
 		const otpMethodInput = new Select('2FA Method', 'otpMethod', otpOptions, false, inputStyle);
 	
 		nameInput.value = user.name || '';
+		emailInput.value = user.email || '';
 		phoneInput.value = user.phoneNumber || '';
 		otpMethodInput.value = user.otpMethod || '';
 	
 		const form = new FormComponent(
 			'update',
-			[nameInput, phoneInput, otpMethodInput],
+			[nameInput, emailInput, otpMethodInput, phoneInput],
 			(data) => sendRequest('/user/update', 'PUT', data, Services.AUTH),
 			this.setUserFromResponse.bind(this),
 		);
@@ -108,11 +109,11 @@ export default class UserSettingsComponent extends Component {
 	
 		// ======= CHANGE PASSWORD SECTION =======
 		const passwordSection = document.createElement('div');
-		passwordSection.className = 'flex flex-col items-center gap-4 w-64';
+		passwordSection.className = 'flex flex-col items-center gap-4 w-72';
 	
 		const passwordTitle = document.createElement('h2');
-		passwordTitle.textContent = 'Update Password';
-		passwordTitle.className = 'text-xl font-semibold';
+		passwordTitle.textContent = '🔒 CHANGE PASSWORD';
+		passwordTitle.className = 'text-xl text-[#eedee5] font-bold mb-8';
 		passwordSection.appendChild(passwordTitle);
 	
 		const changePasswordForm = new ChangePasswordComponent();
