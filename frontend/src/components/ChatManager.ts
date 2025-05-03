@@ -13,11 +13,11 @@ export class ChatManager {
         this.tabContainer = document.createElement('div');
         this.tabContainer.className = 'fixed bottom-0 left-0 w-full bg-gray-800 text-white flex flex-row-reverse space-x-2 p-2 overflow-x-auto';
         document.body.appendChild(this.tabContainer);
-        this.initializeChatSocket();
-        console.log('constructor chatManager:');
+        // this.initializeChatSocket();
+        // console.log('constructor chatManager:');
     }
 
-    private initializeChatSocket(): void {
+    public initializeChatSocket(): void {
         const token = State.getState().getAuthToken();
         this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
 
@@ -31,6 +31,12 @@ export class ChatManager {
 
         this.chatSocket.onclose = (event) => {
             console.log('Global chat socket closed:', event.reason);
+            // const retryInterval = 5000; // Retry every 5 seconds
+            // // console.log(`Retrying WebSocket connection in ${retryInterval / 1000} seconds...`);
+            // setTimeout(() => {
+            //     // console.log('Attempting to reconnect WebSocket...');
+            //     this.initializeChatSocket(); // Reinitialize the WebSocket connection
+            // }, retryInterval);
         };
 
         this.chatSocket.onmessage = (event) => {
@@ -38,6 +44,14 @@ export class ChatManager {
             console.log('Global WebSocket message received:', data.data);
             this.handleIncomingMessage(data);
         };
+    }
+
+    public closeChatSocket(): void {
+        if (this.chatSocket) {
+            this.chatSocket.close();
+            this.chatSocket = null;
+            console.log('Chat socket closed manually');
+        }
     }
 
     private handleIncomingMessage(data: any): void {
@@ -107,7 +121,7 @@ export class ChatManager {
             return;
         }
 
-        const chatComponent = new ChatComponent(chatRoomId, friendName, this.chatSocket);
+        const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
         this.activeChats.set(chatRoomId, chatComponent);
 
         this.createTab(chatRoomId, friendName);

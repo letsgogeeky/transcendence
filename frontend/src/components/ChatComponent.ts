@@ -23,7 +23,7 @@ export default class ChatComponent extends Component {
 
     readonly element: HTMLElement;
 
-    constructor(private chatRoomId: string, private friendName: string, private ws: WebSocket | null) {
+    constructor(private chatRoomId: string, private friendId: string, private friendName: string, private ws: WebSocket | null) {
         super();
         this.chatWindow = document.createElement('div');
         this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
@@ -77,7 +77,7 @@ export default class ChatComponent extends Component {
             window.history.pushState(
                 {},
                 'view profile',
-                '/profile?userId=' + this.chatRoomId,
+                '/profile?userId=' + this.friendId,
             );
         };
 
@@ -266,7 +266,7 @@ export default class ChatComponent extends Component {
                     JSON.stringify({
                         type: 'chatMessage',
                         chatRoomId: this.chatRoomId,
-                        userId: this.chatRoomId,
+                        userId: this.friendId,
                         content: message,
                         name: myName,
                     }),
@@ -290,7 +290,7 @@ export default class ChatComponent extends Component {
                     JSON.stringify({
                         type: 'chatHistory',
                         chatRoomId: this.chatRoomId,
-                        userId: this.chatRoomId,
+                        userId: this.friendId,
                     }),
                 );
                 // sendMessage(this.chatRoomId, message);
@@ -326,37 +326,37 @@ export default class ChatComponent extends Component {
     }
 
     private async blockUser(): Promise<void> {
-        console.log('Blocking user:', this.chatRoomId);
+        console.log('Blocking user:', this.friendName);
         try {
             this.socket?.send(
                 JSON.stringify({
                     type: 'block',
-                    userId: this.chatRoomId,
+                    userId: this.friendId,
                 }),
             );
-            console.log(`User ${this.chatRoomId} blocked successfully.`);
+            console.log(`User ${this.friendName} blocked successfully.`);
         } catch (error) {
             console.error('Error blocking user:', error);
         }
     }
 
     private async unblockUser(): Promise<void> {
-        console.log('Unblocking user:', this.chatRoomId);
+        console.log('Unblocking user:', this.friendName);
         try {
             this.socket?.send(
                 JSON.stringify({
                     type: 'unblock',
-                    userId: this.chatRoomId,
+                    userId: this.friendId,
                 }),
             );
-            console.log(`User ${this.chatRoomId} unblocked successfully.`);
+            console.log(`User ${this.friendName} unblocked successfully.`);
         } catch (error) {
             console.error('Error unblocking user:', error);
         }
     }
 
     private inviteToPlay(): void {
-        console.log('Inviting to game:', this.chatRoomId);
+        console.log('Inviting to game:', this.friendName);
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
         // const participantSocket = app.connections.get(playerId);
         try {
@@ -364,12 +364,12 @@ export default class ChatComponent extends Component {
                 JSON.stringify({
                     type: 'inviteToPlay',
                     chatRoomId: this.chatRoomId,
-                    userId: this.chatRoomId,
+                    userId: this.friendId,
                     content: "Invite to play",
                     name: myName,
                 }),
             );
-            console.log(`User ${this.chatRoomId} InviteToPlay successfully ...`);
+            console.log(`User ${this.friendName} InviteToPlay successfully ...`);
         } catch (error) {
             console.error('Error InviteToPlay user:', error);
         }

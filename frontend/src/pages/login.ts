@@ -6,6 +6,7 @@ import LinkComponent from '../components/Link';
 import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
 import { loadBackgroundGif, loadImage } from '../styles/background'
+import ChatManager from '../components/ChatManager';
 
 export default class LoginComponent extends Component {
     readonly element: HTMLElement = document.createElement('div');
@@ -101,6 +102,7 @@ export default class LoginComponent extends Component {
                 JSON.stringify(data.user || null),
             );
             State.getState().setCurrentUser(data.user);
+            ChatManager.getInstance().initializeChatSocket();
             window.history.pushState({ path: '/' }, '', '/');
         }
     }

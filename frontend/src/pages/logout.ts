@@ -9,6 +9,7 @@ export async function logoutUser(): Promise<void> {
     try {
         // call close all chats
         ChatManager.getInstance().cleanup();
+        ChatManager.getInstance().closeChatSocket();
         const response = await sendRequest(
             '/logout',
             'POST',
