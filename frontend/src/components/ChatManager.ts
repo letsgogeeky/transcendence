@@ -67,6 +67,23 @@ export class ChatManager {
         }
     }
 
+    public closeAllChats(): void {
+        this.activeChats.forEach((chat, chatRoomId) => {
+            chat.chatWindow.remove();
+        });
+        this.activeChats.clear();
+    
+        this.tabContainer.innerHTML = '';
+    }
+
+    public cleanup(): void {
+        this.closeAllChats();
+        if (this.tabContainer.parentElement) {
+            this.tabContainer.remove();
+        }
+        ChatManager.instance = null;
+    }
+
     private updateChatPositions(): void {
         const chatWidth = 400;
         let rightOffset = 16;

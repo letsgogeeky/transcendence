@@ -8,7 +8,7 @@ import ChatManager from '../components/ChatManager';
 export async function logoutUser(): Promise<void> {
     try {
         // call close all chats
-
+        ChatManager.getInstance().cleanup();
         const response = await sendRequest(
             '/logout',
             'POST',
