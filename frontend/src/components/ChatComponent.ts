@@ -269,6 +269,7 @@ export default class ChatComponent extends Component {
                         userId: this.friendId,
                         content: message,
                         name: myName,
+                        senderId: State.getState().getCurrentUser()?.id,
                     }),
                 );
                 // sendMessage(this.chatRoomId, message);
@@ -291,6 +292,7 @@ export default class ChatComponent extends Component {
                         type: 'chatHistory',
                         chatRoomId: this.chatRoomId,
                         userId: this.friendId,
+                        senderId: State.getState().getCurrentUser()?.id,
                     }),
                 );
                 // sendMessage(this.chatRoomId, message);
@@ -332,6 +334,7 @@ export default class ChatComponent extends Component {
                 JSON.stringify({
                     type: 'block',
                     userId: this.friendId,
+                    senderId: State.getState().getCurrentUser()?.id,
                 }),
             );
             console.log(`User ${this.friendName} blocked successfully.`);
@@ -347,6 +350,7 @@ export default class ChatComponent extends Component {
                 JSON.stringify({
                     type: 'unblock',
                     userId: this.friendId,
+                    senderId: State.getState().getCurrentUser()?.id,
                 }),
             );
             console.log(`User ${this.friendName} unblocked successfully.`);
@@ -367,6 +371,7 @@ export default class ChatComponent extends Component {
                     userId: this.friendId,
                     content: "Invite to play",
                     name: myName,
+                    senderId: State.getState().getCurrentUser()?.id,
                 }),
             );
             console.log(`User ${this.friendName} InviteToPlay successfully ...`);
@@ -385,6 +390,7 @@ export default class ChatComponent extends Component {
                 JSON.stringify({
                     type: 'isBlocked',
                     userId: this.chatRoomId,
+                    senderId: State.getState().getCurrentUser()?.id,
                 }),
             );
         });

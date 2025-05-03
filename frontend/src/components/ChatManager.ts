@@ -70,7 +70,7 @@ export class ChatManager {
         console.log('data.data:', data.data);
             console.log('chatManager test:', data.data.name, data.data.userId);
 
-            chatManager.openChat(chatRoomId, data.data.name, data.data.userId);
+            chatManager.openChat(chatRoomId, data.data.name, data.data.senderId);
 
         };
         // check which chat room the message is for
@@ -114,8 +114,6 @@ export class ChatManager {
         } else if (this.activeChats.has(chatRoomId)) {
             const chatComponent = this.activeChats.get(chatRoomId);
             console.log('Target chatRoomId: open');
-
-            
 
 
             if (chatComponent) {

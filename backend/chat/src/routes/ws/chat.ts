@@ -6,6 +6,7 @@ interface chatMessage {
     token: string;
     content: string;
     chatRoomId: string;
+    senderId: string;
     userId: string;
     name: string;
     type: string;
