@@ -35,6 +35,8 @@ declare module 'fastify' {
         user: string;
         token: string;
         userName: string;
+        matchId: string | null;
+        tournamentId: string | null;
     }
 }
 

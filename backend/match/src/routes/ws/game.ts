@@ -21,15 +21,29 @@ export function gameRoutes(app: FastifyInstance) {
                 socket.close();
                 return;
             }
-
-            const match = await app.prisma.match.findFirst({
-                where: {
-                    status: { in: ['pending', 'in progress'] },
-                    participants: {
-                        some: { userId: req.user }
+            
+            let match = null;
+            if (req.matchId) {
+                match = await app.prisma.match.findFirst({
+                    where: {
+                        status: { in: ['pending', 'in progress'] },
+                        id: req.matchId,
+                        participants: {
+                            some: { userId: req.user }
+                        }
                     }
-                }
-            });
+                });
+            } else if (req.tournamentId) {
+                match = await app.prisma.match.findFirst({
+                    where: {
+                        status: { in: ['pending', 'in progress'] },
+                        tournamentId: req.tournamentId,
+                        participants: {
+                            some: { userId: req.user }
+                        }
+                    }
+                });
+            }
             if (match) {
                 console.log(`Found match ${match.id}`);
                 gameServer = app.gameSessions.get(match.id) as GameSession;

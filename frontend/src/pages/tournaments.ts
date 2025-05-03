@@ -94,27 +94,24 @@ export default class TournamentsComponent extends Component {
 
         const allButton = document.createElement('button');
         allButton.textContent = 'All Tournaments';
-        allButton.className = `px-4 py-2 rounded-lg transition-colors ${
-            this.currentFilter === 'all'
+        allButton.className = `px-4 py-2 rounded-lg transition-colors ${this.currentFilter === 'all'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-        }`;
+            }`;
 
         const myButton = document.createElement('button');
         myButton.textContent = 'My Tournaments';
-        myButton.className = `px-4 py-2 rounded-lg transition-colors ${
-            this.currentFilter === 'my'
+        myButton.className = `px-4 py-2 rounded-lg transition-colors ${this.currentFilter === 'my'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-        }`;
+            }`;
 
         const adminButton = document.createElement('button');
         adminButton.textContent = 'Tournaments I Admin';
-        adminButton.className = `px-4 py-2 rounded-lg transition-colors ${
-            this.currentFilter === 'admin'
+        adminButton.className = `px-4 py-2 rounded-lg transition-colors ${this.currentFilter === 'admin'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-        }`;
+            }`;
 
         allButton.addEventListener('click', (evt) => {
             evt.preventDefault();
@@ -173,11 +170,11 @@ export default class TournamentsComponent extends Component {
 
         const header = document.createElement('div');
         header.className = 'flex justify-between items-center mb-6';
-        
+
         const title = document.createElement('h3');
         title.className = 'text-xl font-bold text-white';
         title.textContent = tournament.name;
-        
+
         const actions = document.createElement('div');
         actions.className = 'flex gap-2';
         // Only show star and delete buttons if user is admin
@@ -287,7 +284,7 @@ export default class TournamentsComponent extends Component {
 
             const container = document.createElement('div');
             container.className = 'w-full max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-6';
-            
+
             // Show loading state
             const loadingState = document.createElement('div');
             loadingState.className = 'col-span-full text-center text-gray-400 py-8';
@@ -303,11 +300,11 @@ export default class TournamentsComponent extends Component {
             if (filteredTournaments.length === 0) {
                 const emptyState = document.createElement('div');
                 emptyState.className = 'col-span-full text-center text-gray-400 py-8';
-                emptyState.textContent = this.currentFilter === 'my' 
+                emptyState.textContent = this.currentFilter === 'my'
                     ? 'You are not participating in any tournaments'
                     : this.currentFilter === 'admin'
-                    ? 'You are not an admin of any tournaments'
-                    : 'No tournaments available';
+                        ? 'You are not an admin of any tournaments'
+                        : 'No tournaments available';
                 container.append(emptyState);
             } else {
                 for (const tournament of filteredTournaments) {
@@ -315,7 +312,7 @@ export default class TournamentsComponent extends Component {
                     container.append(card);
                 }
             }
-            
+
             this.element.append(container);
         } catch (error) {
             console.error('Failed to load tournaments', error);
@@ -324,7 +321,7 @@ export default class TournamentsComponent extends Component {
         } finally {
             this.isRendering = false;
         }
-        
+
         super.render(parent);
     }
 } 

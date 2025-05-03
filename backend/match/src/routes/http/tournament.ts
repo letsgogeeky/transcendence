@@ -3,7 +3,7 @@
 import { FastifyInstance } from 'fastify';
 import credentialAuthCheck from '../../plugins/validateToken.js';
 import { GameSettings } from '../ws/session.js';
-import { notifyMatchParticipants } from '../../services/match.service.js';
+import { notifyMatchParticipants, proceedTournament } from '../../services/match.service.js';
 
 interface TournamentOptions {
     winCondition: string; // score or time
@@ -47,6 +47,9 @@ export function tournamentRoutes(app: FastifyInstance) {
             return reply.status(404).send({
                 message: 'Tournament not found',
             });
+        }
+        if (tournament.status === 'in progress') {
+            await proceedTournament(tournament.id, app);
         }
         return reply.status(200).send({
             tournament,
@@ -295,11 +298,86 @@ export function tournamentRoutes(app: FastifyInstance) {
             // set tournament status to in progress
             await app.prisma.tournament.update({ where: { id }, data: { status: 'in progress' } });
             // notify first match participants
-            const notified = await notifyMatchParticipants(matches[0].id, app);
-            if (!notified) {
-                return reply.status(500).send({
-                    message: 'Failed to notify match participants',
+            for (const match of matches) {
+                const notified = await notifyMatchParticipants(match.id, app);
+                if (!notified) {
+                    return reply.status(500).send({
+                        message: 'Failed to notify match participants',
+                    });
+                }
+            }
+            // create pending matches between participants
+            // check if odd number of participants create a match between the last participant and the first participant
+            if (participants.length % 2 !== 0) {
+                const lastParticipant = participants[participants.length - 1];
+                const firstParticipant = participants[0];
+                const match = await app.prisma.match.create({
+                    data: {
+                        userId: lastParticipant.userId,
+                        gameType: '1v1',
+                        status: 'pending',
+                        settings: tournamentSettings,
+                        stats: {},
+                        tournamentId: tournament.id,
+                        participants: {
+                            create: [
+                                { userId: lastParticipant.userId, joinedAt: new Date() },
+                                { userId: firstParticipant.userId, joinedAt: new Date() },
+                            ],
+                        },
+                    },
                 });
+                matches.push(match);
+            }
+            if (participants.length === 3) {
+                return reply.status(200).send({
+                    matches,
+                });
+            }
+            // create pending matches between 1st and 3rd, 2nd and 4th, etc. make sure not to exceed the number of participants
+            const oddParticipants = participants.filter((participant) => participant.status === 'ACCEPTED' && participants.indexOf(participant) % 2 !== 0);
+            const evenParticipants = participants.filter((participant) => participant.status === 'ACCEPTED' && participants.indexOf(participant) % 2 === 0);
+            for (let i = 0; i < oddParticipants.length; i += 2) {
+                const firstParticipant = oddParticipants[i];
+                const secondParticipant = oddParticipants[i + 1];
+                const match = await app.prisma.match.create({
+                    data: {
+                        userId: firstParticipant.userId,
+                        gameType: '1v1',
+                        status: 'pending',
+                        settings: tournamentSettings,
+                        stats: {},
+                        tournamentId: tournament.id,
+                        participants: {
+                            create: [
+                                { userId: firstParticipant.userId, joinedAt: new Date() },
+                                { userId: secondParticipant.userId, joinedAt: new Date() },
+                            ],
+                        },
+                    },
+                });
+                matches.push(match);
+            }
+            for (let i = 0; i < evenParticipants.length; i += 2) {
+                const firstParticipant = evenParticipants[i];
+                const secondParticipant = evenParticipants[i + 1];
+                const match = await app.prisma.match.create({
+                    data: {
+                        userId: firstParticipant.userId,
+                        gameType: '1v1',
+                        status: 'pending',
+                        settings: tournamentSettings,
+                        stats: {},
+                        tournamentId: tournament.id,
+                        participants: {
+                            create: [
+                                { userId: firstParticipant.userId, joinedAt: new Date() },
+                                { userId: secondParticipant.userId, joinedAt: new Date() },
+                            ],
+                        },
+                    },
+                });
+                matches.push(match);
             }
             return reply.status(200).send({
                 matches,
