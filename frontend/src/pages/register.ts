@@ -24,7 +24,7 @@ export default class RegisterComponent extends Component {
 		container.appendChild(signUpText);
 
         // Input Fields Styling
-		const inputStyle = 'border border-[#8b5973] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#8b5973] opacity-60'; 
+		const inputStyle = 'border border-[#530a35] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#530a35] opacity-60'; 
 
         // Email, Name, and Password Inputs
         const emailInput = new Input(
