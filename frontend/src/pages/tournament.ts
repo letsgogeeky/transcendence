@@ -298,7 +298,7 @@ export default class TournamentComponent extends Component {
             leftSide.append(tournamentInfo);
 
             // Action buttons section
-            if (this.data.tournament.status !== 'in progress' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+            if (this.data.tournament.status !== 'in progress' && this.data.tournament.status !== 'finished' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
                 const actionButtons = document.createElement('div');
                 actionButtons.className = 'flex justify-between mt-4';
 
@@ -342,7 +342,7 @@ export default class TournamentComponent extends Component {
             leftSide.append(this.participantsSection);
 
             // Add participant form
-            if (this.data.tournament.status !== 'in progress' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+            if (this.data.tournament.status !== 'in progress' && this.data.tournament.status !== 'finished' && this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
                 const addParticipantSection = document.createElement('div');
                 addParticipantSection.className = 'mt-8 pt-8 border-t border-gray-700';
                 this.renderAddParticipantForm(addParticipantSection);
@@ -352,14 +352,9 @@ export default class TournamentComponent extends Component {
             container.append(leftSide);
 
             // Right side - Matches (only shown when tournament is in progress)
-            if (this.data.tournament.status === 'in progress') {
+            if (this.data.tournament.status === 'in progress' || this.data.tournament.status === 'finished') {
                 const rightSide = document.createElement('div');
                 rightSide.className = 'flex-1 space-y-8';
-
-                const matchesTitle = document.createElement('h2');
-                matchesTitle.textContent = 'Tournament Matches';
-                matchesTitle.className = 'text-2xl font-bold text-white mb-4';
-                rightSide.append(matchesTitle);
 
                 const matchesList = document.createElement('div');
                 matchesList.className = 'space-y-4';

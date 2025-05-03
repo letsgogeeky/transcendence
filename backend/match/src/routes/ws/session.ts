@@ -9,6 +9,7 @@ import { Ball } from './ball.js';
 import { WebSocket } from "ws";
 import { Player } from './player.js';
 import { FastifyInstance } from 'fastify';
+import { endMatch } from '../../services/match.service.js';
 
 export async function loadPhysics() {
 	const __filename = fileURLToPath(import.meta.url);
@@ -248,10 +249,7 @@ export class GameSession {
 				message ? message : endMessage}))
 		});
 		this.status = GameStatus.ENDED;
-		this.app.prisma.match.update({
-			where: { id: this.id },
-			data: { status: 'ended' }
-		}).catch((err: any) => console.error('Error updating match status:', err));
+		endMatch(this.id, this.app).catch((err: any) => console.error('Error ending match:', err));
 	}
 
     private async startGameLoop() {
