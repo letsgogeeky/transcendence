@@ -74,9 +74,45 @@ export class ChatManager {
         const chatRoomId = data.data.chatRoomId;
         console.log('Target chatRoomId:', chatRoomId);
         // check if the chat room is open
-        if (this.activeChats.has(chatRoomId)) {
+
+        if (data.type === 'inviteToPlay') {
+            const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+
+            const acceptGame = () => {
+                // start a game with data.data.userId vs data.id
+                
+
+                console.log('Start match:', data.data.userId, data.id);
+
+                showToast(
+                    ToastState.SUCCESS,
+                    `Your game will start soon against "${data.data.name}"`,
+                    3000
+                );
+            };
+            const rejectGame = () => {
+
+                showToast(
+                    ToastState.NOTIFICATION,
+                    `You have declined the invitation`,
+                    3000
+                );
+            };
+            showToast(
+                ToastState.NOTIFICATION,
+                `You've been invited to play vs: "${data.data.name}"`,
+                0,
+                [
+                    { text: 'Accept', action: acceptGame },
+                    { text: 'Reject', action: rejectGame }
+                ]
+            );
+        } else if (this.activeChats.has(chatRoomId)) {
             const chatComponent = this.activeChats.get(chatRoomId);
             console.log('Target chatRoomId: open');
+
+            
+
 
             if (chatComponent) {
                 if (data.type === 'chatMessage') {
@@ -89,6 +125,38 @@ export class ChatManager {
                                 : message.name;
                         chatComponent.displayMessage(message.content, senderName);
                     });
+                } else if (data.type === 'inviteToPlay') {
+                    const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+    
+                    const acceptGame = () => {
+                        // start a game with data.data.userId vs data.id
+                        
+    
+                        console.log('Start match:', data.data.userId, data.id);
+    
+                        showToast(
+                            ToastState.SUCCESS,
+                            `Your game will start soon against "${data.data.name}"`,
+                            3000
+                        );
+                    };
+                    const rejectGame = () => {
+    
+                        showToast(
+                            ToastState.NOTIFICATION,
+                            `You have declined the invitation`,
+                            3000
+                        );
+                    };
+                    showToast(
+                        ToastState.NOTIFICATION,
+                        `You've been invited to play vs: "${data.data.name}"`,
+                        0,
+                        [
+                            { text: 'Accept', action: acceptGame },
+                            { text: 'Reject', action: rejectGame }
+                        ]
+                    );
                 }
             }
         } else {
