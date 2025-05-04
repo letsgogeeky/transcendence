@@ -15,7 +15,7 @@ export default class ProfileComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'flex flex-col items-center gap-8 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-8';
+        this.element.className = 'flex flex-col items-center gap-8 min-h-screen py-8';
     }
 
     async fetchData() {
@@ -157,7 +157,9 @@ export default class ProfileComponent extends Component {
         } else {
             // Profile Header
             const profileHeader = document.createElement('div');
-            profileHeader.className = 'flex flex-col items-center gap-4 w-full max-w-2xl bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-700';
+            // profileHeader.className = 'flex flex-col items-center gap-4 w-full max-w-2xl bg-[#423a47] rounded-xl p-8 shadow-lg border border-gray-700';
+			profileHeader.className = 'flex flex-col items-center gap-4 w-full max-w-2xl bg-gray-800 rounded-xl p-8 shadow-lg border border-[#1e3a59] shadow-[#1e3a59]';
+			profileHeader.style.boxShadow = '0 0 15px 5px rgba(0, 255, 255, 0.8)';
 
             const avatar = new AvatarImageComponent(
                 this.data.name + "'s avatar",
@@ -183,7 +185,9 @@ export default class ProfileComponent extends Component {
 
             // Add tabs
             const tabs = this.createTabs();
-            contentSection.append(tabs);
+			tabs.className = 'flex justify-center items-center gap-4 mb-8';  // Add flex and center styles
+			contentSection.append(tabs);
+
 
             if (this.activeTab === 'tournaments') {
                 // Tournaments Section

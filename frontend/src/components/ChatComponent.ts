@@ -24,7 +24,7 @@ export default class ChatComponent extends Component {
     constructor(private chatRoomId: string, private friendName: string, private ws: WebSocket | null) {
         super();
         this.chatWindow = document.createElement('div');
-        this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
+        this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col z-50';
         this.chatWindow.style.width = '400px';
         this.chatWindow.style.height = '500px';
         this.chatWindow.style.overflow = 'hidden';

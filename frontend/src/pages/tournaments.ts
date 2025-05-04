@@ -3,6 +3,8 @@ import { Services } from "../services/send-request";
 import State from "../services/state";
 import sendRequest from "../services/send-request";
 import ErrorComponent from "./error";
+import { loadImage } from "../styles/background";
+import { IconLinkComponent } from '../components/Link';
 
 interface Tournament {
     id: string;
@@ -34,18 +36,26 @@ export default class TournamentsComponent extends Component {
     private isRendering: boolean = false;
 
     constructor() {
-        super();
-        const container = document.createElement('div');
-        container.className = 'flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-gray-800';
-        const title = document.createElement('h1');
-        title.textContent = 'Tournaments';
-        title.className = 'text-3xl font-bold mb-8 text-white';
-        this.element = container;
-        container.append(title);
-        this.currentUserId = State.getState().getCurrentUser()?.id || null;
-        // Initialize filter from URL
-        const params = new URLSearchParams(window.location.search);
-        this.currentFilter = (params.get('filter') as TournamentFilter) || 'all';
+		super();
+		this.element = document.createElement('div');
+		this.element.className = 'relative flex flex-col items-center justify-center min-h-screen';  // Add 'relative' class for absolute positioning
+	
+		const createTournLink = new IconLinkComponent('home', 'create-tournament', 'h-6 transition-transform duration-300 ease-in-out hover:scale-110 hover:opacity-80');
+		createTournLink.render(this.element);
+
+		const title = document.createElement('h1');
+		title.textContent = 'Tournaments';
+		title.className = 'text-sm font-semibold text-white';  // Title styling
+	
+		this.element.appendChild(createTournLink.element);
+		this.element.appendChild(title);
+	
+		// this.element = container;
+		this.currentUserId = State.getState().getCurrentUser()?.id || null;
+	
+		// Initialize filter from URL
+		const params = new URLSearchParams(window.location.search);
+		this.currentFilter = (params.get('filter') as TournamentFilter) || 'all';
     }
 
     private async getUser(userId: string): Promise<User> {
@@ -274,10 +284,19 @@ export default class TournamentsComponent extends Component {
         this.isRendering = true;
         try {
             this.element.innerHTML = '';
-            const title = document.createElement('h1');
-            title.textContent = 'Tournaments';
+			this.element.className = 'relative flex flex-col items-center justify-center min-h-screen';
+
+			const createTournLink = new IconLinkComponent('create_button', 'create-tournament', 'absolute top-12 right-10 h-24 transition-transform duration-300 ease-in-out hover:scale-110 hover:opacity-80');
+			createTournLink.render(this.element);
+
+			const title = document.createElement('h1');
+			title.textContent = 'Tournaments';
+			// title.className = 'text-sm font-semibold text-white';  // Title styling
             title.className = 'text-3xl font-bold mb-8 text-white';
-            this.element.append(title);
+		
+			this.element.appendChild(createTournLink.element);
+			this.element.appendChild(title);
+            // this.element.append(title);
 
             // Add filter UI
             this.element.append(this.createFilterUI(parent));

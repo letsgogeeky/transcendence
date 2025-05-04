@@ -18,8 +18,7 @@ export default class Select extends Component {
         const labelElement = document.createElement('label');
         labelElement.htmlFor = id;
         labelElement.innerText = label;
-        labelElement.className = 'text-white text-sm font-medium';
-        
+        labelElement.className = 'text-white text-md font-medium';
         this.selectElement = document.createElement('select');
         this.selectElement.id = id;
         this.selectElement.name = id;

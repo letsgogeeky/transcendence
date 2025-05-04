@@ -230,7 +230,7 @@ export default class UsersPageComponent extends Component {
                     callback: (friendData: any) => {
                         this.createChatWindow(friendData.user.id, friendData.user.name);
                     },
-                    label: 'Chat',
+                    label: '💬 Chat ',
                 },
             ],
             true,
@@ -261,6 +261,12 @@ export default class UsersPageComponent extends Component {
                     callback: this.declineRequest,
                     label: 'Cancel',
                 },
+				{
+                    callback: (friendData: any) => {
+                        this.createChatWindow(friendData.user.id, friendData.user.name);
+                    },
+                    label: '💬 Chat',
+                },
             ],
         );
 
@@ -277,7 +283,7 @@ export default class UsersPageComponent extends Component {
                     callback: (friendData: any) => {
                         this.createChatWindow(friendData.user.id, friendData.user.name);
                     },
-                    label: 'Chat',
+                    label: '💬 Chat',
                 },
             ],
         );

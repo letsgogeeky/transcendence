@@ -12,6 +12,11 @@ export const RegisterSuccess = Type.Object({
     id: Type.String(),
 });
 
+function assignAvatarRandomly(): string {
+	const randomIndex = Math.floor(Math.random() * 10) + 1; // 1 to 10
+	return `assets/avatars/${randomIndex}.gif`;
+}
+
 export function registerRoutes(fastify: FastifyInstance) {
     fastify.setErrorHandler(function (error, request, reply) {
         this.log.error(error);
@@ -49,7 +54,7 @@ export function registerRoutes(fastify: FastifyInstance) {
                     emailVerificationToken: token,
                     registrationDate: new Date().toISOString(),
                     phoneNumber: phoneNumber,
-                    avatarUrl: 'assets/forgetful.gif',
+                    avatarUrl: assignAvatarRandomly(),
                 },
             });
             reply.status(200).send({ id: result.id });

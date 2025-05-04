@@ -138,6 +138,11 @@ export function loginRoutes(fastify: FastifyInstance) {
         return lastDigit + 1;
     }
 
+	function assignAvatarRandomly(): string {
+		const randomIndex = Math.floor(Math.random() * 10) + 1; // 1 to 10
+		return `assets/avatars/${randomIndex}.gif`;
+	}
+
     async function registerGoogleUser(email: string, name: string) {
         try {
             await fastify.prisma.user.create({
@@ -149,7 +154,7 @@ export function loginRoutes(fastify: FastifyInstance) {
                     registrationDate: new Date().toISOString(),
                     emailValidated: 1,
                     googleLinkedAccount: 1,
-                    avatarUrl: 'assets/forgetful.gif',
+                    avatarUrl: assignAvatarRandomly(),
                 },
             });
         } catch (error) {
@@ -163,7 +168,7 @@ export function loginRoutes(fastify: FastifyInstance) {
                     registrationDate: new Date().toISOString(),
                     emailValidated: 1,
                     googleLinkedAccount: 1,
-                    avatarUrl: 'assets/forgetful.gif',
+                    avatarUrl: assignAvatarRandomly(),
                 },
             });
         }

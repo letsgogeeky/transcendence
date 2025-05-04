@@ -10,7 +10,7 @@ export default class ChangePasswordComponent extends Component {
     constructor() {
         super();
         const container = document.createElement('div');
-        container.className = 'text-center';
+        // container.className = 'text-center';
         container.style.display = 'flex';
         container.style.flexDirection = 'column';
         container.style.gap = '10px';
@@ -21,37 +21,37 @@ export default class ChangePasswordComponent extends Component {
         this.element = container;
 
         const inputStyle = 'border border-gray-300 rounded p-2 w-full';
-        const oldPassword = new Input(
-            'oldPassword',
-            'password',
-            'oldPassword',
-            true,
-            null,
-            inputStyle,
-        );
+		const oldPassword = new Input(
+			'🕰️ Old password',  // Label
+			'password',
+			'oldPassword',
+			true,
+			'old password',     // Placeholder (without emoji)
+			inputStyle
+		);
         const newPassword = new Input(
-            'newPassword',
+            '🆕  New password',
             'password',
             'newPassword',
             true,
-            null,
+            'new password',
             inputStyle,
         );
         const confirmPassword = new Input(
-            'confirmPassword',
+            '✅ Confirm password',
             'password',
             'confirmPassword',
             true,
-            null,
+            'confirm password',
             inputStyle,
         );
 
         this.form = new FormComponent(
-            'Change password',
+            'update',
             [oldPassword, newPassword, confirmPassword],
             (data) => this.changePassword(data),
         );
-        this.form.className = 'flex flex-col gap-4 w-64';
+        this.form.className = 'flex flex-col gap-4 w-72';
     }
 
     public render(parent: HTMLElement | Component): void {

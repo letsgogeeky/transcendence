@@ -1,4 +1,4 @@
-import Button from "../components/Button";
+import Button from "../components/button";
 import Component from "../components/Component";
 import FormComponent from "../components/Form/Form";
 import Input from "../components/Form/Input";
@@ -6,20 +6,15 @@ import Select from "../components/Form/Select";
 import { Services } from "../services/send-request";
 import State from "../services/state";
 import sendRequest from "../services/send-request";
-import { buttonStyle, inputStyle, selectStyle } from "../styles/classes";
+import { buttonStyle, inputStyle, selectStyle, selectStyle2 } from "../styles/classes";
+import { loadImage, copyrightLine } from '../styles/background'
 
 export default class CreateTournamentComponent extends Component {
     readonly element: HTMLElement;
 
     constructor() {
         super();
-        const container = document.createElement('div');
-        container.className = 'flex flex-col items-center justify-center min-h-screen bg-gradient-to-b';
-        const title = document.createElement('h1');
-        title.textContent = 'Create Tournament';
-        title.className = 'text-3xl font-bold mb-8 text-white';
-        this.element = container;
-        container.append(title);
+        this.element = document.createElement('div');
     }
     
     static async createTournament(formData: any): Promise<Response> {
@@ -41,26 +36,38 @@ export default class CreateTournamentComponent extends Component {
 
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
+		this.element.className = 'w-full h-screen flex flex-col justify-center items-center -mt-12';
+
+		const titleHeader = document.createElement('div');
+		titleHeader.className = 'flex justify-center items-center w-full mt-8 mb-8';
+		titleHeader.appendChild(loadImage('trophy.gif', 'w-20 h-20 mt-1', 'Trophy gif'));
+
         const title = document.createElement('h1');
-        title.textContent = 'Create Tournament';
-        title.className = 'text-3xl font-bold mb-8 text-white';
-        this.element.append(title);
+		title.textContent = 'Create Tournament';
+		title.className = 'font-black text-3xl px-8 py-4 text-black transition-all pointer-events-auto font-impact rounded-xl';
+		title.style.webkitTextStroke = `1.5px #eedee5`;
+		title.style.textShadow = `0 0 6px #eedee5, 0 0 12px #eedee5`;
+		title.style.fontFamily = 'Arial Black, Gadget, sans-serif';
+		titleHeader.appendChild(title);
+        this.element.appendChild(titleHeader);
 
         const formContainer = document.createElement('div');
-        formContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-gray-800 rounded-xl shadow-2xl space-y-8 border border-gray-700';
-        
-        const tournamentNameInput = new Input('Name', 'text', 'name', true, null);
-        const winConditionDropdown = new Select('Win Condition', 'condition', [{ value: 'score', text: 'Score' }, { value: 'time', text: 'Time' }], true, selectStyle);
-        const winScoreOrTimeInput = new Input('Win Score or Time', 'text', 'win_score_time', true, null);
+		formContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-[#2b272f] rounded-xl space-y-8 border border-[#eedee5]';
+		formContainer.style.boxShadow = '0 0 6px #eedee5, 0 0 12px #eedee5';
+        const tournamentNameInput = new Input('📝  Name', 'text', 'name', true, 'name for the tournament', );
+        const winConditionDropdown = new Select('🏁 Win Condition', 'condition', [{ value: 'score', text: '🎯 Score' }, { value: 'time', text: ' ⏱️ Time' }], true, selectStyle2);
+        const winScoreOrTimeInput = new Input('Win Score or Time', 'text', 'win_score_time', true, 'Points or seconds, respectively');
         
         const form = new FormComponent(
-            'Create Tournament',
+            'Create',
             [tournamentNameInput, winConditionDropdown, winScoreOrTimeInput],
             (data) => CreateTournamentComponent.createTournament(data),
             CreateTournamentComponent.createTournamentCallback,
         );
         form.render(formContainer);
-        this.element.append(formContainer);
+		
+        this.element.appendChild(formContainer);
+		this.element.append(copyrightLine());
         super.render(parent);
     }
 }
