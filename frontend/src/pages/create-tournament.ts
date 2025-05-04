@@ -7,6 +7,7 @@ import { Services } from "../services/send-request";
 import State from "../services/state";
 import sendRequest from "../services/send-request";
 import { buttonStyle, inputStyle, selectStyle, selectStyle2 } from "../styles/classes";
+import { loadImage, copyrightLine } from '../styles/background'
 
 export default class CreateTournamentComponent extends Component {
     readonly element: HTMLElement;
@@ -14,7 +15,7 @@ export default class CreateTournamentComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        this.element.className = 'flex flex-col items-center justify-center min-h-screen ';
+        // this.element.className = 'flex flex-col items-center justify-center min-h-screen ';
     }
     
     static async createTournament(formData: any): Promise<Response> {
@@ -36,13 +37,25 @@ export default class CreateTournamentComponent extends Component {
 
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
+		// this.element.className = 'w-full h-screen flex flex-col items-center';
+		this.element.className = 'w-full h-screen flex flex-col justify-center items-center -mt-12';
+
+
+		const titleHeader = document.createElement('div');
+		// titleHeader.className = 'flex justify-center items-center w-full mt-16 ';
+		titleHeader.className = 'flex justify-center items-center w-full mt-8 mb-8';
+
+
+		titleHeader.appendChild(loadImage('trophy.gif', 'w-20 h-20 mt-1', 'Trophy gif'));
+
         const title = document.createElement('h1');
 		title.textContent = 'Create Tournament';
-		title.className = 'font-black text-3xl px-8 py-4 text-black transition-all pointer-events-auto font-impact rounded-xl mb-8';
+		title.className = 'font-black text-3xl px-8 py-4 text-black transition-all pointer-events-auto font-impact rounded-xl';
 		title.style.webkitTextStroke = `1.5px #eedee5`;
 		title.style.textShadow = `0 0 6px #eedee5, 0 0 12px #eedee5`;
 		title.style.fontFamily = 'Arial Black, Gadget, sans-serif';
-        this.element.append(title);
+		titleHeader.appendChild(title);
+        this.element.appendChild(titleHeader);
 
         const formContainer = document.createElement('div');
 		formContainer.className = 'w-1/2 max-w-md mx-auto p-8 bg-[#2b272f] rounded-xl space-y-8 border border-[#eedee5]';
@@ -52,13 +65,14 @@ export default class CreateTournamentComponent extends Component {
         const winScoreOrTimeInput = new Input('Win Score or Time', 'text', 'win_score_time', true, 'Points or seconds, respectively');
         
         const form = new FormComponent(
-            'Create Tournament',
+            'Create',
             [tournamentNameInput, winConditionDropdown, winScoreOrTimeInput],
             (data) => CreateTournamentComponent.createTournament(data),
             CreateTournamentComponent.createTournamentCallback,
         );
         form.render(formContainer);
-        this.element.append(formContainer);
+		
+        this.element.appendChild(formContainer);
         super.render(parent);
     }
 }
