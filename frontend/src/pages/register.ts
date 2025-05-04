@@ -3,7 +3,7 @@ import FormComponent from '../components/Form/Form';
 import Input from '../components/Form/Input';
 import LinkComponent from '../components/Link';
 import sendRequest, { Services } from '../services/send-request';
-import { loadBackgroundGif, loadImage } from '../styles/background'
+import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
 
 export default class RegisterComponent extends Component {
     readonly element: HTMLElement;
@@ -24,7 +24,7 @@ export default class RegisterComponent extends Component {
 		container.appendChild(signUpText);
 
         // Input Fields Styling
-		const inputStyle = 'border border-[#8b5973] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[4px_4px_10px_#8b5973] opacity-60'; 
+		const inputStyle = 'border border-[#e8e0ec] border-4 rounded-xl p-2 w-80 mb-4 shadow-[4px_4px_10px_#e8e0ec] opacity-60'; 
 
         // Email, Name, and Password Inputs
         const emailInput = new Input(
@@ -78,5 +78,6 @@ export default class RegisterComponent extends Component {
         loginLink.render(container);
 
         this.element = container; // Set the final element
+		this.element.append(copyrightLine());
     }
 }

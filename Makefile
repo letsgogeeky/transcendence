@@ -1,4 +1,9 @@
-.PHONY: build-frontend run-frontend fclean
+.PHONY: build-frontend run-frontend fclean help
+
+# ANSI color codes
+BLUE = \033[1;34m
+GREEN = \033[1;32m
+NC = \033[0m
 
 build-frontend:
 	docker compose build frontend
@@ -28,6 +33,8 @@ up: ensure-volumes
 	@docker compose -f ./docker-compose.yml exec auth npx prisma db push
 	@docker compose -f ./docker-compose.yml exec match npx prisma db push
 	@docker compose -f ./docker-compose.yml exec chat npx prisma db push
+	@echo "$(GREEN)Services started successfully!$(NC)"
+	@echo "$(BLUE)To see the services, run: make help$(NC)"
 
 down: 
 	@docker compose -f ./docker-compose.yml down
@@ -77,3 +84,65 @@ fclean: down
 	@echo "Cleanup complete!"
 
 re: fclean up
+
+help:
+	@echo "$(BLUE)=== Core Application Services ===$(NC)"
+	@echo "$(GREEN)Auth Service$(NC)"
+	@echo "  Location: ./backend/auth"
+	@echo "  Port: 8081"
+	@echo "  Protocol: HTTP"
+	@echo "  Database: SQLite at /app/db/auth.db"
+	@echo ""
+	@echo "$(GREEN)Match Service$(NC)"
+	@echo "  Location: ./backend/match"
+	@echo "  Port: 8082"
+	@echo "  Protocol: HTTP"
+	@echo "  Database: SQLite at /app/db/match.db"
+	@echo ""
+	@echo "$(GREEN)Chat Service$(NC)"
+	@echo "  Location: ./backend/chat"
+	@echo "  Port: 8083"
+	@echo "  Protocol: HTTP"
+	@echo "  Database: SQLite at /app/db/chat.db"
+	@echo ""
+	@echo "$(GREEN)Frontend Service$(NC)"
+	@echo "  Location: ./frontend"
+	@echo "  Port: 3000"
+	@echo "  Protocol: HTTP"
+	@echo ""
+	@echo "$(BLUE)=== Infrastructure Services ===$(NC)"
+	@echo "$(GREEN)Nginx$(NC)"
+	@echo "  Location: ./infra/nginx"
+	@echo "  Ports: 80:80 (HTTP), 443:443 (HTTPS)"
+	@echo "  Protocol: HTTP/HTTPS"
+	@echo ""
+	@echo "$(GREEN)Nginx Exporter$(NC)"
+	@echo "  Image: nginx/nginx-prometheus-exporter"
+	@echo "  Port: 9113"
+	@echo "  Protocol: HTTP"
+	@echo ""
+	@echo "$(GREEN)Node Exporter$(NC)"
+	@echo "  Image: prom/node-exporter"
+	@echo "  Port: 9100"
+	@echo "  Protocol: HTTP"
+	@echo ""
+	@echo "$(GREEN)Prometheus$(NC)"
+	@echo "  Image: prom/prometheus"
+	@echo "  Port: 9090"
+	@echo "  Protocol: HTTP"
+	@echo ""
+	@echo "$(GREEN)Grafana$(NC)"
+	@echo "  Image: grafana/grafana"
+	@echo "  Port: 3001"
+	@echo "  Protocol: HTTP"
+	@echo ""
+	@echo "$(BLUE)=== Network Configuration ===$(NC)"
+	@echo "All services are connected through a bridge network named app-network"
+	@echo ""
+	@echo "$(BLUE)=== Volume Mounts ===$(NC)"
+	@echo "Common volumes shared across services:"
+	@echo "  - ./certs (SSL certificates)"
+	@echo "  - ./uploads (file storage)"
+	@echo "  - ./db (database files)"
+	@echo "Each service has its own source code mounted from its respective directory"
+

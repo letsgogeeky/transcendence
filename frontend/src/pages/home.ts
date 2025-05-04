@@ -56,7 +56,7 @@ export default class HomeComponent extends Component {
 	}
 
 	private buildLoggedOutUI() {
-
+		this.element.innerHTML = '';
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
 		backgroundImage.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and left
@@ -75,13 +75,6 @@ export default class HomeComponent extends Component {
 		// Logo section
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
-
-		// if (window.innerWidth >= 2000) {
-		// 	logoClass += ' max-w-[600px]'; // for the Mac in School
-		// } else {
-		// 	logoClass += ' max-w-[400px]'; //how i designed it initially for laptop screens
-		// }
-		// logoContainer.appendChild(loadImage('PongJamLogo.png', logoClass, 'Game Logo'));
 		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[450px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
@@ -123,6 +116,7 @@ export default class HomeComponent extends Component {
 			if (data.match) {
 				showToast(ToastState.SUCCESS, 'Queue joined successfully');
 				this.renderBasedOnUser();
+				// this.buildLoggedInUI();
 			} else {
 				showToast(ToastState.ERROR, 'Failed to join queue. Please try again.');
 			}
@@ -147,6 +141,7 @@ export default class HomeComponent extends Component {
 	}
 
 	private async buildLoggedInUI() {
+
 		const isInQueue = await this.isInQueue();
 		const level = await this.getPlayerLevelAgainstAI();
 		this.element.innerHTML = '';
@@ -154,77 +149,90 @@ export default class HomeComponent extends Component {
 
 		const contentContainer = document.createElement('div');
 		contentContainer.className = 'flex flex-col items-center relative z-10';
-		
+
+		// Centered PLAY GIF
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-10';
-		
 		logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
+		contentContainer.appendChild(logoContainer);
+
+		// Flex container for the three sections: Local, Remote, Tournament
+		const sectionsContainer = document.createElement('div');
+		sectionsContainer.className = 'flex flex-wrap justify-center gap-20 w-full';
+
+
+		// Helper to create section blocks
+		const createSection = (title: string, buttons: HTMLElement[], color: string) => {
+			const section = document.createElement('div');
+			// section.className = 'flex w-86 flex-col items-center gap-4';
+			section.className = 'flex flex-col items-center gap-4 w-72';
 		
-		// Preconfigured game mode buttons
-		const gameModeContainer = document.createElement('div');
-		gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
+			const sectionTitle = document.createElement('h1');
+			sectionTitle.textContent = title;
+			// sectionTitle.className = 'text-[32px] font-extrabold mb-2';
+			sectionTitle.className = 'font-black text-[2.5rem] px-8 py-4 text-black transition-all pointer-events-auto font-impact rounded-xl';
+			sectionTitle.style.webkitTextStroke = `1.5px ${color}`;
+			sectionTitle.style.textShadow = `0 0 6px ${color}, 0 0 12px ${color}`;
+			sectionTitle.style.fontFamily = 'Arial Black, Gadget, sans-serif';
 
-		const gameModes = [
-			{ mode: '1v1guest', label: `1 v 1 (Local)`, color: '#ABE770' },
-			{ mode: '1v1', label: '1 v 1 (Online)', color: '#73e775' },
-			{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
-			{ mode: '1vAI', label: `1 vs AI (Level ${level.level})`, color: '#FFCC00' },
-			{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
-		];
+			section.appendChild(sectionTitle);
+			buttons.forEach(btn => section.appendChild(btn));
+			return section;
+		};
+
+		// Local buttons
+		const btn1v1Local = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1guest'), '#f9de91');
+		const btnVsAI = createStyledButtonWithHandler(`against AI (Level ${level.level})`, () => this.createPreconfiguredGame('1vAI'), '#cb9a0d');
+		const localSection = createSection('LOCALLY', [btn1v1Local, btnVsAI], '#FFCC00'); // yellow
 		
-		gameModes.forEach(({ mode, label, color }) => {
-			const btn = createStyledButtonWithHandler(
-				label,
-				() => this.createPreconfiguredGame(mode),
-				color
-			);
-			gameModeContainer.appendChild(btn);
-		});
-		
-		const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
-		applyStyledAppearance(tournamentLink.element, '#b98cdc');
-		tournamentLink.render(this.element);
+		// Remote buttons
+		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#baddf3');
+		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#2acdf5');
+		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#077eb9');
+		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll], '#20A4D6'); // blue
 
-		gameModeContainer.appendChild(tournamentLink.element);
+		// Tournament buttons
+		const createTournamentLink = new LinkComponent('Create Tournament', '/create-tournament');
+		applyStyledAppearance(createTournamentLink.element, '#f5b3eb');
 
-		// const gameModes = [
-		// 	{ mode: '1v1', label: '1v1', color: '#4CAF50' },
-		// 	{ mode: '1vAI', label: '1vAI', color: '#2196F3' },
-		// 	{ mode: '2v2', label: '2v2', color: '#FF9800' },
-		// 	{ mode: 'All vs All', label: 'All vs All', color: '#E91E63' }
-		// ];
+		const viewTournamentsLink = new LinkComponent('View Tournaments', '/tournaments');
+		applyStyledAppearance(viewTournamentsLink.element, '#c433a1');
 
-		// gameModes.forEach(({ mode, label, color }) => {
-		// 	const button = new Button(
-		// 		label,
-		// 		() => this.createPreconfiguredGame(mode),
-		// 		`w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10`
-		// 	);
-		// 	button.element.style.backgroundColor = color;
-		// 	button.element.style.pointerEvents = 'auto';
-		// 	gameModeContainer.appendChild(button.element);
-		// });
+		const tournamentSection = createSection('TOURNAMENT', [createTournamentLink.element, viewTournamentsLink.element], '#eb5ba5'); // magenta
 
-		contentContainer.append(logoContainer, gameModeContainer);
+		// Append sections to main container
+		sectionsContainer.append(localSection, remoteSection, tournamentSection);
+		contentContainer.appendChild(sectionsContainer);
+
+		this.element.appendChild(contentContainer);
 
 		if (isInQueue?.inQueue) {
 			// show queue countdown
 			const queueCountdown = document.createElement('div');
-			queueCountdown.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10 text-white text-lg font-bold';
-			queueCountdown.textContent = `In Queue since ${isInQueue.since}`;
+			queueCountdown.className = 'flex flex-wrap text-[#dccde4] justify-center gap-4 mt-20 mb-8 relative z-10 text-lg font-bold';
+			queueCountdown.textContent = `⏳ In Queue since ${isInQueue.since}`;
 			contentContainer.append(queueCountdown);
-
+		
 			const leaveQueueButtonContainer = document.createElement('div');
 			leaveQueueButtonContainer.className = 'flex flex-wrap justify-center gap-4 mb-8 relative z-10';
 
 			const leaveQueueButton = new Button(
-				'Leave Queue',
+				'Leave Queue 🔚 ',
 				() => this.leaveQueue(),
-				'w-40 border-2 border-white text-white text-lg font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 cursor-pointer relative z-10'
+				'w-auto text-xl font-bold py-2 px-4 rounded-lg relative z-10 cursor-pointer border-[3px] text-[#87184b] border-[#87184b] bg-[#dccde4] hover:brightness-105 whitespace-nowrap'
 			);
-			leaveQueueButton.element.style.backgroundColor = '#E91EA3';
-			leaveQueueButton.element.style.pointerEvents = 'auto';
-			leaveQueueButtonContainer.appendChild(leaveQueueButton.element);
+		
+			// Hover sparkle effect
+			const buttonEl = leaveQueueButton.element;
+			buttonEl.addEventListener('mouseenter', () => {
+				buttonEl.style.boxShadow = '0 0 10px 2px #87184b';
+			});
+			buttonEl.addEventListener('mouseleave', () => {
+				buttonEl.style.boxShadow = 'none';
+			});
+			leaveQueueButtonContainer.appendChild(buttonEl);
+			
+			// leaveQueueButtonContainer.appendChild(leaveQueueButton);
 			contentContainer.append(leaveQueueButtonContainer);
 		}
 

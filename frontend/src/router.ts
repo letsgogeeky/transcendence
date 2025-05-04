@@ -28,9 +28,9 @@ export type Route = {
 
 export const routes: Route[] = [
 	/** 1) GENERAL PAGES */
-  { 
+	{ 
 		path: '/', // The home page (/) is mapped to HomeComponent, meaning that when a user first opens the website at /, the HomeComponent is rendered:
-		title: 'Home',
+		title: 'PongJam',
 		component: new HomeComponent(),
 		visible: true 
 	},
@@ -44,7 +44,7 @@ export const routes: Route[] = [
 		path: '/about',
 		title: 'About',
 		component: new AboutComponent(),
-		visible: true,
+		visible: false,
 	},
 	/** 2) PAGES BEFORE LOG IN: */
 	{
@@ -86,21 +86,27 @@ export const routes: Route[] = [
 	/** 3) PAGES AFTER LOG IN: */
 	//	   A. Regarding User(s)
 	{
-		path: '/settings',
-		title: 'User settings',
-		component: new UserSettingsComponent(),
-		visible: false,
-	},
-	{
-		path: '/profile',
-		title: 'User profile',
-		component: new ProfileComponent(),
+		path: '/tournaments',
+		title: 'Tournaments',
+		component: new TournamentsComponent(),
 		visible: false,
 	},
 	{
 		path: '/users',
 		title: 'Users',
 		component: new UsersPageComponent(),
+		visible: false,
+	},
+	{
+		path: '/settings',
+		title: 'Settings',
+		component: new UserSettingsComponent(),
+		visible: false,
+	},
+	{
+		path: '/profile',
+		title: 'Profile',
+		component: new ProfileComponent(),
 		visible: false,
 	},
 	//	   B. Regarding the Game
@@ -114,12 +120,6 @@ export const routes: Route[] = [
 		path: '/tournament',
 		title: 'Tournament',
 		component: new TournamentComponent(),
-		visible: false,
-	},
-	{
-		path: '/tournaments',
-		title: 'Tournaments',
-		component: new TournamentsComponent(),
 		visible: false,
 	},
 	{

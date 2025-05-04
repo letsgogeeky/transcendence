@@ -451,6 +451,7 @@ export default class GameComponent extends Component {
 	public render(parent: HTMLElement | Component): void {
 		if (this.isRendering) return;
 		console.log("Rendering game");
+		this.element.style.display = "block";
 		this.isRendering = true;
 		this.element.innerHTML = '';
 		this.element.appendChild(this.loadingScreenDiv);
@@ -509,7 +510,7 @@ export default class GameComponent extends Component {
 		if (this.engine) {
 			this.engine.dispose();
 		}
-
+		this.element.style.display = "none";
 		// Call parent cleanup
 		super.cleanup();
 	}

@@ -29,10 +29,17 @@ CHAT_DATABASE_URL="file:/app/db/chat.db"
 MATCH_DATABASE_URL="file:/app/db/match.db"
 UPLOAD_DIR="/app/uploads"
 NODE_ENV=development
+GRAFANA_USERNAME=admin
+GRAFANA_PASSWORD=admin
+AUTH_SERVICE_URL=http://auth:8081/auth
 EOL
 
     echo ".env file created successfully!"
     echo "Please update the sensitive values in the .env file with your actual credentials."
+    ## warn of the empty keys that needs to be set
+    echo "Warning: The following keys are empty and need to be set:"
+    grep -E '^(GOOGLE_ID|GOOGLE_SECRET|INFOBIP_ID|INFOBIP_TOKEN|INFOBIP_SENDER|GOOGLE_PASS)$' .env
+    echo "Please update the .env file with your actual credentials."
 else
     echo ".env file already exists. No changes made."
 fi 

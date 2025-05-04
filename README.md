@@ -109,3 +109,70 @@ Count of Major modules: 9
 Count of Minor modules: 3
 
 Total: 10.5
+
+## Services Configuration
+
+### Core Application Services
+
+#### Auth Service
+- **Location**: `./backend/auth`
+- **Port**: 8081
+- **Protocol**: HTTP
+- **Database**: SQLite at `/app/db/auth.db`
+
+#### Match Service
+- **Location**: `./backend/match`
+- **Port**: 8082
+- **Protocol**: HTTP
+- **Database**: SQLite at `/app/db/match.db`
+
+#### Chat Service
+- **Location**: `./backend/chat`
+- **Port**: 8083
+- **Protocol**: HTTP
+- **Database**: SQLite at `/app/db/chat.db`
+
+#### Frontend Service
+- **Location**: `./frontend`
+- **Port**: 3000
+- **Protocol**: HTTP
+
+### Infrastructure Services
+
+#### Nginx
+- **Location**: `./infra/nginx`
+- **Ports**:
+  - 80 (HTTP)
+  - 443 (HTTPS)
+- **Protocol**: HTTP/HTTPS
+
+#### Nginx Exporter
+- **Image**: `nginx/nginx-prometheus-exporter`
+- **Port**: 9113
+- **Protocol**: HTTP
+
+#### Node Exporter
+- **Image**: `prom/node-exporter`
+- **Port**: 9100
+- **Protocol**: HTTP
+
+#### Prometheus
+- **Image**: `prom/prometheus`
+- **Port**: 9090
+- **Protocol**: HTTP
+
+#### Grafana
+- **Image**: `grafana/grafana`
+- **Port**: 3001
+- **Protocol**: HTTP
+
+### Network Configuration
+All services are connected through a bridge network named `app-network`
+
+### Volume Mounts
+Common volumes shared across services:
+- `./certs` (SSL certificates)
+- `./uploads` (file storage)
+- `./db` (database files)
+
+Each service has its own source code mounted from its respective directory
