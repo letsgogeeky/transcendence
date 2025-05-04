@@ -230,7 +230,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                         chatRoom?.participants.forEach((participant: { userId: string }) => {
                             fastify.connections.get(participant.userId)?.send(
                                 JSON.stringify({
-                                    type: 'chatMessage',
+                                    type: 'groupChatMessage',
                                     chatRoomId: chatMessage.chatRoomId,
                                     userId: chatMessage.userId,
                                     data: chatMessage

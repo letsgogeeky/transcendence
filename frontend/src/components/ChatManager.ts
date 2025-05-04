@@ -69,10 +69,28 @@ export class ChatManager {
             //     return;
             // }
             console.log('Incoming data:', data);
+            console.log('Incoming data:', data.tournamentId);
             console.log('data.data:', data.data);
             console.log('chatManager test:', data.data.name, data.data.userId);
+            chatManager.openChat(data.data.chatRoomId, data.data.name, data.data.senderId);
 
-            chatManager.openChat(chatRoomId, data.data.name, data.data.senderId);
+        };
+        const showChatRoom = () => {
+            // start a game with data.data.userId vs data.id
+            // const chatManager = ChatManager.getInstance();
+            console.log('Incoming message:', data);
+            // if (!data || !data.data) {
+            //     console.error('Invalid message format:', data);
+            //     return;
+            // }
+            console.log('Incoming data:', data);
+            console.log('Incoming data:', data.tournamentId);
+            console.log('data.data:', data.data);
+            console.log('chatManager test:', data.data.name, data.data.userId);
+            // ChatManager.getInstance().initializeChatSocket();
+            const chatManager = ChatManager.getInstance();
+            const chatComponent = chatManager.openChat(data.data.chatRoomId, data.data.name, '');
+            // chatManager.openChat(chatRoomId, data.data.name, data.data.senderId);
 
         };
         // check which chat room the message is for
@@ -129,7 +147,7 @@ export class ChatManager {
             if (chatComponent) {
                 if (data.type === 'isBlocked') {
                     chatComponent.blockUserCheck(data);
-                } else if (data.type === 'chatMessage') {
+                } else if (data.type === 'chatMessage' || data.type === 'groupChatMessage') {
                     chatComponent.displayMessage(data.data.content, data.data.name);
                 } else if (data.type === 'chatHistory') {
                     console.log('Received chat history:', data.data);
@@ -142,42 +160,19 @@ export class ChatManager {
                         chatComponent.displayMessage(message.content, senderName);
                     });
                 }
-                // } else if (data.type === 'inviteToPlay') {
-                //     const myId = State.getState().getCurrentUser()?.id || 'Unknown';
-    
-                //     const acceptGame = () => {
-                //         // start a game with data.data.userId vs data.id
-                        
-    
-                //         console.log('Start match:', data.data.userId, data.id);
-    
-                //         showToast(
-                //             ToastState.SUCCESS,
-                //             `Your game will start soon against "${data.data.name}"`,
-                //             3000
-                //         );
-                //     };
-                //     const rejectGame = () => {
-    
-                //         showToast(
-                //             ToastState.NOTIFICATION,
-                //             `You have declined the invitation`,
-                //             3000
-                //         );
-                //     };
-                //     showToast(
-                //         ToastState.NOTIFICATION,
-                //         `You've been invited to play vs: "${data.data.name}"`,
-                //         0,
-                //         [
-                //             { text: 'Accept', action: acceptGame },
-                //             { text: 'Reject', action: rejectGame }
-                //         ]
-                //     );
-                // } 
             }
         } else if (data.type === 'block' || data.type === 'unblock') {
             console.log(`blocked or unblocked: ${chatRoomId}`);
+        } else if (data.type === 'groupChatMessage'){
+            console.log(`No active chat found for chatRoomId: ${chatRoomId}`);
+            showToast(
+                ToastState.NOTIFICATION,
+                `You receved a message from ${data.data.name}"`,
+                5000,
+                [
+                    { text: 'view', action: showChatRoom },
+                ]
+            );
         } else {
             console.log(`No active chat found for chatRoomId: ${chatRoomId}`);
             showToast(
@@ -199,10 +194,13 @@ export class ChatManager {
     }
 
     public openChat(chatRoomId: string, friendName: string, friendId: string): ChatComponent {
-        // if (this.activeChats.has(chatRoomId)) {
-        //     this.focusChat(chatRoomId);
-        //     return null;
-        // }
+        if (this.activeChats.has(chatRoomId)) {
+            const chatComponent = this.activeChats.get(chatRoomId); 
+            if (chatComponent) {
+                this.focusChat(chatRoomId);
+                return chatComponent;
+            }
+        }
 
         console.log('friendId is empty ', friendId);
         if (friendId === '') {
