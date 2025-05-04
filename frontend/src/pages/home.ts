@@ -75,13 +75,6 @@ export default class HomeComponent extends Component {
 		// Logo section
 		const logoContainer = document.createElement('div');
 		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
-
-		// if (window.innerWidth >= 2000) {
-		// 	logoClass += ' max-w-[600px]'; // for the Mac in School
-		// } else {
-		// 	logoClass += ' max-w-[400px]'; //how i designed it initially for laptop screens
-		// }
-		// logoContainer.appendChild(loadImage('PongJamLogo.png', logoClass, 'Game Logo'));
 		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[450px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
@@ -123,6 +116,7 @@ export default class HomeComponent extends Component {
 			if (data.match) {
 				showToast(ToastState.SUCCESS, 'Queue joined successfully');
 				this.renderBasedOnUser();
+				// this.buildLoggedInUI();
 			} else {
 				showToast(ToastState.ERROR, 'Failed to join queue. Please try again.');
 			}
@@ -147,47 +141,11 @@ export default class HomeComponent extends Component {
 	}
 
 	private async buildLoggedInUI() {
+
 		const isInQueue = await this.isInQueue();
 		const level = await this.getPlayerLevelAgainstAI();
 		this.element.innerHTML = '';
 		this.element.appendChild(loadBackgroundGif());
-
-		// const contentContainer = document.createElement('div');
-		// contentContainer.className = 'flex flex-col items-center relative z-10';
-		
-		// const logoContainer = document.createElement('div');
-		// logoContainer.className = 'flex justify-center items-center w-full mb-10';
-		
-		// logoContainer.appendChild(loadImage('play.gif', 'w-full max-w-[400px] h-auto object-contain scale-[1.6] mb-16 mx-auto', 'PLAY gif'));
-		
-		// // Preconfigured game mode buttons
-		// const gameModeContainer = document.createElement('div');
-		// gameModeContainer.className = 'flex flex-wrap justify-center gap-8 mb-8 relative z-10';
-
-		// const gameModes = [
-		// 	{ mode: '1v1guest', label: `1 v 1 (Local)`, color: '#ABE770' },
-		// 	{ mode: '1v1', label: '1 v 1 (Online)', color: '#73e775' },
-		// 	{ mode: '2v2', label: '2 v 2', color: '#FF69B4' },
-		// 	{ mode: '1vAI', label: `1 vs AI (Level ${level.level})`, color: '#FFCC00' },
-		// 	{ mode: 'All vs All', label: 'All vs All', color: '#20A4D6' }
-		// ];
-		
-		// gameModes.forEach(({ mode, label, color }) => {
-		// 	const btn = createStyledButtonWithHandler(
-		// 		label,
-		// 		() => this.createPreconfiguredGame(mode),
-		// 		color
-		// 	);
-		// 	gameModeContainer.appendChild(btn);
-		// });
-		
-		// const tournamentLink = new LinkComponent('Tournament', '/create-tournament');
-		// applyStyledAppearance(tournamentLink.element, '#b98cdc');
-		// tournamentLink.render(this.element);
-
-		// gameModeContainer.appendChild(tournamentLink.element);
-
-		// contentContainer.append(logoContainer, gameModeContainer);
 
 		const contentContainer = document.createElement('div');
 		contentContainer.className = 'flex flex-col items-center relative z-10';
@@ -277,14 +235,13 @@ export default class HomeComponent extends Component {
 			// leaveQueueButtonContainer.appendChild(leaveQueueButton);
 			contentContainer.append(leaveQueueButtonContainer);
 		}
-		
 
 		// Append to main element
 		this.element.append(contentContainer, copyrightLine());
 	}
 
-	public render(parent: HTMLElement | Component): void {
-		this.renderBasedOnUser();
-		super.render(parent);
-	}
+	// public render(parent: HTMLElement | Component): void {
+	// 	this.renderBasedOnUser();
+	// 	super.render(parent);
+	// }
 }
