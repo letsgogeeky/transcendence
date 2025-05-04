@@ -131,15 +131,15 @@ const render = () => {
             navigator.displayTab('/about', false);
             navigator.displayTab('/settings', true);
             navigator.displayTab('/users', true);
-            navigator.displayTab('/create-tournament', true);
             navigator.displayTab('/tournaments', true);
             navigator.displayTab('/logout', true);
         }
         if (!user) {
             navigator.displayTab('/logout', false);
             navigator.displayTab('/settings', false);
-            navigator.displayTab('/create-tournament', false);
             navigator.displayTab('/tournaments', false);
+			navigator.displayTab('/register', true);
+            navigator.displayTab('/login', true);
             navigator.displayTab('/users', false);
         }
         document.querySelectorAll('#app [href^="/"]').forEach((el) =>
