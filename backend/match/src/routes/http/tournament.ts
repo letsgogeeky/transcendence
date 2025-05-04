@@ -255,6 +255,7 @@ export function tournamentRoutes(app: FastifyInstance) {
                 kickerMode: false,
                 obstacleMode: 0,
                 balls: 1,
+				teams: [],
 				gainPoints: true,
 				losePoints: true
             }

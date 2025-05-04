@@ -84,7 +84,7 @@ export class Ball {
 
   async reset(scored: boolean): Promise<void> {
 	if (this.disposed) return;
-	if (scored) {
+	if (scored && Math.abs(this.position.z) < 1) {
 		const i = findPolygonSide(this.position);
 		let scorer;
 		if (this.lastTouched !== undefined) {
@@ -93,7 +93,7 @@ export class Ball {
 			else if (this.secondLastTouched != undefined)
 				scorer = this.secondLastTouched;
 		}
-		console.log(this.lastTouched + " " + this.secondLastTouched);
+
 		if (i < this.game.paddles.length && (this.game.settings.friendlyFire 
 			|| (!this.game.paddles[i].player?.teamNumber || !scorer?.player?.teamNumber
 				 || this.game.paddles[i].player?.teamNumber !== scorer?.player?.teamNumber))) {
@@ -101,6 +101,8 @@ export class Ball {
 				this.game.paddles[i].addPoints(-1);
 			if (this.game.settings.gainPoints)
 				scorer?.addPoints(1);
+			else if (this.game.settings.players == 2)
+				this.position.x < 0 ? this.game.paddles[0].addPoints(1) : this.game.paddles[1].addPoints(1);
 		}
 		await this.game.updateScore();
 	}
@@ -110,10 +112,11 @@ export class Ball {
     this.aggregate.body.transformNode.position.set(0, 0, 0);
     this.aggregate.body.setLinearVelocity(BABYLON.Vector3.Zero());
     this.aggregate.body.setAngularVelocity(BABYLON.Vector3.Zero());
+	this.aggregate.body.setMassProperties({ mass: 0 });
 	setTimeout(() => {
 		if (this.disposed) return;
-		if (this.position.length() < 1)
-			this.aggregate.body.applyImpulse(new BABYLON.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, 0).normalize().scale(10),
+		this.aggregate.body.setMassProperties({ mass: 1 });
+		this.aggregate.body.applyImpulse(new BABYLON.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, 0).normalize().scale(10),
 				this.ball.absolutePosition);
 	}, 1000);
   }

@@ -44,6 +44,7 @@ export function gameRoutes(app: FastifyInstance) {
                 return;
             }
 			gameServer.handleConnection(req.user, req.userName, socket);
+			gameServer.addToTeam(req.user, app.connections.size % 2);
             app.connections.set(req.user, socket);
             socket.on('message', (message: string) => {
                 const data = JSON.parse(message);

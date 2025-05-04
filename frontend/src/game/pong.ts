@@ -131,7 +131,7 @@ class Game {
 			trail.material = trailMat;
 
 			this.scene.onBeforeRenderObservable.add(() => {
-				if (ball && ball.position && BABYLON.Vector3.Distance(ball.position, BABYLON.Vector3.Zero()) < 0.1) {
+				if (ball && ball.position && BABYLON.Vector3.Distance(ball.position, BABYLON.Vector3.Zero()) < 0.25) {
 					trail.reset();
 				}
 			});
@@ -257,6 +257,13 @@ class Game {
 			const text = this.scoreBoard.get(name);
 			if (text) text.text = `${name}: ${score}`;
 		}
+
+		const teamScores = data.teamScores as Array<number>;
+		for (let i = 0; i < teamScores.length; i++) {
+			const text = this.scoreBoard.get("Team" + i + 1);
+			if (text) text.text = `Team${i + 1}: ${teamScores[i]}`;
+		}
+
 	}	
 
 	createUI(playerList: string[], teams?: string[][]) {
@@ -269,9 +276,9 @@ class Game {
 		this.gui?.dispose();
 		this.gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
 	
-		const container = new BABYLON.GUI.Rectangle();
+		const container = new BABYLON.GUI.ScrollViewer();
 		container.width = "100%";
-		container.height = "60px";
+		container.height = "100%";
 		container.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
 		container.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 		container.thickness = 0;
@@ -288,15 +295,27 @@ class Game {
 			container.addControl(timerText);
 			this.timer = timerText;
 		}
-	
-		const stackPanel = new BABYLON.GUI.StackPanel();
-		stackPanel.isVertical = false;
-		stackPanel.height = "100%";
-		stackPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-		stackPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-		stackPanel.paddingTop = "10px";
-		stackPanel.spacing = 20;
-		container.addControl(stackPanel);
+
+		const rootPanel = new BABYLON.GUI.StackPanel();
+		rootPanel.isVertical = true;
+		rootPanel.height = "100px";
+		rootPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+		rootPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+		rootPanel.paddingTop = "10px";
+		rootPanel.spacing = 10;
+		container.addControl(rootPanel);
+
+		const row1 = new BABYLON.GUI.StackPanel();
+		row1.isVertical = false;
+		row1.spacing = 20;
+		row1.height = "20px";
+		const row2 = new BABYLON.GUI.StackPanel();
+		row2.isVertical = false;
+		row2.spacing = 20;
+		row2.height = "20px";
+
+		rootPanel.addControl(row1);
+		rootPanel.addControl(row2);
 	
 		for (const player of playerList) {
 			const playerText = new BABYLON.GUI.TextBlock();
@@ -311,8 +330,27 @@ class Game {
 			playerText.fontStyle = "bold";
 			playerText.resizeToFit = true;
 			playerText.text = `${player}: ${0}`;
-			stackPanel.addControl(playerText);
+			row1.addControl(playerText);
 			this.scoreBoard.set(player, playerText);
+		}
+
+		if (teams) {
+			for (let i = 0; i < teams.length; i++) {
+				const teamText = new BABYLON.GUI.TextBlock();
+				if (i == 0) teamText.color = "red";
+				else if (i == 1) teamText.color = "blue";
+				else if (i == 2) teamText.color = "magenta";
+				else if (i == 3) teamText.color = "green";
+				else if (i == 4) teamText.color = "yellow";
+				else if (i == 5) teamText.color = "teal";
+				else teamText.color = "white";
+				teamText.fontSize = 24;
+				teamText.fontStyle = "bold";
+				teamText.resizeToFit = true;
+				teamText.text = `Team${i + 1}: ${0}`;
+				row2.addControl(teamText);
+				this.scoreBoard.set("Team" + i + 1, teamText);
+			}
 		}
 	}
 
