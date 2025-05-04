@@ -27,7 +27,7 @@ export default class ChatComponent extends Component {
     constructor(private chatRoomId: string, private friendId: string, private friendName: string, private ws: WebSocket | null) {
         super();
         this.chatWindow = document.createElement('div');
-        this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col';
+        this.chatWindow.className = 'fixed bg-gray-800 text-white rounded-lg shadow-lg flex flex-col z-50';
         this.chatWindow.style.width = '400px';
         this.chatWindow.style.height = '500px';
         this.chatWindow.style.overflow = 'hidden';
@@ -193,26 +193,8 @@ export default class ChatComponent extends Component {
     //         if (data.type === 'inviteToPlay') {
     //             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
 
-                const acceptGame = async () => {
-                    // start a game with data.data.userId vs data.id
-                    const match = await createPreconfiguredGame("1v1", [data.data.userId, data.id]);
-                    if (match) {
-                    console.log('Start match:', data.data.userId, data.id);
-
-                    showToast(
-                        ToastState.SUCCESS,
-                        `Your game will start soon against "${data.data.name}"`,
-                            3000
-                        );
-                        return;
-                    }
-                    showToast(
-                        ToastState.ERROR,
-                        `Failed to create game. Please try again.`,
-                        3000
-                    );
-                };
-                const rejectGame = () => {
+                
+                // const rejectGame = () => {
 
     //                 showToast(
     //                     ToastState.NOTIFICATION,

@@ -5,6 +5,8 @@ import UsersPageComponent from '../pages/users';
 
 
 import { endpoints } from '../services/send-request';
+import { createPreconfiguredGame } from '../services/match.request';
+
 
 export class ChatManager {
     private static instance: ChatManager | null = null;
@@ -82,15 +84,34 @@ export class ChatManager {
         if (data.type === 'inviteToPlay') {
             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
 
-            const acceptGame = () => {
-                // start a game with data.data.userId vs data.id
+            // const acceptGame = () => {
+            //     // start a game with data.data.userId vs data.id
                 
 
+            //     console.log('Start match:', data.data.userId, data.id);
+
+            //     showToast(
+            //         ToastState.SUCCESS,
+            //         `Your game will start soon against "${data.data.name}"`,
+            //         3000
+            //     );
+            // };
+            const acceptGame = async () => {
+                // start a game with data.data.userId vs data.id
+                const match = await createPreconfiguredGame("1v1", [data.data.userId, data.id]);
+                if (match) {
                 console.log('Start match:', data.data.userId, data.id);
 
                 showToast(
                     ToastState.SUCCESS,
                     `Your game will start soon against "${data.data.name}"`,
+                        3000
+                    );
+                    return;
+                }
+                showToast(
+                    ToastState.ERROR,
+                    `Failed to create game. Please try again.`,
                     3000
                 );
             };
