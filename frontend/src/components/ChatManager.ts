@@ -41,12 +41,7 @@ export class ChatManager {
 
         this.chatSocket.onclose = (event) => {
             console.log('Global chat socket closed:', event.reason);
-            // const retryInterval = 5000; // Retry every 5 seconds
-            // // console.log(`Retrying WebSocket connection in ${retryInterval / 1000} seconds...`);
-            // setTimeout(() => {
-            //     // console.log('Attempting to reconnect WebSocket...');
-            //     this.initializeChatSocket(); // Reinitialize the WebSocket connection
-            // }, retryInterval);
+
         };
 
         this.chatSocket.onmessage = (event) => {
@@ -80,22 +75,9 @@ export class ChatManager {
         const chatRoomId = data.data.chatRoomId;
         console.log('Target chatRoomId:', chatRoomId);
         // check if the chat room is open
-
         if (data.type === 'inviteToPlay') {
             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
 
-            // const acceptGame = () => {
-            //     // start a game with data.data.userId vs data.id
-                
-
-            //     console.log('Start match:', data.data.userId, data.id);
-
-            //     showToast(
-            //         ToastState.SUCCESS,
-            //         `Your game will start soon against "${data.data.name}"`,
-            //         3000
-            //     );
-            // };
             const acceptGame = async () => {
                 // start a game with data.data.userId vs data.id
                 const match = await createPreconfiguredGame("1v1", [data.data.userId, data.id]);
@@ -138,7 +120,9 @@ export class ChatManager {
 
 
             if (chatComponent) {
-                if (data.type === 'chatMessage') {
+                if (data.type === 'isBlocked') {
+                    chatComponent.blockUserCheck(data);
+                } else if (data.type === 'chatMessage') {
                     chatComponent.displayMessage(data.data.content, data.data.name);
                 } else if (data.type === 'chatHistory') {
                     console.log('Received chat history:', data.data);
@@ -182,8 +166,10 @@ export class ChatManager {
                             { text: 'Reject', action: rejectGame }
                         ]
                     );
-                }
+                } 
             }
+        } else if (data.type === 'block' || data.type === 'unblock') {
+            console.log(`blocked or unblocked: ${chatRoomId}`);
         } else {
             console.log(`No active chat found for chatRoomId: ${chatRoomId}`);
             showToast(
@@ -195,35 +181,6 @@ export class ChatManager {
                 ]
             );
         }
-   
-   
-        
-   
-   
-   
-   
-   
-        //     const { chatRoomId, type, content, name } = data;
-
-    //     // Find the relevant chat component
-    //     const chatComponent = this.activeChats.get(chatRoomId);
-    //     if (chatComponent) {
-    //         if (type === 'chatMessage') {
-    //             chatComponent.displayMessage(content, name);
-    //         } else if (type === 'chatHistory') {
-    //             data.data.forEach((message: any) => {
-    //                 const senderName =
-    //                     message.userId === State.getState().getCurrentUser()?.id
-    //                         ? 'You'
-    //                         : message.name;
-    //                 chatComponent.displayMessage(message.content, senderName);
-    //             });
-    //         }
-    //         // Handle other message types if needed
-    //     } else {
-    //         console.warn(`No active chat found for chatRoomId: ${chatRoomId}`);
-    //     }
-
     }
 
     public static getInstance(): ChatManager {
@@ -246,6 +203,7 @@ export class ChatManager {
 
         chatComponent.render(document.body);
         chatComponent.getMessages();
+        chatComponent.isUserBlocked();
         this.updateChatPositions();
     }
 

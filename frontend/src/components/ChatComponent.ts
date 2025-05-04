@@ -8,10 +8,7 @@ import { endpoints } from '../services/send-request';
 import { showToast, ToastState } from '../components/Toast';
 import ChatManager from './ChatManager';
 
-// Ensure the rest of the code remains unchanged
 
-// import ChatManager from '../pages/users'; 
-// import { ChatManager } from '../pages/users'; // Adjust the path based on your project structure
 import { createPreconfiguredGame } from '../services/match.request';
 
 export default class ChatComponent extends Component {
@@ -20,7 +17,7 @@ export default class ChatComponent extends Component {
     private messageInput: HTMLInputElement;
     private closeButton: HTMLButtonElement;
     private socket: WebSocket | null = null;
-    private blockButton: HTMLButtonElement;
+    public blockButton: HTMLButtonElement;
 
     readonly element: HTMLElement;
 
@@ -155,93 +152,25 @@ export default class ChatComponent extends Component {
         // this.setupWebSocket(this.friendName);
     }
 
-    // private async setupWebSocket(friendName: string): Promise<void> {
-    //     if (!this.socket) {
-    //         console.error('WebSocket not initialized');
-    //         return;
-    //     }
+    public blockUserCheck(data: any): void {
+        if (data.type === 'block') {
+            console.log('User blocked:', data.data);
+        }
+        if (data.type === 'unblock') {
+            console.log('User unblocked:', data.data);
+        }
+        if (data.type === 'isBlocked') {
+            console.log('User block status:', data.data);
+            if (data.data.name === 'true') {
+                console.log('User is blocked');
+                this.blockButton.textContent = 'Unblock';
+            } else {
+                console.log('User is not blocked', data.name, data.data.name);
 
-    //     this.getMessages();
-
-
-
-    //     console.log('Chat socket connected');
-
-
-
-    //     this.socket.onmessage = (event) => {
-    //         const data = JSON.parse(event.data);
-
-    //         if (data.type === 'chatMessage') {
-    //             console.log('Received chat message:', data.data);
-    //             this.displayMessage(data.data.content, data.data.name);
-    //         }
-
-    //         if (data.type === 'chatHistory') {
-    //             console.log('Received chat history:', data.data);
-    //             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
-    //             // Display the chat history in the chat window
-    //             data.data.forEach((message: any) => {
-    //                 const senderName = message.userId === myId ? 'You' : message.name;
-    //                 console.log('senderName: message.id: myId:', senderName, message.id, myId);
-
-    //                 this.displayMessage(message.content, senderName);
-    //             });
-                
-    //         }
-
-    //         if (data.type === 'inviteToPlay') {
-    //             const myId = State.getState().getCurrentUser()?.id || 'Unknown';
-
-                
-                // const rejectGame = () => {
-
-    //                 showToast(
-    //                     ToastState.NOTIFICATION,
-    //                     `You have declined the invitation`,
-    //                     3000
-    //                 );
-    //             };
-    //             showToast(
-    //                 ToastState.NOTIFICATION,
-    //                 `You've been invited to play vs: "${data.data.name}"`,
-    //                 0,
-    //                 [
-    //                     { text: 'Accept', action: acceptGame },
-    //                     { text: 'Reject', action: rejectGame }
-    //                 ]
-    //             );
-    //                 console.log('inviteToPlay x:', data.data);
-    //                 this.displayMessage(data.data.content, data.data.name);
-    //         }
-
-    //         if (data.type === 'block') {
-    //             console.log('User blocked:', data.data);
-    //         }
-    //         if (data.type === 'unblock') {
-    //             console.log('User unblocked:', data.data);
-    //         }
-    //         if (data.type === 'isBlocked') {
-    //             console.log('User block status:', data.data);
-    //             if (data.data.name === 'true') {
-    //                 console.log('User is blocked');
-    //                 this.blockButton.textContent = 'Unblock';
-    //             } else {
-    //                 console.log('User is not blocked', data.name, data.data.name);
-
-    //                 this.blockButton.textContent = 'Block';
-    //             }
-    //         }
-    //     };
-
-    //     this.socket.onerror = (error) => {
-    //         console.error('WebSocket error:', error);
-    //     };
-
-    //     this.socket.onclose = () => {
-    //         console.log('WebSocket connection closed');
-    //     };
-    // }
+                this.blockButton.textContent = 'Block';
+            }
+        }
+    };
 
     private async sendMessage(): Promise<void> {
         // this.getMessages();
@@ -370,19 +299,24 @@ export default class ChatComponent extends Component {
         }
     }
 
-    private async isUserBlocked(): Promise<boolean> {
-        return new Promise(async (resolve) => {
+    public  isUserBlocked(): void{
+        try {
+
             // Wait for the WebSocket connection to be open
-            await this.waitForSocketConnection(this.socket!);
+            // await this.waitForSocketConnection(this.socket!);
 
             // Send a WebSocket message to check block status
             this.socket?.send(
                 JSON.stringify({
                     type: 'isBlocked',
-                    userId: this.chatRoomId,
+                    userId: this.friendId,
                     senderId: State.getState().getCurrentUser()?.id,
                 }),
             );
-        });
+        
+            
+        } catch (error) {
+            console.error('Error isBlocked user:', error);
+        }
     }
 }
