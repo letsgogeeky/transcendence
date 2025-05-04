@@ -18,7 +18,7 @@ export default class LoginComponent extends Component {
 		container.appendChild(loadBackgroundGif());
 		container.appendChild(loadImage('welcome_back.jpg', 'w-full max-w-[300px] h-auto mb-5 rounded-lg', 'Welcome Image'));
 
-		const inputStyle = 'border border-[#00FFFF] border-4 rounded-xl p-2 w-80 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
+		const inputStyle = 'border border-[#00FFFF] border-4 rounded-xl p-2 w-80 mb-4 shadow-[0_0_15px_#00FFFF] opacity-60';
         // Email, Name, and Password Inputs
         const emailInput = new Input(
             'email',
