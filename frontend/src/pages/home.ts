@@ -56,7 +56,7 @@ export default class HomeComponent extends Component {
 	}
 
 	private buildLoggedOutUI() {
-
+		this.element.innerHTML = '';
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
 		backgroundImage.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and left
@@ -240,8 +240,8 @@ export default class HomeComponent extends Component {
 		this.element.append(contentContainer, copyrightLine());
 	}
 
-	// public render(parent: HTMLElement | Component): void {
-	// 	this.renderBasedOnUser();
-	// 	super.render(parent);
-	// }
+	public render(parent: HTMLElement | Component): void {
+		this.renderBasedOnUser();
+		super.render(parent);
+	}
 }
