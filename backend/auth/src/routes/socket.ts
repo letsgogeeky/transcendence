@@ -74,8 +74,17 @@ export function SocketRoutes(fastify: FastifyInstance) {
         socket: ExtendedWebSocket,
         data: SocketData,
     ): Promise<void> {
-        const id = verifyToken(data.token);
-        console.log('found id in data: ' + id);
+        let id;
+        try {
+            id = verifyToken(data.token);
+        } catch (e) {
+            console.log(e);
+            const message = JSON.stringify({
+                type: 'EXPIRED',
+            });
+            socket.send(message);
+            return;
+        }
         if (id) {
             try {
                 const user = await fastify.prisma.user.findUnique({
@@ -108,7 +117,6 @@ export function SocketRoutes(fastify: FastifyInstance) {
                     }
                     const socketId = uuidv4();
                     socket.id = socketId;
-                    logAllEntries();
                 } else console.log('no user');
             } catch (error) {
                 console.error('Error finding user:', error);
@@ -141,9 +149,9 @@ export function SocketRoutes(fastify: FastifyInstance) {
                     return;
                 }
                 if (data.type == 'AUTH') {
-                    handleAuthMessage(socket, data).catch((e) =>
-                        console.log(e),
-                    );
+                    handleAuthMessage(socket, data).catch((e) => {
+                        console.log('Error ' + e);
+                    });
                 }
             });
 
