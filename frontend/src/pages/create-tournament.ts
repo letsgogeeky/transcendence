@@ -15,7 +15,6 @@ export default class CreateTournamentComponent extends Component {
     constructor() {
         super();
         this.element = document.createElement('div');
-        // this.element.className = 'flex flex-col items-center justify-center min-h-screen ';
     }
     
     static async createTournament(formData: any): Promise<Response> {
@@ -37,15 +36,10 @@ export default class CreateTournamentComponent extends Component {
 
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
-		// this.element.className = 'w-full h-screen flex flex-col items-center';
 		this.element.className = 'w-full h-screen flex flex-col justify-center items-center -mt-12';
 
-
 		const titleHeader = document.createElement('div');
-		// titleHeader.className = 'flex justify-center items-center w-full mt-16 ';
 		titleHeader.className = 'flex justify-center items-center w-full mt-8 mb-8';
-
-
 		titleHeader.appendChild(loadImage('trophy.gif', 'w-20 h-20 mt-1', 'Trophy gif'));
 
         const title = document.createElement('h1');
@@ -73,6 +67,7 @@ export default class CreateTournamentComponent extends Component {
         form.render(formContainer);
 		
         this.element.appendChild(formContainer);
+		this.element.append(copyrightLine());
         super.render(parent);
     }
 }
