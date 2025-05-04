@@ -114,10 +114,14 @@ export class Ball {
     this.aggregate.body.setLinearVelocity(BABYLON.Vector3.Zero());
     this.aggregate.body.setAngularVelocity(BABYLON.Vector3.Zero());
 	setTimeout(() => {
-		if (this.disposed) return;
-		if (this.position.length() < 1)
-			this.aggregate.body.applyImpulse(new BABYLON.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, 0).normalize().scale(10),
-				this.ball.absolutePosition);
+		try {
+			if (this.disposed) return;
+			if (this.position.length() < 1)
+				this.aggregate.body.applyImpulse(new BABYLON.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, 0).normalize().scale(10),
+					this.ball.absolutePosition);
+		} catch (error) {
+			console.error('Error resetting ball:', error);
+		}
 	}, 1000);
   }
 

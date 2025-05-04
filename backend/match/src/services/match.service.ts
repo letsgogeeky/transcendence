@@ -1,3 +1,4 @@
+import { Match } from "@prisma/client";
 import { GameSettings } from "../routes/ws/session";
 import { FastifyInstance } from "fastify";
 export async function notifyMatchParticipants(matchId: string, app: FastifyInstance) {
@@ -10,6 +11,7 @@ export async function notifyMatchParticipants(matchId: string, app: FastifyInsta
     if (!match) {
         return false;
     }
+    const isTournament = match.tournamentId !== null && match.tournamentId !== '';
     // check if match is full
     const guestsCount = (match.settings as GameSettings).guests?.length ?? 0;
     if (match.participants.length >= ((match.settings as GameSettings).players - guestsCount)) {
@@ -26,14 +28,18 @@ export async function notifyMatchParticipants(matchId: string, app: FastifyInsta
             }
         }
         if (!hasDisconnected) {
-            setTimeout(() => {
-                for (const participant of match.participants) {
-                    const client = app.connections.get(participant.userId);
-                    if (client) {
-                        client.send(JSON.stringify({ type: 'MATCH_STARTED', match }));
+            // notify participants that match is starting
+            for (const participant of match.participants) {
+                const client = app.connections.get(participant.userId);
+                if (client) {
+                    if (isTournament) {
+                        client.send(JSON.stringify({ type: 'TOURNAMENT_UPDATE', message: 'Match is starting, get ready and do some pushups!' }));
                     }
+                    setTimeout(() => {
+                        client.send(JSON.stringify({ type: 'MATCH_STARTED', match: match }));
+                    }, 3000);
                 }
-            }, 2000);
+            }
             return true;
         }
         return false;
@@ -53,17 +59,32 @@ export async function checkMatch(userId: string, app: FastifyInstance) {
     return match || null;
 }
 
+export async function ensurePlayersInMatchesAreConnected(app: FastifyInstance, userId: string) {
+    // get all matches that are in progress and have not been updated in the last 10 seconds
+    const matches = await app.prisma.match.findMany({
+        where: { status: 'in progress', updatedAt: { lt: new Date(Date.now() - 10000) }, participants: { some: { userId: userId } } },
+        include: {
+            participants: true,
+        },
+    });
+    for (const match of matches) {
+        const participants = match.participants;
+        for (const participant of participants) {
+            const client = app.gameConnections.has(participant.userId);
+            if (!client) {
+                // check settings if disconnected players are allowed
+                // if not, end match
+                if ((match.settings as GameSettings).replaceDisconnected) {
+                    continue;
+                }
+                await endMatch(match.id, app);
+            }
+        }
+    }
+}
+
 export async function findNextMatchesInTournament(tournamentId: string, app: FastifyInstance) {
     // find all players in tournament that are not in an ongoing match
-    const players = await app.prisma.tournamentParticipant.findMany({
-        where: { tournamentId: tournamentId },
-    });
-    const playersNotInMatches = await app.prisma.matchParticipant.findMany({
-        where: { match: { status: { notIn: ['in progress'] } }, userId: { in: players.map(player => player.userId) } },
-    });
-    if (playersNotInMatches.length <= 1) {
-        return null;
-    }
     const tournament = await app.prisma.tournament.findUnique({
         where: { id: tournamentId },
         include: {
@@ -78,10 +99,33 @@ export async function findNextMatchesInTournament(tournamentId: string, app: Fas
         return null;
     }
     const matches = tournament.matches;
+
+    const playersAddedToMatches: string[] = [];
     // get all matches that are pending and have the playersNotInMatches
-    const pendingMatches = matches.filter(match => match.status === 'pending' && match.participants.some(participant => playersNotInMatches.some(player => player.userId === participant.userId)));
-    console.log("pendingMatches", pendingMatches);
-    return pendingMatches || null;
+    const filteredMatches = [];
+    const pendingMatches = matches.filter(match => match.status === 'pending');
+    for (const match of pendingMatches) {
+        for (const participant of match.participants) {
+            if (playersAddedToMatches.includes(participant.userId)) {
+                continue;
+            }
+        }
+        const hasBusyPlayer = await app.prisma.match.findFirst({
+            where: {
+                status: 'in progress',
+                participants: {
+                    some: {
+                        userId: { in: match.participants.map(participant => participant.userId) }
+                    }
+                }
+            }
+        });
+        if (!hasBusyPlayer) {
+            filteredMatches.push(match);
+            playersAddedToMatches.push(...match.participants.map(participant => participant.userId));
+        }
+    }
+    return filteredMatches || null;
 }
 
 async function findTournamentWinner(tournamentId: string, app: FastifyInstance) {
@@ -154,12 +198,10 @@ export async function proceedTournament(tournamentId: string, app: FastifyInstan
         if (skip) {
             continue;
         }
-        console.log("notifying match participants", match.id);
         const notified = await notifyMatchParticipants(match.id, app);
         if (!notified) {
-            console.log("Failed to notify match participants", match.id);
+            continue;
         } else {
-            console.log("Notified match participants", match.id);
             for (const participant of match.participants) {
                 if (!notifiedParticipants.includes(participant.userId)) {
                     notifiedParticipants.push(participant.userId);
@@ -167,6 +209,7 @@ export async function proceedTournament(tournamentId: string, app: FastifyInstan
             }
         }
     }
+    return notifiedParticipants;
 }
 
 export async function endMatch(matchId: string, app: FastifyInstance) {
@@ -184,7 +227,8 @@ export async function endMatch(matchId: string, app: FastifyInstance) {
         data: { status: 'ended' },
     });
     if (match.tournamentId) {
-        await proceedTournament(match.tournamentId, app);
+        const result = await proceedTournament(match.tournamentId, app);
+        console.log("proceed tournament result", result);
     }
 }
 
@@ -237,9 +281,9 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         aiLevel: 1,
     };
     if (mode === '1v1guest') {
-        settings.players = 2;
+        settings.players = 1;
         settings.guests = [userId];
-        settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
+        settings.replaceDisconnected = false;
     } else if (mode === '1v1') {
         settings.players = 2;
         settings.replaceDisconnected = false;
@@ -247,6 +291,7 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         settings.players = 1;
         settings.aiPlayers = 1;
         settings.replaceDisconnected = false;
+        settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
     } else if (mode === '2v2') {
         settings.players = 4;
         settings.replaceDisconnected = true;
@@ -256,7 +301,7 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
     } else {
         return null;
     }
-    settings.winScore = 10;
+    settings.winScore = 3;
     settings.timeLimit = 60000;
     settings.startScore = 0;
     const newMatch = await app.prisma.match.create({
