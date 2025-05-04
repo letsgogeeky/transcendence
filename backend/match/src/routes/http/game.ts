@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import credentialAuthCheck from "../../plugins/validateToken.js";
 import { GameSettings } from "../ws/session.js";
-import { checkMatch, createMatch, deleteMatch, getPlayerLevelAgainstAI, getUserMatches, notifyMatchParticipants } from "../../services/match.service.js";
+import { checkMatch, createMatch, deleteMatch, ensurePlayersInMatchesAreConnected, getPlayerLevelAgainstAI, getUserMatches, notifyMatchParticipants } from "../../services/match.service.js";
 // List of game modes
 // 1. 1v1
 // 2. 1vAI
@@ -139,6 +139,9 @@ export function gameHttpRoutes(app: FastifyInstance) {
     app.post('/leave-queue', async (request, reply) => {
         const match = await checkMatch(request.user, app);
         if (match) {
+            if (match.tournamentId !== null && match.tournamentId !== '') {
+                return reply.status(400).send({ error: 'Cannot leave queue for tournament match' });
+            }
             await app.prisma.matchParticipant.deleteMany({ where: { matchId: match.id, userId: request.user } });
             // check if match is empty, delete it
             const participants = await app.prisma.matchParticipant.findMany({ where: { matchId: match.id } });
@@ -152,6 +155,8 @@ export function gameHttpRoutes(app: FastifyInstance) {
 
     // get is in queue
     app.get('/is-in-queue', async (request, reply) => {
+        await ensurePlayersInMatchesAreConnected(app, request.user);
+        console.log('is in queue');
         const match = await checkMatch(request.user, app);
         return reply.status(200).send({ message: 'In queue', inQueue: match !== null, since: match?.createdAt });
     });

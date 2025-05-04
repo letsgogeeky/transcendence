@@ -18,11 +18,12 @@ export default class CreateTournamentComponent extends Component {
     }
     
     static async createTournament(formData: any): Promise<Response> {
+        const limit = formData.condition === 'score' ? formData.win_score_time : formData.win_score_time * 1000;
         const tournament = {
             name: formData.name,
             options: {
                 winCondition: formData.condition,
-                limit: formData.win_score_time,
+                limit: limit,
             },
             participants: []
         }

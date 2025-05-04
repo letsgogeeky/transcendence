@@ -219,13 +219,8 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament Update: ${data.message}`,
-                    5000
+                    2000
                 );
-                // Refresh tournament page if user is on it
-                if (window.location.pathname.includes('/tournament')) {
-                    window.history.pushState({}, '', '/tournaments');
-                    window.dispatchEvent(new Event('popstate'));
-                }
                 break;
 
             case 'TOURNAMENT_ENDED':

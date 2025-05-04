@@ -90,7 +90,7 @@ export class GameSession {
 			// set the match to in progress
 			this.app.prisma.match.update({
 				where: { id: this.id },
-				data: { status: 'in progress' }
+				data: { status: 'in progress', updatedAt: new Date() }
 			}).catch((err: any) => console.error('Error updating match status:', err));
 			this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
 		}

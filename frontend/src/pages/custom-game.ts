@@ -13,7 +13,7 @@ export default class CustomGamePage extends Component {
         this.element = document.createElement('div');
         this.element.className = 'container mx-auto px-4 py-8';
         this.customGamesList = document.createElement('div');
-        this.customGamesList.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8';
+        this.customGamesList.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mt-8';
     }
 
     private async handleGameCreation(data: any) {
@@ -167,27 +167,51 @@ export default class CustomGamePage extends Component {
 
         matches.forEach(match => {
             const gameCard = document.createElement('div');
-            gameCard.className = 'bg-gray-800 rounded-lg p-4 shadow-lg hover:bg-gray-700 transition-colors cursor-pointer mb-4';
+            gameCard.className = 'w-full bg-gray-800 rounded-lg p-6 shadow-lg hover:bg-gray-700 transition-colors cursor-pointer mb-4';
             
             const settings = match.settings;
             const participants = match.participants.length;
             const maxPlayers = settings.players;
             
             const content = document.createElement('div');
-            content.className = 'space-y-2';
+            content.className = 'space-y-4';
             
             // Game info
             content.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <span class="text-white font-bold">Players: ${participants}/${maxPlayers}</span>
-                    <span class="text-gray-400">${new Date(match.createdAt).toLocaleTimeString()}</span>
+                <div class="flex justify-between items-center border-b border-gray-700 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl font-bold text-white">${participants}</span>
+                        <span class="text-gray-400">/</span>
+                        <span class="text-xl text-gray-400">${maxPlayers}</span>
+                        <span class="text-gray-400 ml-2">players</span>
+                    </div>
+                    <span class="text-sm text-gray-400">${new Date(match.createdAt).toLocaleTimeString()}</span>
                 </div>
-                <div class="text-gray-300">
-                    <p>AI Players: ${settings.aiPlayers || 0}</p>
-                    <p>${settings.timeLimit ? `Time Limit: ${settings.timeLimit/1000}s` : `Win Score: ${settings.winScore}`}</p>
-                    <p>Balls: ${settings.balls}</p>
-                    <p>AI Level: ${settings.aiLevel}</p>
-                    <p>Obstacles: ${['No', 'Easy', 'Medium', 'Hard'][settings.obstacleMode]}</p>
+                <div class="grid grid-cols-2 gap-4 text-gray-300">
+                    <div class="space-y-2">
+                        <p class="flex items-center">
+                            <span class="w-24 text-gray-400">AI Players:</span>
+                            <span class="font-medium">${settings.aiPlayers || 0}</span>
+                        </p>
+                        <p class="flex items-center">
+                            <span class="w-24 text-gray-400">Balls:</span>
+                            <span class="font-medium">${settings.balls}</span>
+                        </p>
+                        <p class="flex items-center">
+                            <span class="w-24 text-gray-400">AI Level:</span>
+                            <span class="font-medium">${settings.aiLevel}</span>
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="flex items-center">
+                            <span class="w-24 text-gray-400">${settings.timeLimit ? 'Time Limit:' : 'Win Score:'}</span>
+                            <span class="font-medium">${settings.timeLimit ? `${settings.timeLimit/1000}s` : settings.winScore}</span>
+                        </p>
+                        <p class="flex items-center">
+                            <span class="w-24 text-gray-400">Obstacles:</span>
+                            <span class="font-medium">${['No', 'Easy', 'Medium', 'Hard'][settings.obstacleMode]}</span>
+                        </p>
+                    </div>
                 </div>
             `;
             
