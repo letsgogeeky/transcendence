@@ -173,7 +173,10 @@ export class GameSession {
 		}
 
 		for (const player of this.players.values())
-			player.ws?.send(JSON.stringify({type: 'score', 
+			if (!player.ws || player.ws.readyState !== WebSocket.OPEN) {
+				this.handleClose(player.id);
+			}
+			else player.ws.send(JSON.stringify({type: 'score', 
 			data: {playerScores: Object.fromEntries(scoreMap), teamScores: teamScores}}));
 
 		for (const paddle of this.paddles) {
@@ -200,7 +203,11 @@ export class GameSession {
 		})
 		const targets = this.paddles.map(paddle => paddle.target).filter(target => target !== undefined);
 		this.players.forEach((player) => {
-		    player.ws?.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+			if (player.ws && player.ws.readyState === WebSocket.OPEN) {
+				player.ws.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+			} else {
+				this.handleClose(player.id);
+			}
 		});
     }
 
@@ -290,7 +297,7 @@ export class GameSession {
 			if (this.settings.startScore) paddle.addPoints(this.settings.startScore);
 		}
 
-		for (let player of this.players.values()) this.sendScene(player.ws);
+		for (const player of this.players.values()) this.sendScene(player.ws);
 		await this.updateScore();
 
         let frameCount = 0;
