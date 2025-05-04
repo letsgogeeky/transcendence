@@ -28,7 +28,7 @@ export default class Navbar extends Component {
 			return;
 		}
 		const ul = document.createElement('ul');
-		ul.className = 'flex justify-around w-full';
+		ul.className = 'flex justify-between w-full';
 	
 		this.routes.forEach((route) => {
 			if (route.visible) {
@@ -37,7 +37,7 @@ export default class Navbar extends Component {
 	
 				// Check if the route title matches one that should be an icon
 				const lowerTitle = route.title.toLowerCase();
-				const iconRoutes = ['pongjam', 'settings',  'users']; // add more as needed
+				const iconRoutes = ['pongjam', 'tournaments', 'users', 'settings', 'profile', 'logout']; // add more as needed
 	
 				if (iconRoutes.includes(lowerTitle)) {
 					// Use your icon link component
