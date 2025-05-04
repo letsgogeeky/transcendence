@@ -237,9 +237,9 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         aiLevel: 1,
     };
     if (mode === '1v1guest') {
-        settings.players = 2;
+        settings.players = 1;
         settings.guests = [userId];
-        settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
+        settings.replaceDisconnected = false;
     } else if (mode === '1v1') {
         settings.players = 2;
         settings.replaceDisconnected = false;
@@ -247,6 +247,7 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         settings.players = 1;
         settings.aiPlayers = 1;
         settings.replaceDisconnected = false;
+        settings.aiLevel = await getPlayerLevelAgainstAI(userId, app);
     } else if (mode === '2v2') {
         settings.players = 4;
         settings.replaceDisconnected = true;
@@ -256,9 +257,10 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
     } else {
         return null;
     }
-    settings.winScore = 10;
-    settings.timeLimit = 60000;
+    settings.winScore = 5;
+    settings.timeLimit = 0;
     settings.startScore = 0;
+    console.log("settings", settings);
     const newMatch = await app.prisma.match.create({
         data: {
             userId: userId,

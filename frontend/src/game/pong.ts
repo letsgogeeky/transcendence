@@ -78,7 +78,12 @@ export default class GameComponent extends Component {
 
 	private async createScene(sceneString: string) {
 		this.scene?.dispose();
-		this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
+		try {
+			this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
+		} catch (error) {
+			console.error('Failed to load scene:', error);
+			return;
+		}
 		this.engine.hideLoadingUI();
 		this.scene.executeWhenReady(() => {
 			this.loadingScreenDiv.style.display = "none";

@@ -224,8 +224,8 @@ export class GameSession {
 
 	addGuest(id: string, teamNumber?: number) {
 		const name = "Guest" + this.guests.length + 1;	
-		const guest = new Player(name, name);
 		const player = this.players.get(id);
+		const guest = new Player(name, name, player?.ws);
 		if (player && this.players.size < this.settings.players) {
 			player.guest = guest;
 			this.guests.push(guest);
