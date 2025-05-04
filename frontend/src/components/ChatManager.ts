@@ -196,6 +196,12 @@ export class ChatManager {
             return;
         }
 
+        if (friendId === '') {
+            // create group chat
+
+        }
+
+
         const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
         this.activeChats.set(chatRoomId, chatComponent);
 
