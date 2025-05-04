@@ -63,8 +63,13 @@ export class ChatManager {
         const showChat = () => {
             // start a game with data.data.userId vs data.id
             const chatManager = ChatManager.getInstance();
+            console.log('Incoming message:', data);
+            // if (!data || !data.data) {
+            //     console.error('Invalid message format:', data);
+            //     return;
+            // }
             console.log('Incoming data:', data);
-        console.log('data.data:', data.data);
+            console.log('data.data:', data.data);
             console.log('chatManager test:', data.data.name, data.data.userId);
 
             chatManager.openChat(chatRoomId, data.data.name, data.data.senderId);
@@ -72,6 +77,8 @@ export class ChatManager {
         };
         // check which chat room the message is for
         console.log('Incoming message:', data);
+        console.log('data.data:', data.data);
+
         const chatRoomId = data.data.chatRoomId;
         console.log('Target chatRoomId:', chatRoomId);
         // check if the chat room is open
@@ -134,39 +141,40 @@ export class ChatManager {
 
                         chatComponent.displayMessage(message.content, senderName);
                     });
-                } else if (data.type === 'inviteToPlay') {
-                    const myId = State.getState().getCurrentUser()?.id || 'Unknown';
+                }
+                // } else if (data.type === 'inviteToPlay') {
+                //     const myId = State.getState().getCurrentUser()?.id || 'Unknown';
     
-                    const acceptGame = () => {
-                        // start a game with data.data.userId vs data.id
+                //     const acceptGame = () => {
+                //         // start a game with data.data.userId vs data.id
                         
     
-                        console.log('Start match:', data.data.userId, data.id);
+                //         console.log('Start match:', data.data.userId, data.id);
     
-                        showToast(
-                            ToastState.SUCCESS,
-                            `Your game will start soon against "${data.data.name}"`,
-                            3000
-                        );
-                    };
-                    const rejectGame = () => {
+                //         showToast(
+                //             ToastState.SUCCESS,
+                //             `Your game will start soon against "${data.data.name}"`,
+                //             3000
+                //         );
+                //     };
+                //     const rejectGame = () => {
     
-                        showToast(
-                            ToastState.NOTIFICATION,
-                            `You have declined the invitation`,
-                            3000
-                        );
-                    };
-                    showToast(
-                        ToastState.NOTIFICATION,
-                        `You've been invited to play vs: "${data.data.name}"`,
-                        0,
-                        [
-                            { text: 'Accept', action: acceptGame },
-                            { text: 'Reject', action: rejectGame }
-                        ]
-                    );
-                } 
+                //         showToast(
+                //             ToastState.NOTIFICATION,
+                //             `You have declined the invitation`,
+                //             3000
+                //         );
+                //     };
+                //     showToast(
+                //         ToastState.NOTIFICATION,
+                //         `You've been invited to play vs: "${data.data.name}"`,
+                //         0,
+                //         [
+                //             { text: 'Accept', action: acceptGame },
+                //             { text: 'Reject', action: rejectGame }
+                //         ]
+                //     );
+                // } 
             }
         } else if (data.type === 'block' || data.type === 'unblock') {
             console.log(`blocked or unblocked: ${chatRoomId}`);
@@ -190,27 +198,39 @@ export class ChatManager {
         return ChatManager.instance;
     }
 
-    public openChat(chatRoomId: string, friendName: string, friendId: string): void {
-        if (this.activeChats.has(chatRoomId)) {
-            this.focusChat(chatRoomId);
-            return;
-        }
+    public openChat(chatRoomId: string, friendName: string, friendId: string): ChatComponent {
+        // if (this.activeChats.has(chatRoomId)) {
+        //     this.focusChat(chatRoomId);
+        //     return null;
+        // }
 
+        console.log('friendId is empty ', friendId);
         if (friendId === '') {
             // create group chat
+            const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
+            this.activeChats.set(chatRoomId, chatComponent);
+    
+            this.createTab(chatRoomId, friendName);
+    
+            chatComponent.render(document.body);
+            chatComponent.getMessages();
+            chatComponent.isUserBlocked();
+            this.updateChatPositions();
+            return chatComponent;
 
+        } else {
+            const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
+            this.activeChats.set(chatRoomId, chatComponent);
+    
+            this.createTab(chatRoomId, friendName);
+    
+            chatComponent.render(document.body);
+            chatComponent.getMessages();
+            chatComponent.isUserBlocked();
+            this.updateChatPositions();
+            return chatComponent;
         }
 
-
-        const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
-        this.activeChats.set(chatRoomId, chatComponent);
-
-        this.createTab(chatRoomId, friendName);
-
-        chatComponent.render(document.body);
-        chatComponent.getMessages();
-        chatComponent.isUserBlocked();
-        this.updateChatPositions();
     }
 
     private createTab(chatRoomId: string, friendName: string): void {

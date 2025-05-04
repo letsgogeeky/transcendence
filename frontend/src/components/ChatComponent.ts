@@ -18,6 +18,7 @@ export default class ChatComponent extends Component {
     private closeButton: HTMLButtonElement;
     private socket: WebSocket | null = null;
     public blockButton: HTMLButtonElement;
+    private groupChat: boolean = false;
 
     readonly element: HTMLElement;
 
@@ -34,8 +35,12 @@ export default class ChatComponent extends Component {
         this.chatWindow.style.display = 'block';
 
         this.element = this.chatWindow;
-
+        
         this.socket = ws;
+
+        if (!friendId) {
+            this.groupChat = true;
+        }
 
         // Initialize UI components
         this.chatMessages = document.createElement('div');
@@ -46,6 +51,7 @@ export default class ChatComponent extends Component {
         this.setupChatUI();
         console.log('constructor chatComponent:');
         // this.getMessages();
+        
 
     }
 
@@ -56,50 +62,63 @@ export default class ChatComponent extends Component {
 
         // Chat name
         const title = document.createElement('h3');
-        title.textContent = `Chat with ${this.friendName}`;
+        if (this.friendId) {
+            title.textContent = `Chat with ${this.friendName}`;
+        } else {
+            title.textContent = `Tournament chat ${this.friendName}`;
+        }
         title.className = 'text-lg font-bold mb-2';
 
-        // Buttons container
-        const buttonsContainer = document.createElement('div');
-        buttonsContainer.className = 'flex gap-4';
+        console.log('friendId === ', this.friendId);
+            
+        if (this.friendId) {
+            console.log('group chat === ', this.friendId);
 
-        // Close button
-        this.closeButton.textContent = 'Close';
-        this.closeButton.className = 'text-sm text-red-500 hover:underline';
-        this.closeButton.onclick = () => this.closeChat();
+            // Buttons container
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'flex gap-4';
 
-        // View Profile button
-        const viewProfileButton = document.createElement('button');
-        viewProfileButton.textContent = 'View Profile';
-        viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
-        viewProfileButton.onclick = () => {
-            window.history.pushState(
-                {},
-                'view profile',
-                '/profile?userId=' + this.friendId,
-            );
-        };
+            // Close button
+            this.closeButton.textContent = 'Close';
+            this.closeButton.className = 'text-sm text-red-500 hover:underline';
+            this.closeButton.onclick = () => this.closeChat();
 
-        // Block/Unblock button
-        this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
-        this.blockButton.textContent = 'Block'; // Default text
+            // View Profile button
+            const viewProfileButton = document.createElement('button');
+            viewProfileButton.textContent = 'View Profile';
+            viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
+            viewProfileButton.onclick = () => {
+                window.history.pushState(
+                    {},
+                    'view profile',
+                    '/profile?userId=' + this.friendId,
+                );
+            };
 
-        // Add click event for the Block/Unblock button
-        this.blockButton.onclick = async () => {
-            if (this.blockButton.textContent === 'Block') {
-                await this.blockUser();
-                this.blockButton.textContent = 'Unblock';
-            } else {
-                await this.unblockUser();
-                this.blockButton.textContent = 'Block';
-            }
-        };
+            // Block/Unblock button
+            this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
+            this.blockButton.textContent = 'Block'; // Default text
 
-        // Append buttons to the container
-        buttonsContainer.append(viewProfileButton, this.blockButton, this.closeButton);
+            // Add click event for the Block/Unblock button
+            this.blockButton.onclick = async () => {
+                if (this.blockButton.textContent === 'Block') {
+                    await this.blockUser();
+                    this.blockButton.textContent = 'Unblock';
+                } else {
+                    await this.unblockUser();
+                    this.blockButton.textContent = 'Block';
+                }
+            };
+        
+            // Append buttons to the container
+            buttonsContainer.append(viewProfileButton, this.blockButton, this.closeButton);
+            // Append title and buttons container to the header
+            header.append(title, buttonsContainer);
+        } else {
+            header.append(title);
+        }
 
-        // Append title and buttons container to the header
-        header.append(title, buttonsContainer);
+
 
         // Messages container
         this.chatMessages.className = 'overflow-y-auto p-4 space-y-2';
@@ -138,14 +157,20 @@ export default class ChatComponent extends Component {
         // Append message input and send button to the message container
         messageContainer.append(this.messageInput, sendButton);
 
-        // Invite to Play button
-        const inviteButton = document.createElement('button');
-        inviteButton.textContent = 'Invite to play';
-        inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
-        inviteButton.onclick = () => this.inviteToPlay(); // not implemented yet
+        if (this.friendId) {
+            // Invite to Play button
+            const inviteButton = document.createElement('button');
+            inviteButton.textContent = 'Invite to play';
+            inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
+            inviteButton.onclick = () => this.inviteToPlay(); // not implemented yet
 
-        // Append all elements to the input container
-        inputContainer.append(messageContainer, inviteButton);
+            // Append all elements to the input container
+            inputContainer.append(messageContainer, inviteButton);
+        } else {
+            inputContainer.append(messageContainer);
+        }
+        
+
 
         // Append all elements
         this.chatWindow.append(header, this.chatMessages, inputContainer);
@@ -174,27 +199,55 @@ export default class ChatComponent extends Component {
 
     private async sendMessage(): Promise<void> {
         // this.getMessages();
-        const message = this.messageInput.value.trim();
-        const myName = State.getState().getCurrentUser()?.name || 'Unknown';
-        console.log('Sending message:', message);
-        if (message) {
-            try {
-                // Send the message via WebSocket
-                this.displayMessage(message, 'You');
-                this.socket?.send(
-                    JSON.stringify({
-                        type: 'chatMessage',
-                        chatRoomId: this.chatRoomId,
-                        userId: this.friendId,
-                        content: message,
-                        name: myName,
-                        senderId: State.getState().getCurrentUser()?.id,
-                    }),
-                );
-                // sendMessage(this.chatRoomId, message);
-                this.messageInput.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
+        if (this.groupChat) {
+            console.log('tournament chat');
+            const message = this.messageInput.value.trim();
+            const myName = State.getState().getCurrentUser()?.name || 'Unknown';
+            console.log('Sending message:', message);
+            if (message) {
+                try {
+                    // Send the message via WebSocket
+                    this.displayMessage(message, 'You');
+                    this.socket?.send(
+                        JSON.stringify({
+                            type: 'groupMessage',
+                            chatRoomId: this.chatRoomId,
+                            userId: this.friendId,
+                            content: message,
+                            name: myName,
+                            senderId: State.getState().getCurrentUser()?.id,
+                        }),
+                    );
+                    // sendMessage(this.chatRoomId, message);
+                    this.messageInput.value = '';
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            }
+        } else {
+            console.log('fried chat');
+            const message = this.messageInput.value.trim();
+            const myName = State.getState().getCurrentUser()?.name || 'Unknown';
+            console.log('Sending message:', message);
+            if (message) {
+                try {
+                    // Send the message via WebSocket
+                    this.displayMessage(message, 'You');
+                    this.socket?.send(
+                        JSON.stringify({
+                            type: 'chatMessage',
+                            chatRoomId: this.chatRoomId,
+                            userId: this.friendId,
+                            content: message,
+                            name: myName,
+                            senderId: State.getState().getCurrentUser()?.id,
+                        }),
+                    );
+                    // sendMessage(this.chatRoomId, message);
+                    this.messageInput.value = '';
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
             }
         }
     }
@@ -203,21 +256,22 @@ export default class ChatComponent extends Component {
     public async getMessages(): Promise<void> {
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
         console.log('getHistory:');
-            try {
-                // Send the message via WebSocket
-                // this.displayMessage(message, 'You');
-                this.socket?.send(
-                    JSON.stringify({
-                        type: 'chatHistory',
-                        chatRoomId: this.chatRoomId,
-                        userId: this.friendId,
-                        senderId: State.getState().getCurrentUser()?.id,
-                    }),
-                );
-                // sendMessage(this.chatRoomId, message);
-                this.messageInput.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
+        try {
+            // Wait for the WebSocket connection to be open
+            await this.waitForSocketConnection(this.socket!);
+
+            // Send the message via WebSocket
+            this.socket?.send(
+                JSON.stringify({
+                    type: 'chatHistory',
+                    chatRoomId: this.chatRoomId,
+                    userId: this.friendId,
+                    senderId: State.getState().getCurrentUser()?.id,
+                }),
+            );
+            this.messageInput.value = '';
+        } catch (error) {
+            console.error('Error sending message:', error);
         }
     }
 
@@ -278,6 +332,24 @@ export default class ChatComponent extends Component {
         }
     }
 
+    public addParticipantToChat(participantId: string): void {
+        const myName = State.getState().getCurrentUser()?.name || 'Unknown';
+        try {
+            this.socket?.send(
+                JSON.stringify({
+                    type: 'addParticipant',
+                    chatRoomId: this.chatRoomId,
+                    userId: participantId,
+                    content: "addParticipant",
+                    name: myName,
+                    senderId: State.getState().getCurrentUser()?.id,
+                }),
+            );
+        } catch (error) {
+            console.error('Error InviteToPlay user:', error);
+        }
+    }
+    
     private inviteToPlay(): void {
         console.log('Inviting to game:', this.friendName);
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
@@ -299,11 +371,11 @@ export default class ChatComponent extends Component {
         }
     }
 
-    public  isUserBlocked(): void{
+    public async isUserBlocked(): Promise<void> {
         try {
 
             // Wait for the WebSocket connection to be open
-            // await this.waitForSocketConnection(this.socket!);
+            await this.waitForSocketConnection(this.socket!);
 
             // Send a WebSocket message to check block status
             this.socket?.send(
