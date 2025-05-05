@@ -251,6 +251,9 @@ export function gameHttpRoutes(app: FastifyInstance) {
         if (settings.startScore && (settings.startScore <= 0 && settings.terminatePlayers)) {
             return 'Cannot set start score to 0 when terminating players';
         }
+		if (settings.kickerMode && settings.kickerMode === true && (settings.players > 2 || (settings.aiPlayers && settings.aiPlayers + settings.players > 2))) {
+			return 'Cannot set kicker mode in a game with more than 2 total players and AIs';
+		}
         return null;
     }
 
@@ -266,7 +269,8 @@ export function gameHttpRoutes(app: FastifyInstance) {
             if (error) {
                 return reply.status(400).send({ error });
             }
-
+			settings.gainPoints = true;
+			settings.losePoints = false;
             // Create a new match with custom settings
             const match = await app.prisma.match.create({
                 data: {

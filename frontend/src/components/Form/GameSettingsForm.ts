@@ -26,6 +26,19 @@ export default class GameSettingsForm extends FormComponent {
                 '',
                 true
             ),
+            new Select(
+                'AI Difficulty Level',
+                'aiLevel',
+                [
+                    { value: '1', text: 'Very Easy' },
+                    { value: '3', text: 'Easy' },
+                    { value: '5', text: 'Medium' },
+                    { value: '7', text: 'Hard' },
+                    { value: '9', text: 'Very Hard' }
+                ],
+                true,
+                ''
+            ),
             new Input(
                 'Time Limit (seconds)',
                 'number',
@@ -57,8 +70,8 @@ export default class GameSettingsForm extends FormComponent {
                 'Replace Disconnected Players',
                 'replaceDisconnected',
                 [
-                    { value: 'true', text: 'Yes' },
-                    { value: 'false', text: 'No' }
+                    { value: 'false', text: 'No' },
+                    { value: 'true', text: 'Yes' }
                 ],
                 true,
                 ''
@@ -67,18 +80,8 @@ export default class GameSettingsForm extends FormComponent {
                 'Terminate Players at Zero Score',
                 'terminatePlayers',
                 [
-                    { value: 'true', text: 'Yes' },
-                    { value: 'false', text: 'No' }
-                ],
-                true,
-                ''
-            ),
-            new Select(
-                'Friendly Fire',
-                'friendlyFire',
-                [
-                    { value: 'true', text: 'Enabled' },
-                    { value: 'false', text: 'Disabled' }
+                    { value: 'false', text: 'No' },
+                    { value: 'true', text: 'Yes' }
                 ],
                 true,
                 ''
@@ -95,6 +98,16 @@ export default class GameSettingsForm extends FormComponent {
                 true,
                 ''
             ),
+			new Select(
+                'Kicker Mode (Mess with gravity and find out!)',
+                'kickerMode',
+                [
+                    { value: 'false', text: 'No' },
+                    { value: 'true', text: 'Yes' }
+                ],
+                true,
+                ''
+            ),
             new Input(
                 'Number of Balls',
                 'number',
@@ -103,19 +116,6 @@ export default class GameSettingsForm extends FormComponent {
                 '1',
                 '',
                 true
-            ),
-            new Select(
-                'AI Difficulty Level',
-                'aiLevel',
-                [
-                    { value: '1', text: 'Very Easy' },
-                    { value: '3', text: 'Easy' },
-                    { value: '5', text: 'Medium' },
-                    { value: '7', text: 'Hard' },
-                    { value: '9', text: 'Very Hard' }
-                ],
-                true,
-                ''
             )
         ];
 

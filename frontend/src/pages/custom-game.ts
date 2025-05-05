@@ -30,7 +30,8 @@ export default class CustomGamePage extends Component {
                 friendlyFire: data.friendlyFire === 'true',
                 obstacleMode: parseInt(data.obstacleMode),
                 balls: parseInt(data.balls) || 1,
-                aiLevel: parseInt(data.aiLevel) || 5
+                aiLevel: parseInt(data.aiLevel) || 5,
+				kickerMode: data.kickerMode === 'true' || false
             };
 
             const response = await sendRequest('/queue/create-custom', 'POST', settings, Services.MATCH);
