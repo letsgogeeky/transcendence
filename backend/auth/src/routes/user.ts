@@ -98,8 +98,23 @@ export function userRoutes(fastify: FastifyInstance) {
             };
             const existingUser = await fastify.prisma.user.findUnique({
                 where: { id: request.user },
-                select: { otpMethod: true },
+                select: { otpMethod: true, name: true },
             });
+            const newName = request.body.name;
+            if (newName && newName != existingUser!.name) {
+                const sameNameUser = await fastify.prisma.user.findFirst({
+                    where: {
+                        name: newName,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+                if (sameNameUser)
+                    return reply
+                        .code(409)
+                        .send({ error: 'Username already in use.' });
+            }
             const usr = await fastify.prisma.user.update({
                 where: { id: request.user },
                 data: {

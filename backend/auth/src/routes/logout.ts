@@ -15,6 +15,7 @@ export function logoutRoutes(fastify: FastifyInstance) {
         res.clearCookie('userId', { path: '/socket' });
         res.clearCookie('userName', { path: '/socket' });
         res.send({ message: 'Logged out' });
-        fastify.connections.get(req.user)?.close();
+        const userSockets = fastify.connections.get(req.user);
+        userSockets?.forEach((s) => s.close());
     });
 }
