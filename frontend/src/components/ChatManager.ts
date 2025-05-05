@@ -239,7 +239,6 @@ export class ChatManager {
             if (tab) {
                 tab.remove();
             }
-
             this.updateChatPositions();
         }
     }
