@@ -101,7 +101,7 @@ export class Ball {
 				this.game.paddles[i].addPoints(-1);
 			if (this.game.settings.gainPoints)
 				scorer?.addPoints(1);
-			else if (this.game.settings.players == 2)
+			if (!scorer && this.game.settings.players == 2)
 				this.position.x < 0 ? this.game.paddles[0].addPoints(1) : this.game.paddles[1].addPoints(1);
 		}
 		await this.game.updateScore();

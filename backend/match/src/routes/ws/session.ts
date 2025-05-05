@@ -325,7 +325,7 @@ export class GameSession {
 				for (const ball of this.balls) ball.step();
 				this.scene.getPhysicsEngine()?._step(deltaTime);
 				for (const paddle of this.paddles) {
-					if (frameCount % (20 - 2 * this.settings.aiLevel!) == 0)
+					if (frameCount % ((20 - 2 * this.settings.aiLevel!) || 1) == 0)
 						paddle.defend();
 					paddle.checkBounds();
 				}
