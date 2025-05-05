@@ -81,6 +81,11 @@ export default class TournamentComponent extends Component {
         await this.fetchData();
         // await this.renderParticipants();
         this.render(this.parent);
+        window.history.pushState(
+            {},
+            'View Tournament',
+            '/tournament?tournamentId=' + this.data.tournament.id,
+        );
     }
 
     async getUsers(): Promise<any[]> {
@@ -145,6 +150,11 @@ export default class TournamentComponent extends Component {
     }
 
     async removePlayerCallback(response: Response): Promise<void> {
+        window.history.pushState(
+            {},
+            'View Tournament',
+            '/tournament?tournamentId=' + this.data.tournament.id,
+        );
         console.log('removePlayerCallback');
         await this.fetchData();
         // await this.renderParticipants();
@@ -226,8 +236,25 @@ export default class TournamentComponent extends Component {
                         try {
                             const response = await this.removePlayer(this.data.tournament.id, participant.userId);
                             if (response.ok) {
+                                ChatManager.getInstance().initializeChatSocket();
+                                const chatManager = ChatManager.getInstance();
+                                const chatComponent = chatManager.openChat(this.data.tournament.id, this.data.tournament.name, '');
+                                chatManager.closeChat(this.data.tournament.id);
+                                chatComponent.removeParticipantFromChat(State.getState().getCurrentUser()?.id || '');
+
+                                // test
+                                window.history.pushState(
+                                    {},
+                                    'View Tournament',
+                                    '/tournament?tournamentId=' + this.data.tournament.id,
+                                );
+                                
+                                // notyfy admin about tournament_update
+
+
                                 await this.fetchData();
                                 await this.renderParticipants();
+                                
                             }
                         } catch (error) {
                             console.error('Error leaving tournament:', error);

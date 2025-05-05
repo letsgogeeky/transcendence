@@ -35,6 +35,8 @@ export type GameSettings = {
 	obstacleMode?: number,
 	balls?: number
 	aiLevel?: number
+	gainPoints: boolean;
+	losePoints: boolean;
 }
 
 export enum GameStatus {
@@ -51,6 +53,7 @@ export class GameSession {
 	players = new Map<string, Player>();
 	paddles: Paddle[] = [];
 	balls: Ball[] = [];
+	obstacles: BABYLON.Mesh[] = [];
 	status: GameStatus = GameStatus.WAITING;
 	settings: GameSettings;
 	id: string;
@@ -168,8 +171,10 @@ export class GameSession {
 				teamScore += player.score;
 				teamScores.push(teamScore);
 			}
-			if (this.settings.winScore && teamScore >= this.settings.winScore) 
+			if (this.settings.winScore && teamScore >= this.settings.winScore) {
 				this.gameEnd("Team " + team[0].teamNumber + " won!");
+				return;
+			}
 		}
 
 		for (const player of this.players.values())
@@ -193,18 +198,22 @@ export class GameSession {
     private broadcastSceneState() {
 		const paddlePositions = this.paddles.map(paddle => ({position: paddle.box.position, id: paddle.box.id}));
 		const ballPositions = this.balls.map(ball => ({position: ball.position, id: ball.ball.id}));
-		const meshPositions = [...paddlePositions, ...ballPositions];
+		const obstaclePositions = this.obstacles.map(o => ({position: o.position, id: o.id}));
+
+		const ballRotations = this.balls.map(ball => ({rotation: ball.aggregate.transformNode.rotationQuaternion, id: ball.ball.id}));
+		const obstacleRotations = this.obstacles.filter(o => o.physicsBody != undefined).
+		map(o => ({rotation: o.physicsBody!.transformNode.rotationQuaternion, id: o.id}));
 		
-		const meshRotations = this.balls.map(ball => ({rotation: ball.aggregate.transformNode.rotationQuaternion, id: ball.ball.id
-		}));
+		let meshPositions = [...paddlePositions, ...ballPositions, ...obstaclePositions];
+		const meshRotations = [...ballRotations, ...obstacleRotations];
 		this.players.forEach((player) => {
 			if (player.paddle)
 				meshRotations.push({rotation: player.paddle.aggregate.transformNode.rotationQuaternion, id: player.paddle.box.id});
 		})
-		const targets = this.paddles.map(paddle => paddle.target).filter(target => target !== undefined);
+
 		this.players.forEach((player) => {
 			if (player.ws && player.ws.readyState === WebSocket.OPEN) {
-				player.ws.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations, targets: targets}}));
+				player.ws.send(JSON.stringify({type: 'sceneState', data: {positions: meshPositions, rotations: meshRotations}}));
 			} else {
 				this.handleClose(player.id);
 			}
@@ -265,7 +274,10 @@ export class GameSession {
 		let startTime = Date.now();
         let lastTime = Date.now();
 
-		this.paddles = buildScene(this.settings.players + this.settings.aiPlayers!, this.settings.obstacleMode ?? 0, this.scene);
+		const content = buildScene(this.settings.players + this.settings.aiPlayers!, this.settings.obstacleMode ?? 0, this.scene);
+		this.paddles = content.paddles;
+		this.obstacles = content.obstacles;
+		
 		do {
 			this.balls.push(new Ball(this, this.scene));
 		} while (this.balls.length < (this.settings.balls ?? 1))
@@ -278,7 +290,7 @@ export class GameSession {
 				player.paddle = paddle;
 			}
 		});
-		
+
 		for (let i = 0; i < (this.settings.teams ?? []).length; i++)
 			this.createTeam(this.settings.teams![i], i + 1);
 
@@ -313,7 +325,7 @@ export class GameSession {
 				for (const ball of this.balls) ball.step();
 				this.scene.getPhysicsEngine()?._step(deltaTime);
 				for (const paddle of this.paddles) {
-					if (frameCount % (10 - this.settings.aiLevel!) == 0)
+					if (frameCount % (20 - 2 * this.settings.aiLevel!) == 0)
 						paddle.defend();
 					paddle.checkBounds();
 				}
