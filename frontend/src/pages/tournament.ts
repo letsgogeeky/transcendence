@@ -145,6 +145,11 @@ export default class TournamentComponent extends Component {
     }
 
     async removePlayerCallback(response: Response): Promise<void> {
+        window.history.pushState(
+            {},
+            'View Tournament',
+            '/tournament?tournamentId=' + this.data.tournament.id,
+        );
         console.log('removePlayerCallback');
         await this.fetchData();
         // await this.renderParticipants();
@@ -229,7 +234,16 @@ export default class TournamentComponent extends Component {
                                 ChatManager.getInstance().initializeChatSocket();
                                 const chatManager = ChatManager.getInstance();
                                 const chatComponent = chatManager.openChat(this.data.tournament.id, this.data.tournament.name, '');
-                                chatComponent.addParticipantToChat(State.getState().getCurrentUser()?.id || '');
+                                chatManager.closeChat(this.data.tournament.id);
+                                chatComponent.removeParticipantFromChat(State.getState().getCurrentUser()?.id || '');
+
+                                // test
+                                window.history.pushState(
+                                    {},
+                                    'View Tournament',
+                                    '/tournament?tournamentId=' + this.data.tournament.id,
+                                );
+
                                 await this.fetchData();
                                 await this.renderParticipants();
                             }

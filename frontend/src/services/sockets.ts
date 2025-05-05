@@ -168,7 +168,10 @@ export default class WebSocketService {
                     const chatManager = ChatManager.getInstance();
                     const chatComponent = chatManager.openChat(data.tournamentId, data.tournamentName, '');
                     chatComponent.addParticipantToChat(State.getState().getCurrentUser()?.id || '');
-   
+                    if (window.location.pathname.includes('/tournament')) {
+                        window.history.pushState({}, '', '/tournament');
+                        window.dispatchEvent(new Event('popstate'));
+                    }
                 };
                 const rejectTournament = () => {
                     this.sendMessage(JSON.stringify({

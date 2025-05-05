@@ -134,6 +134,8 @@ async function handleTournamentAccept(app: FastifyInstance, userId: string, mess
             console.error('Missing adminId in TOURNAMENT_ACCEPT message');
             return;
         }
+        
+
 
         // Notify tournament creator about acceptance
         const creatorSocket = app.connections.get(tournament.adminId as string);
