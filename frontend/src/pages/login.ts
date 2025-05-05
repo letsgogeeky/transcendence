@@ -79,8 +79,8 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
+		container.appendChild(copyrightLine());
         ChatManager.getInstance().initializeChatSocket();
-        
     }
 
 	static loginCallback(data: any): void {
