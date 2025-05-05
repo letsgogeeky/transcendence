@@ -222,9 +222,9 @@ export function chatRoutes(fastify: FastifyInstance) {
                         );
                         return;
                     }
-                    if (chatMessage.type === 'groupMessage') {
+                    if (chatMessage.type === 'groupChatMessage') {
                         // send too all participants
-                        console.log('Received groupMessage:');
+                        console.log('Received groupChatMessage:');
 
                         await fastify.prisma.message.createMany({
                             data: [
@@ -243,28 +243,35 @@ export function chatRoutes(fastify: FastifyInstance) {
                             where: { id: chatMessage.chatRoomId },
                             include: { participants: true },
                         });
-                        const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
-                        chatRoom?.participants.forEach((participant: { userId: string }) => {
-
-                            // check if the paticipant is the sender
-                            if (participant.userId !== req.user) {
-
-                                const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === participant.userId);
-                                if (!isBlocked) {
-                                    fastify.connections.get(participant.userId)?.send(
-                                        JSON.stringify({
-                                            type: 'groupChatMessage',
-                                            chatRoomId: chatMessage.chatRoomId,
-                                            userId: chatMessage.userId,
-                                            data: chatMessage,
-                                        }),
-                                    );
-
-                                }
-                            }
-
-                        });
-
+                        // const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
+                        if (chatRoom?.participants) {
+                            await Promise.all(
+                                chatRoom.participants.map(async (participant) => {
+                                    // Check if the participant is not the sender
+                                    if (participant.userId !== chatMessage.senderId) {
+                                        // Fetch the list of users blocked by the receiving user (participant)
+                                        const blockedUsers = await getBlockedUsers(participant.userId, fastify);
+                        
+                                        // Check if the sender is blocked by the receiving user
+                                        const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === chatMessage.senderId);
+                        
+                                        if (!isBlocked) {
+                                            // Send the group chat message to the participant
+                                            fastify.connections.get(participant.userId)?.send(
+                                                JSON.stringify({
+                                                    type: 'groupChatMessage',
+                                                    chatRoomId: chatMessage.chatRoomId,
+                                                    userId: chatMessage.userId,
+                                                    data: chatMessage,
+                                                }),
+                                            );
+                                        } else {
+                                            console.log(`Message not sent: Sender ${chatMessage.senderId} is blocked by ${participant.userId}`);
+                                        }
+                                    }
+                                }),
+                            );
+                        }
 
             
 

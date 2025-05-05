@@ -232,7 +232,7 @@ export default class ChatComponent extends Component {
                     await this.waitForSocketConnection(this.socket!);
                     this.socket?.send(
                         JSON.stringify({
-                            type: 'groupMessage',
+                            type: 'groupChatMessage',
                             chatRoomId: this.chatRoomId,
                             userId: this.friendId,
                             content: message,
