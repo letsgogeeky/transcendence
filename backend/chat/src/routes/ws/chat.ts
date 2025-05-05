@@ -326,14 +326,14 @@ export function chatRoutes(fastify: FastifyInstance) {
                         const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === req.user);
                         if (isBlocked) {
                             console.log('User is blocked:', req.user);
-                            chatMessage.name = 'Info';
-                            chatMessage.content = 'You are blocked';
-                            fastify.connections.get(req.user)?.send(
-                                JSON.stringify({
-                                    type: 'chatMessage',
-                                    data: chatMessage
-                                }),
-                            );
+                            // chatMessage.name = 'Info';
+                            // chatMessage.content = 'You are blocked';
+                            // fastify.connections.get(req.user)?.send(
+                            //     JSON.stringify({
+                            //         type: 'chatMessage',
+                            //         data: chatMessage
+                            //     }),
+                            // );
                             return;
                         }
                         // chatMessage.name = 'Info';
