@@ -95,7 +95,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
                 if (user) {
                     const message = {
                         type: 'SUCCESS',
-                        message: 'Welcome ' + user.name,
+                        message: '👋  Welcome ' + user.name,
                     };
                     socket.send(JSON.stringify(message));
                     if (fastify.connections.has(id)) {
