@@ -1,4 +1,5 @@
 import { showToast, ToastState } from '../components/Toast';
+import { tryRefresh } from './send-request';
 import State from './state';
 import ChatManager from '../components/ChatManager';
 
@@ -18,7 +19,11 @@ export default class WebSocketService {
     }
 
     private connect(): void {
-        console.log(`${this.isMatchSocket ? 'Match' : 'Auth'} socket connecting to ${this.url}`);
+        console.log(
+            `${this.isMatchSocket ? 'Match' : 'Auth'} socket connecting to ${
+                this.url
+            }`,
+        );
         const authToken = State.getState().getAuthToken();
         if (!authToken) return;
         console.log(`Auth token: ${authToken}`);
@@ -26,7 +31,9 @@ export default class WebSocketService {
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {
-            console.log(`${this.isMatchSocket ? 'Match' : 'Auth'} socket opened`);
+            console.log(
+                `${this.isMatchSocket ? 'Match' : 'Auth'} socket opened`,
+            );
             if (this.isAuthSocket) {
                 this.sendMessage(
                     JSON.stringify({
@@ -39,7 +46,11 @@ export default class WebSocketService {
         });
 
         this.socket.addEventListener('message', (event) => {
-            console.log(`${this.isMatchSocket ? 'Match' : 'Auth'} socket received message: ${event.data}`);
+            console.log(
+                `${
+                    this.isMatchSocket ? 'Match' : 'Auth'
+                } socket received message: ${event.data}`,
+            );
             const data = JSON.parse(event.data);
             if (this.isMatchSocket) this.handleTournamentMatchMessage(data);
             if (this.isAuthSocket) this.handleAuthMessage(data);
@@ -89,36 +100,33 @@ export default class WebSocketService {
             document.title += ' (Offline)';
         } else if (data.type == 'RETRY') {
             this.reconnect();
+        } else if (data.type == 'EXPIRED') {
+            tryRefresh();
+            this.reconnect();
         } else if (data.type == 'SUCCESS') {
             window.dispatchEvent(new Event('userChange'));
             document.title = document.title.replace(/ \(Offline\)$/, '');
-            showToast(
-                ToastState.NOTIFICATION,
-                data.message,
-            );
+            showToast(ToastState.NOTIFICATION, data.message);
         } else {
-            showToast(
-                ToastState.NOTIFICATION,
-                data.message,
-            );
+            showToast(ToastState.NOTIFICATION, data.message);
         }
         window.dispatchEvent(new Event('userChange'));
     }
 
     private handleTournamentMatchMessage(data: any): void {
         console.log('Received match message:', data);
-        switch(data.type) {
+        switch (data.type) {
             case 'MATCH_STARTED':
                 const match = data.match;
                 showToast(
                     ToastState.NOTIFICATION,
                     `Match started! ${match.gameType} redirecting to game...`,
-                    5000
+                    5000,
                 );
                 window.history.pushState(
                     { path: '/game' },
                     '/game',
-                    `/game?matchId=${match.id}&tournamentId=${match.tournamentId}`
+                    `/game?matchId=${match.id}&tournamentId=${match.tournamentId}`,
                 );
                 // // TODO: remove when SPA is implemented
                 // window.location.reload();
@@ -127,14 +135,14 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament match is ready! ${data.message}`,
-                    5000
+                    5000,
                 );
                 // Redirect to game with tournament match ID
                 if (data.matchId) {
                     window.history.pushState(
                         { path: '/game' },
                         '/game',
-                        `/game?matchId=${data.matchId}&tournamentId=${data.tournamentId}`
+                        `/game?matchId=${data.matchId}&tournamentId=${data.tournamentId}`,
                     );
                 }
                 break;
@@ -143,7 +151,7 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament "${data.tournamentName}" has started!`,
-                    5000
+                    5000,
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
@@ -154,15 +162,16 @@ export default class WebSocketService {
 
             case 'TOURNAMENT_INVITATION':
                 const acceptTournament = () => {
-                    this.sendMessage(JSON.stringify({
-                        type: 'ACCEPT_TOURNAMENT',
-                        tournamentId: data.tournamentId
-                    }));
-
+                    this.sendMessage(
+                        JSON.stringify({
+                            type: 'ACCEPT_TOURNAMENT',
+                            tournamentId: data.tournamentId,
+                        }),
+                    );
                     showToast(
                         ToastState.SUCCESS,
                         `You have joined tournament "${data.tournamentName}"`,
-                        3000
+                        3000,
                     );
                     ChatManager.getInstance().initializeChatSocket();
                     const chatManager = ChatManager.getInstance();
@@ -181,14 +190,16 @@ export default class WebSocketService {
                     }
                 };
                 const rejectTournament = () => {
-                    this.sendMessage(JSON.stringify({
-                        type: 'REJECT_TOURNAMENT',
-                        tournamentId: data.tournamentId
-                    }));
+                    this.sendMessage(
+                        JSON.stringify({
+                            type: 'REJECT_TOURNAMENT',
+                            tournamentId: data.tournamentId,
+                        }),
+                    );
                     showToast(
                         ToastState.NOTIFICATION,
                         `You have declined the tournament invitation`,
-                        3000
+                        3000,
                     );
                 };
                 showToast(
@@ -197,31 +208,35 @@ export default class WebSocketService {
                     0,
                     [
                         { text: 'Accept', action: acceptTournament },
-                        { text: 'Reject', action: rejectTournament }
-                    ]
+                        { text: 'Reject', action: rejectTournament },
+                    ],
                 );
                 break;
 
             case 'MATCH_INVITATION':
                 const acceptMatch = () => {
-                    this.sendMessage(JSON.stringify({
-                        type: 'ACCEPT_MATCH',
-                        matchId: data.matchId
-                    }));
+                    this.sendMessage(
+                        JSON.stringify({
+                            type: 'ACCEPT_MATCH',
+                            matchId: data.matchId,
+                        }),
+                    );
                     if (data.matchId) {
                         window.history.pushState(
                             { path: '/game' },
                             '/game',
-                            `/game?matchId=${data.matchId}`
+                            `/game?matchId=${data.matchId}`,
                         );
                     }
                     
                 };
                 const rejectMatch = () => {
-                    this.sendMessage(JSON.stringify({
-                        type: 'REJECT_MATCH',
-                        matchId: data.matchId
-                    }));
+                    this.sendMessage(
+                        JSON.stringify({
+                            type: 'REJECT_MATCH',
+                            matchId: data.matchId,
+                        }),
+                    );
                 };
                 showToast(
                     ToastState.NOTIFICATION,
@@ -229,8 +244,8 @@ export default class WebSocketService {
                     0,
                     [
                         { text: 'Accept', action: acceptMatch },
-                        { text: 'Reject', action: rejectMatch }
-                    ]
+                        { text: 'Reject', action: rejectMatch },
+                    ],
                 );
                 break;
 
@@ -238,7 +253,7 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament Update: ${data.message}`,
-                    2000
+                    5000,
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
@@ -262,7 +277,7 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament "${data.tournamentName}" has ended! ${data.message}`,
-                    5000
+                    5000,
                 );
                 // Redirect to tournament results if on tournament page
                 if (window.location.pathname.includes('/tournament')) {
@@ -275,7 +290,7 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     'Tournament match is starting!',
-                    5000
+                    5000,
                 );
                 break;
 
@@ -283,23 +298,19 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament match ended: ${data.message}`,
-                    5000
+                    5000,
                 );
                 if (data.tournamentId) {
                     window.history.pushState(
                         { path: '/tournament' },
                         '/tournament',
-                        `/tournament?tournamentId=${data.tournamentId}`
+                        `/tournament?tournamentId=${data.tournamentId}`,
                     );
                 }
                 break;
 
             default:
-                showToast(
-                    ToastState.NOTIFICATION,
-                    data.message,
-                    5000
-                );
+                showToast(ToastState.NOTIFICATION, data.message, 5000);
         }
         return;
     }

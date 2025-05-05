@@ -92,10 +92,10 @@ export function friendRequestsRoutes(fastify: FastifyInstance) {
         receiverId: string,
         message: string,
     ) {
-        const receiverSocket = fastify.connections.get(receiverId);
-        const senderSocket = fastify.connections.get(senderId);
-        if (receiverSocket) receiverSocket.send(message);
-        if (senderSocket) senderSocket.send(message);
+        const receiverSockets = fastify.connections.get(receiverId);
+        const senderSockets = fastify.connections.get(senderId);
+        if (receiverSockets) receiverSockets.forEach((s) => s.send(message));
+        if (senderSockets) senderSockets.forEach((s) => s.send(message));
     }
 
     fastify.post<{ Body: Static<typeof newFriendRequst> }>(
