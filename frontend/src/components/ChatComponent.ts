@@ -115,7 +115,47 @@ export default class ChatComponent extends Component {
             // Append title and buttons container to the header
             header.append(title, buttonsContainer);
         } else {
-            header.append(title);
+            // Buttons container
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'flex gap-4';
+
+            // Close button
+            this.closeButton.textContent = 'Close';
+            this.closeButton.className = 'text-sm text-red-500 hover:underline';
+            this.closeButton.onclick = () => this.closeChat();
+
+            // View button tournament
+            const viewProfileButton = document.createElement('button');
+            viewProfileButton.textContent = 'View Tournament';
+            viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
+            viewProfileButton.onclick = () => {
+                window.history.pushState(
+                    {},
+                    'View Tournament',
+                    '/tournament?tournamentId=' + this.chatRoomId,
+                );
+            };
+
+            // // Block/Unblock button
+            // this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
+            // this.blockButton.textContent = 'Block'; // Default text
+
+            // // Add click event for the Block/Unblock button
+            // this.blockButton.onclick = async () => {
+            //     if (this.blockButton.textContent === 'Block') {
+            //         await this.blockUser();
+            //         this.blockButton.textContent = 'Unblock';
+            //     } else {
+            //         await this.unblockUser();
+            //         this.blockButton.textContent = 'Block';
+            //     }
+            // };
+        
+            // Append buttons to the container
+            buttonsContainer.append(viewProfileButton, this.closeButton);
+            // buttonsContainer.append(viewProfileButton, this.blockButton, this.closeButton);
+            // Append title and buttons container to the header
+            header.append(title, buttonsContainer);
         }
 
 
@@ -208,6 +248,7 @@ export default class ChatComponent extends Component {
                 try {
                     // Send the message via WebSocket
                     this.displayMessage(message, 'You');
+                    await this.waitForSocketConnection(this.socket!);
                     this.socket?.send(
                         JSON.stringify({
                             type: 'groupMessage',
@@ -215,6 +256,7 @@ export default class ChatComponent extends Component {
                             userId: this.friendId,
                             content: message,
                             name: myName,
+                            groupName: this.friendName,
                             senderId: State.getState().getCurrentUser()?.id,
                         }),
                     );
@@ -233,6 +275,7 @@ export default class ChatComponent extends Component {
                 try {
                     // Send the message via WebSocket
                     this.displayMessage(message, 'You');
+                    await this.waitForSocketConnection(this.socket!);
                     this.socket?.send(
                         JSON.stringify({
                             type: 'chatMessage',
@@ -257,7 +300,11 @@ export default class ChatComponent extends Component {
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
         console.log('getHistory:');
         try {
-            // Wait for the WebSocket connection to be open
+            if (!this.socket) {
+            throw new Error('WebSocket is not initialized.');
+        }
+            // Wait for the WebSocket connection
+            //  to be open
             await this.waitForSocketConnection(this.socket!);
 
             // Send the message via WebSocket
@@ -276,14 +323,20 @@ export default class ChatComponent extends Component {
     }
 
     private async waitForSocketConnection(socket: WebSocket): Promise<void> {
-        return new Promise((resolve) => {
-            if (socket.readyState === WebSocket.OPEN) {
-                resolve();
-            } else {
-                socket.onopen = () => {
+        return new Promise((resolve, reject) => {
+            const maxAttempts = 10;
+            let attempts = 0;
+    
+            const interval = setInterval(() => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    clearInterval(interval);
                     resolve();
-                };
-            }
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    reject(new Error('WebSocket connection timed out.'));
+                }
+                attempts++;
+            }, 100); // Check every 100ms
         });
     }
 
@@ -334,19 +387,32 @@ export default class ChatComponent extends Component {
 
     public addParticipantToChat(participantId: string): void {
         const myName = State.getState().getCurrentUser()?.name || 'Unknown';
-        try {
-            this.socket?.send(
-                JSON.stringify({
-                    type: 'addParticipant',
-                    chatRoomId: this.chatRoomId,
-                    userId: participantId,
-                    content: "addParticipant",
-                    name: myName,
-                    senderId: State.getState().getCurrentUser()?.id,
-                }),
-            );
-        } catch (error) {
-            console.error('Error InviteToPlay user:', error);
+
+        const sendMessage = () => {
+            try {
+                this.socket?.send(
+                    JSON.stringify({
+                        type: 'addParticipant',
+                        chatRoomId: this.chatRoomId,
+                        userId: participantId,
+                        content: "addParticipant",
+                        name: myName,
+                        senderId: State.getState().getCurrentUser()?.id,
+                    }),
+                );
+            } catch (error) {
+                console.error('Error sending addParticipant message:', error);
+            }
+        };
+    
+        if (this.socket) {
+            this.waitForSocketConnection(this.socket)
+                .then(sendMessage)
+                .catch((error) => {
+                    console.error('Failed to send addParticipant message:', error);
+                });
+        } else {
+            console.error('WebSocket is not initialized.');
         }
     }
     
@@ -373,7 +439,9 @@ export default class ChatComponent extends Component {
 
     public async isUserBlocked(): Promise<void> {
         try {
-
+            if (!this.socket) {
+                throw new Error('WebSocket is not initialized.');
+            }
             // Wait for the WebSocket connection to be open
             await this.waitForSocketConnection(this.socket!);
 

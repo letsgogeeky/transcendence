@@ -236,7 +236,7 @@ export function chatRoutes(fastify: FastifyInstance) {
                                         type: 'groupChatMessage',
                                         chatRoomId: chatMessage.chatRoomId,
                                         userId: chatMessage.userId,
-                                        data: chatMessage
+                                        data: chatMessage,
                                     }),
                                 );
                             }

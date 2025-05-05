@@ -78,18 +78,18 @@ export class ChatManager {
         const showChatRoom = () => {
             // start a game with data.data.userId vs data.id
             // const chatManager = ChatManager.getInstance();
-            console.log('Incoming message:', data);
+            // console.log('Incoming message:', data);
             // if (!data || !data.data) {
             //     console.error('Invalid message format:', data);
             //     return;
             // }
-            // console.log('Incoming data:', data);
-            // console.log('Incoming data:', data.tournamentId);
-            // console.log('data.data:', data.data);
+            console.log('Incoming data:', data);
+            console.log('Incoming data.tournamentId:', data.tournamentId);
+            console.log('data.data:', data.data);
             // console.log('chatManager test:', data.data.name, data.data.userId);
             // ChatManager.getInstance().initializeChatSocket();
             const chatManager = ChatManager.getInstance();
-            const chatComponent = chatManager.openChat(data.data.chatRoomId, data.data.name, '');
+            const chatComponent = chatManager.openChat(data.data.chatRoomId, data.data.groupName, '');
             // chatManager.openChat(chatRoomId, data.data.name, data.data.senderId);
 
         };
