@@ -172,6 +172,7 @@ export class ChatManager {
         }
         return ChatManager.instance;
     }
+    
 
     public openChat(chatRoomId: string, friendName: string, friendId: string): ChatComponent {
         if (this.activeChats.has(chatRoomId)) {
@@ -182,7 +183,8 @@ export class ChatManager {
             }
         }
 
-        console.log('friendId is empty ', friendId);
+        // console.log('friendId is empty ', friendId);
+        
         if (friendId === '') {
             // create group chat
             const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);

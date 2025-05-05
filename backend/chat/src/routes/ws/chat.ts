@@ -108,6 +108,45 @@ async function addParticipant(chatRoomId: string, userId: string, fastify: Fasti
     console.log(`User ${userId} added to chat room ${chatRoomId}.`);
 }
 
+async function removeParticipant(chatRoomId: string, userId: string, fastify: FastifyInstance): Promise<void> {
+    try {
+        // Check if the chat room exists
+        const chatRoom = await fastify.prisma.chatRoom.findUnique({
+            where: { id: chatRoomId },
+            include: { participants: true },
+        });
+
+        if (!chatRoom) {
+            throw new Error(`Chat room with ID ${chatRoomId} does not exist.`);
+        }
+
+        // Check if the user is a participant
+        const isParticipant = chatRoom.participants.some((participant) => participant.userId === userId);
+        if (!isParticipant) {
+            console.log(`User ${userId} is not a participant in chat room ${chatRoomId}.`);
+            return;
+        }
+
+        // Remove the user from the chat room
+        await fastify.prisma.chatParticipant.delete({
+            where: {
+                userId_chatRoomId: {
+                    userId,
+                    chatRoomId,
+                },
+            },
+        });
+
+        console.log(`User ${userId} removed from chat room ${chatRoomId}.`);
+    } catch (error) {
+        console.error('Error removing participant from chat room:', error);
+        throw new Error('Failed to remove participant from chat room.');
+    }
+}
+
+
+
+
 async function getChatRoomUserIds(chatRoomId: string, fastify: FastifyInstance): Promise<string[]> {
     try {
         // Query the chat room and include its participants
@@ -249,6 +288,29 @@ export function chatRoutes(fastify: FastifyInstance) {
 
                         }
                         return
+                    } else if (chatMessage.type === 'removeParticipant') {
+                        try {
+                            console.log(`Removing participant ${chatMessage.userId} from chat room ${chatMessage.chatRoomId}`);
+                            await removeParticipant(chatMessage.chatRoomId, chatMessage.userId, fastify);
+                    
+                            // Notify all participants in the chat room
+                            const chatRoom = await fastify.prisma.chatRoom.findUnique({
+                                where: { id: chatMessage.chatRoomId },
+                                include: { participants: true },
+                            });
+                    
+                            // chatRoom?.participants.forEach((participant) => {
+                            //     fastify.connections.get(participant.userId)?.send(
+                            //         JSON.stringify({
+                            //             type: 'participantRemoved',
+                            //             chatRoomId: chatMessage.chatRoomId,
+                            //             userId: chatMessage.userId,
+                            //         }),
+                            //     );
+                            // });
+                        } catch (error) {
+                            console.error('Error removing participant:', error);
+                        }
                     }
                     if (chatMessage.type === 'inviteToPlay') {
                         console.log(`inviteToPlay chat.ts: ${chatMessage.userId}`);

@@ -226,6 +226,10 @@ export default class TournamentComponent extends Component {
                         try {
                             const response = await this.removePlayer(this.data.tournament.id, participant.userId);
                             if (response.ok) {
+                                ChatManager.getInstance().initializeChatSocket();
+                                const chatManager = ChatManager.getInstance();
+                                const chatComponent = chatManager.openChat(this.data.tournament.id, this.data.tournament.name, '');
+                                chatComponent.addParticipantToChat(State.getState().getCurrentUser()?.id || '');
                                 await this.fetchData();
                                 await this.renderParticipants();
                             }

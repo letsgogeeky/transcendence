@@ -396,6 +396,39 @@ export default class ChatComponent extends Component {
             console.error('WebSocket is not initialized.');
         }
     }
+
+    public removeParticipantFromChat(participantId: string): void {
+        const myName = State.getState().getCurrentUser()?.name || 'Unknown';
+
+        const sendMessage = () => {
+            try {
+                this.socket?.send(
+                    JSON.stringify({
+                        type: 'removeParticipant',
+                        chatRoomId: this.chatRoomId,
+                        userId: participantId,
+                        content: "removeParticipant",
+                        name: myName,
+                        senderId: State.getState().getCurrentUser()?.id,
+                    }),
+                );
+            } catch (error) {
+                console.error('Error sending addParticipant message:', error);
+            }
+        };
+    
+        if (this.socket) {
+            this.waitForSocketConnection(this.socket)
+                .then(sendMessage)
+                .catch((error) => {
+                    console.error('Failed to send addParticipant message:', error);
+                });
+        } else {
+            console.error('WebSocket is not initialized.');
+        }
+    }
+
+
     
     private inviteToPlay(): void {
         console.log('Inviting to game:', this.friendName);
