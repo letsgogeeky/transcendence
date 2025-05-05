@@ -55,16 +55,16 @@ export function showToast(
     const toast = document.createElement('div');
     toast.id = 'toast-notification';
 	toast.className = `
-		fixed bottom-4 left-1/2 -translate-x-1/2 z-50
-		max-w-fit text-sm px-6 py-3
-		${border} ${text} ${shadow}
-		bg-black/80
-		rounded-xl text-center
-		pointer-events-auto
+		fixed bottom-4 left-1/2 -translate-x-1/2
 		flex flex-col items-center
-		animate-fadeIn
+		text-sm px-6 py-3
+		${border} ${text} ${shadow}
+		bg-black/90
+		rounded-xl
+		pointer-events-auto
+		animate-fadeIn 
+		z-50
 	`;
-
 
     const messageSpan = document.createElement('span');
     messageSpan.textContent = message;
