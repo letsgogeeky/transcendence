@@ -181,17 +181,18 @@ export default class HomeComponent extends Component {
 		};
 
 		// Local buttons
-		const btn1v1Local = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1guest'), '#f9de91');
+		const btn1v1Local = createStyledButtonWithHandler('1 v 1 (same keyboard)', () => this.createPreconfiguredGame('1v1guest'), '#f9de91');
 		const btnVsAI = createStyledButtonWithHandler(`against AI (Level ${level.level})`, () => this.createPreconfiguredGame('1vAI'), '#cb9a0d');
 		const localSection = createSection('LOCALLY', [btn1v1Local, btnVsAI], '#FFCC00'); // yellow
 		
 		// Remote buttons
-		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#baddf3');
-		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#2acdf5');
-		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#077eb9');
+		const btn1v1Online = createStyledButtonWithHandler('2 players', () => this.createPreconfiguredGame('1v1'), '#baddf3');
+		const btn2v2 = createStyledButtonWithHandler('4 players', () => this.createPreconfiguredGame('2v2'), '#2acdf5');
+		// const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#077eb9');
 		const createCustomGameLink = new LinkComponent('Custom Game', '/custom-game');
-		applyStyledAppearance(createCustomGameLink.element, '#07feb9');
-		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll, createCustomGameLink.element], '#20A4D6'); // blue
+		applyStyledAppearance(createCustomGameLink.element, '#077eb9');
+		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, createCustomGameLink.element], '#20A4D6'); // blue
+		// const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll, createCustomGameLink.element], '#20A4D6'); // blue
 
 		// Tournament buttons
 		const createTournamentLink = new LinkComponent('Create Tournament', '/create-tournament');
