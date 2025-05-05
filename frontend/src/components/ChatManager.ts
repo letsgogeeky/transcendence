@@ -128,7 +128,7 @@ export class ChatManager {
                 if (data.type === 'isBlocked') {
                     chatComponent.blockUserCheck(data);
                 } else if (data.type === 'chatMessage' || data.type === 'groupChatMessage') {
-                    chatComponent.displayMessage(data.data.content, data.data.name);
+                    chatComponent.displayMessage(data.data.content, data.data.name, data.data.senderId);
                 } else if (data.type === 'chatHistory') {
                     console.log('Received chat history:', data.data);
                     const myId = State.getState().getCurrentUser()?.id || 'Unknown';
@@ -137,7 +137,7 @@ export class ChatManager {
                         const senderName = message.userId === myId ? 'You' : message.name;
                         console.log('senderName: message.id: myId:', senderName, message.id, myId);
 
-                        chatComponent.displayMessage(message.content, senderName);
+                        chatComponent.displayMessage(message.content, senderName, message.userId);
                     });
                 }
             }
@@ -172,6 +172,7 @@ export class ChatManager {
         }
         return ChatManager.instance;
     }
+    
 
     public openChat(chatRoomId: string, friendName: string, friendId: string): ChatComponent {
         if (this.activeChats.has(chatRoomId)) {
@@ -182,7 +183,8 @@ export class ChatManager {
             }
         }
 
-        console.log('friendId is empty ', friendId);
+        // console.log('friendId is empty ', friendId);
+        
         if (friendId === '') {
             // create group chat
             const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
@@ -285,6 +287,10 @@ export class ChatManager {
             }
             this.updateChatPositions();
         }
+    }
+
+    public getChatComponent(chatRoomId: string): ChatComponent | undefined {
+        return this.activeChats.get(chatRoomId);
     }
 }
 
