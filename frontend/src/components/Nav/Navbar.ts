@@ -16,7 +16,7 @@ export default class Navbar extends Component {
         this.routes = routes;
 
         // Tailwind styles for a full-width top bar
-        this.element.className = 'w-full px-10 py-3 fixed bg-black bg-opacity-60 text-white shadow-md';
+        this.element.className = 'w-full px-10 py-3 bg-black bg-opacity-60 text-white shadow-md';
 
         this.renderNavList();
     }
