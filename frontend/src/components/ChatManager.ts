@@ -128,7 +128,7 @@ export class ChatManager {
                 if (data.type === 'isBlocked') {
                     chatComponent.blockUserCheck(data);
                 } else if (data.type === 'chatMessage' || data.type === 'groupChatMessage') {
-                    chatComponent.displayMessage(data.data.content, data.data.name);
+                    chatComponent.displayMessage(data.data.content, data.data.name, data.data.senderId);
                 } else if (data.type === 'chatHistory') {
                     console.log('Received chat history:', data.data);
                     const myId = State.getState().getCurrentUser()?.id || 'Unknown';
@@ -137,7 +137,7 @@ export class ChatManager {
                         const senderName = message.userId === myId ? 'You' : message.name;
                         console.log('senderName: message.id: myId:', senderName, message.id, myId);
 
-                        chatComponent.displayMessage(message.content, senderName);
+                        chatComponent.displayMessage(message.content, senderName, message.userId);
                     });
                 }
             }

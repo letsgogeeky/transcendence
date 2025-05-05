@@ -228,7 +228,7 @@ export default class ChatComponent extends Component {
             if (message) {
                 try {
                     // Send the message via WebSocket
-                    this.displayMessage(message, 'You');
+                    this.displayMessage(message, 'You', '');
                     await this.waitForSocketConnection(this.socket!);
                     this.socket?.send(
                         JSON.stringify({
@@ -255,7 +255,7 @@ export default class ChatComponent extends Component {
             if (message) {
                 try {
                     // Send the message via WebSocket
-                    this.displayMessage(message, 'You');
+                    this.displayMessage(message, 'You', '');
                     await this.waitForSocketConnection(this.socket!);
                     this.socket?.send(
                         JSON.stringify({
@@ -321,10 +321,38 @@ export default class ChatComponent extends Component {
         });
     }
 
-    public displayMessage(message: string, sender: string): void {
+    public displayMessage(message: string, sender: string, senderId: string): void {
         const messageElement = document.createElement('div');
-        messageElement.className = 'p-2 bg-gray-700 rounded break-words max-w-full';
-        messageElement.textContent = `${sender}: ${message}`;
+        messageElement.className = 'p-2 bg-gray-700 rounded break-words max-w-full flex items-start gap-2';
+    
+        // Create a clickable sender element
+        const senderElement = document.createElement('span');
+        senderElement.className = 'font-bold text-blue-400 cursor-pointer hover:underline';
+        senderElement.textContent = sender;
+        senderElement.onclick = () => {
+            // Action when clicking on the sender's name
+            console.log(`Sender clicked: ${sender}`);
+            console.log(`Sender clicked: `, senderId);
+            if (!senderId) {
+                senderId = State.getState().getCurrentUser()?.id || '';
+            }
+            window.history.pushState(
+                {},
+                'view profile',
+                '/profile?userId=' + senderId,
+            );
+            // window.history.pushState({}, 'View Profile', `/profile?userName=${encodeURIComponent(sender)}`);
+        };
+    
+        // Create a message content element
+        const messageContent = document.createElement('span');
+        messageContent.textContent = message;
+    
+        // Append sender and message content to the message element
+        messageElement.appendChild(senderElement);
+        messageElement.appendChild(messageContent);
+    
+        // Append the message element to the chat messages container
         this.chatMessages.appendChild(messageElement);
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
     }
