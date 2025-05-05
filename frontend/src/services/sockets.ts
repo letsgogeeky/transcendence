@@ -168,9 +168,16 @@ export default class WebSocketService {
                     const chatManager = ChatManager.getInstance();
                     const chatComponent = chatManager.openChat(data.tournamentId, data.tournamentName, '');
                     chatComponent.addParticipantToChat(State.getState().getCurrentUser()?.id || '');
+                    // if (window.location.pathname.includes('/tournament')) {
+                    //     window.history.pushState({}, '', '/tournament');
+                    //     window.dispatchEvent(new Event('popstate'));
+                    // }
                     if (window.location.pathname.includes('/tournament')) {
-                        window.history.pushState({}, '', '/tournament');
-                        window.dispatchEvent(new Event('popstate'));
+                        window.history.pushState(
+                            {},
+                            'View Tournament',
+                            '/tournament?tournamentId=' + data.tournamentId,
+                        );
                     }
                 };
                 const rejectTournament = () => {
@@ -208,6 +215,7 @@ export default class WebSocketService {
                             `/game?matchId=${data.matchId}`
                         );
                     }
+                    
                 };
                 const rejectMatch = () => {
                     this.sendMessage(JSON.stringify({
@@ -234,8 +242,19 @@ export default class WebSocketService {
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
-                    window.history.pushState({}, '', '/tournaments');
-                    window.dispatchEvent(new Event('popstate'));
+                    window.history.pushState(
+                        {},
+                        'View Tournament',
+                        '/tournament?tournamentId=' + data.tournamentId,
+                    );
+                }
+                if (data.test === 'removeChat') {
+                    // remove chat from tournament page
+                    const chatManager = ChatManager.getInstance();
+                    const chatComponent = chatManager.getChatComponent(data.tournamentId);
+                    if (chatComponent) {
+                        chatComponent.closeChat();
+                    }
                 }
                 break;
 

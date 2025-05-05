@@ -81,6 +81,11 @@ export default class TournamentComponent extends Component {
         await this.fetchData();
         // await this.renderParticipants();
         this.render(this.parent);
+        window.history.pushState(
+            {},
+            'View Tournament',
+            '/tournament?tournamentId=' + this.data.tournament.id,
+        );
     }
 
     async getUsers(): Promise<any[]> {
@@ -243,9 +248,13 @@ export default class TournamentComponent extends Component {
                                     'View Tournament',
                                     '/tournament?tournamentId=' + this.data.tournament.id,
                                 );
+                                
+                                // notyfy admin about tournament_update
+
 
                                 await this.fetchData();
                                 await this.renderParticipants();
+                                
                             }
                         } catch (error) {
                             console.error('Error leaving tournament:', error);

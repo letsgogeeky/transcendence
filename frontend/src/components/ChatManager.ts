@@ -288,6 +288,10 @@ export class ChatManager {
             this.updateChatPositions();
         }
     }
+
+    public getChatComponent(chatRoomId: string): ChatComponent | undefined {
+        return this.activeChats.get(chatRoomId);
+    }
 }
 
 export default ChatManager;
