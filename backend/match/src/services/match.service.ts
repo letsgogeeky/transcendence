@@ -281,7 +281,7 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         aiLevel: 1,
     };
     if (mode === '1v1guest') {
-        settings.players = 1;
+        settings.players = 2;
         settings.guests = [userId];
         settings.replaceDisconnected = false;
     } else if (mode === '1v1') {
