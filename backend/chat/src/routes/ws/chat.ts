@@ -12,18 +12,13 @@ interface chatMessage {
     type: string;
 }
 
-// function generateChatRoomId(myId: string, chatRoomId: string): string {
-//     // Compare the IDs and return them in ascending order
-//     return myId < chatRoomId ? `${myId}-${chatRoomId}` : `${chatRoomId}-${myId}`;
-// }
-
 async function getBlockedUsers(blockerId: string, fastify: FastifyInstance) {
     const blockedUsers = await fastify.prisma.blockedUser.findMany({
         where: { blockerId },
-        include: { blocked: true }, // Include the details of the blocked users
+        include: { blocked: true },
     });
 
-    return blockedUsers.map((entry) => entry.blocked); // Return an array of blocked user details
+    return blockedUsers.map((entry) => entry.blocked);
 }
 
 async function ensureUserExists(idUser: string, fastify: FastifyInstance): Promise<void> {
@@ -105,7 +100,7 @@ async function addParticipant(chatRoomId: string, userId: string, fastify: Fasti
         data: {
             chatRoomId,
             userId,
-            isAdmin: false, // Set to true if the user should be an admin
+            isAdmin: false, 
             joinedAt: new Date(),
         },
     });
@@ -227,18 +222,27 @@ export function chatRoutes(fastify: FastifyInstance) {
                             where: { id: chatMessage.chatRoomId },
                             include: { participants: true },
                         });
+                        const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
                         chatRoom?.participants.forEach((participant: { userId: string }) => {
 
                             // check if the paticipant is the sender
                             if (participant.userId !== req.user) {
-                                fastify.connections.get(participant.userId)?.send(
-                                    JSON.stringify({
-                                        type: 'groupChatMessage',
-                                        chatRoomId: chatMessage.chatRoomId,
-                                        userId: chatMessage.userId,
-                                        data: chatMessage,
-                                    }),
-                                );
+
+                                const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === participant.userId);
+                                if (!isBlocked) {
+                                    fastify.connections.get(participant.userId)?.send(
+                                        JSON.stringify({
+                                            type: 'groupChatMessage',
+                                            chatRoomId: chatMessage.chatRoomId,
+                                            userId: chatMessage.userId,
+                                            data: chatMessage,
+                                        }),
+                                    );
+
+                                }
+
+
+
                             }
 
 

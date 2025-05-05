@@ -2,7 +2,7 @@ import ChatComponent from './ChatComponent';
 import State from '../services/state';
 import { showToast, ToastState } from '../components/Toast';
 import UsersPageComponent from '../pages/users';
-
+import TournamentComponent from '../pages/tournament';
 
 import { endpoints } from '../services/send-request';
 import { createPreconfiguredGame } from '../services/match.request';
@@ -61,36 +61,16 @@ export class ChatManager {
 
     private handleIncomingMessage(data: any): void {
         const showChat = () => {
-            // start a game with data.data.userId vs data.id
+
             const chatManager = ChatManager.getInstance();
-            console.log('Incoming message:', data);
-            // if (!data || !data.data) {
-            //     console.error('Invalid message format:', data);
-            //     return;
-            // }
-            // console.log('Incoming data:', data);
-            // console.log('Incoming data:', data.tournamentId);
-            // console.log('data.data:', data.data);
-            // console.log('chatManager test:', data.data.name, data.data.userId);
+
             chatManager.openChat(data.data.chatRoomId, data.data.name, data.data.senderId);
 
         };
         const showChatRoom = () => {
-            // start a game with data.data.userId vs data.id
-            // const chatManager = ChatManager.getInstance();
-            // console.log('Incoming message:', data);
-            // if (!data || !data.data) {
-            //     console.error('Invalid message format:', data);
-            //     return;
-            // }
-            console.log('Incoming data:', data);
-            console.log('Incoming data.tournamentId:', data.tournamentId);
-            console.log('data.data:', data.data);
-            // console.log('chatManager test:', data.data.name, data.data.userId);
-            // ChatManager.getInstance().initializeChatSocket();
+
             const chatManager = ChatManager.getInstance();
             const chatComponent = chatManager.openChat(data.data.chatRoomId, data.data.groupName, '');
-            // chatManager.openChat(chatRoomId, data.data.name, data.data.senderId);
 
         };
         // check which chat room the message is for

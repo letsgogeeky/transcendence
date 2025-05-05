@@ -112,7 +112,6 @@ export default class ChatComponent extends Component {
         
             // Append buttons to the container
             buttonsContainer.append(viewProfileButton, this.blockButton, this.closeButton);
-            // Append title and buttons container to the header
             header.append(title, buttonsContainer);
         } else {
             // Buttons container
@@ -135,26 +134,8 @@ export default class ChatComponent extends Component {
                     '/tournament?tournamentId=' + this.chatRoomId,
                 );
             };
-
-            // // Block/Unblock button
-            // this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
-            // this.blockButton.textContent = 'Block'; // Default text
-
-            // // Add click event for the Block/Unblock button
-            // this.blockButton.onclick = async () => {
-            //     if (this.blockButton.textContent === 'Block') {
-            //         await this.blockUser();
-            //         this.blockButton.textContent = 'Unblock';
-            //     } else {
-            //         await this.unblockUser();
-            //         this.blockButton.textContent = 'Block';
-            //     }
-            // };
-        
-            // Append buttons to the container
             buttonsContainer.append(viewProfileButton, this.closeButton);
-            // buttonsContainer.append(viewProfileButton, this.blockButton, this.closeButton);
-            // Append title and buttons container to the header
+
             header.append(title, buttonsContainer);
         }
 
