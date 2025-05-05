@@ -18,25 +18,23 @@ export default class ResetPasswordComponent extends Component {
         // The new me gif:
 		container.appendChild(loadImage('newme.gif', 'w-full max-w-[400px] h-auto mb-5 rounded-lg', 'Gif for new me'));
 
-        const inputStyle = 'border border-[#FFFF33] border-4 rounded-xl p-2 w-60 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
+        const inputStyle = 'border border-[#FFFF33] border-4 rounded-xl p-2 w-60 mb-4 shadow-[0_0_15px_#00FFFF] opacity-60';
 
 		const newPassword = new Input(
-            'new password',
+            '🆕  New password',
             'password',
             'newPassword',
             true,
-            null,
+            'new password',
             inputStyle,
-			false
         );
         const confirmPassword = new Input(
-            'confirm password',
+            '✅ Confirm password',
             'password',
             'confirmPassword',
             true,
-            null,
+            'confirm password',
             inputStyle,
-			false
         );
 
         this.form = new FormComponent(
@@ -45,7 +43,7 @@ export default class ResetPasswordComponent extends Component {
             null,
         );
 		document.createElement('form');
-		this.form.className = 'items-center flex flex-col gap-4 w-80 mt-6 relative z-10';
+		this.form.className = 'flex flex-col text-left gap-4 w-80 mt-6 relative z-10';
         // this.form.className = 'flex flex-col gap-4 w-64';
 		this.element = container; // Set the final element
     }
