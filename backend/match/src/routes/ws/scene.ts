@@ -107,7 +107,7 @@ function createShape(sides: number, sideLength: number, mode: number, scene: BAB
 	const paddleMaterial = new BABYLON.StandardMaterial("paddleMat", scene);
 	paddleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
 	for (let i = 0; i < paddleBoxes.length; i++) paddles.push(new Paddle(paddleBoxes[i], paddleMaterial, 
-		paddleBoxes.length > 2, scene));
+		paddleBoxes.length > 2, i, scene));
 	if (sides == 2) for (let p of paddles) p.limit *= 1.175;
 
 	for (let wall of walls) new BABYLON.PhysicsAggregate(wall, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);

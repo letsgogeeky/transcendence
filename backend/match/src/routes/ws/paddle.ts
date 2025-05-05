@@ -16,8 +16,9 @@ export class Paddle {
 	name: string;
 	balls?: Ball[];
 	moving: boolean = false;
+	index: number;
 
-	constructor(box: BABYLON.Mesh, material: BABYLON.Material, reverse: boolean, scene: BABYLON.Scene) {
+	constructor(box: BABYLON.Mesh, material: BABYLON.Material, reverse: boolean, index: number, scene: BABYLON.Scene) {
 		this.box = box;
 		this.aggregate = new BABYLON.PhysicsAggregate(box, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
 		this.aggregate.body.setMotionType(BABYLON.PhysicsMotionType.ANIMATED);
@@ -31,6 +32,7 @@ export class Paddle {
 		this.score = 0;
 		this.reverse = reverse;
 		this.name = "";
+		this.index = index;
 		if (reverse && this.startPos.x < 0) this.up.scaleInPlace(-1);
 	}
 

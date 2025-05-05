@@ -142,7 +142,10 @@ export class GameSession {
 	public sendScene(client: WebSocket | undefined) {
 		if (!client) return;
 		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
-		client?.send(JSON.stringify({type: 'scene', data: sceneString}));
+		let index;
+		for (let p of this.players.values())
+			if (p.ws === client) index = p.paddle?.index;
+		client?.send(JSON.stringify({type: 'scene', data: sceneString, index: index}));
 		this.sendPlayerList(client);
 	}
 
