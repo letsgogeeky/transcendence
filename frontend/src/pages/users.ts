@@ -33,7 +33,7 @@ export default class UsersPageComponent extends Component {
         return data;
     }
 
-    private constructor() {
+    constructor() {
         super();
         this.element = document.createElement('div');
         const errorText = document.createElement('p');
