@@ -420,7 +420,7 @@ export default class TournamentComponent extends Component {
                         const userMap = new Map(users.map(user => [user.id, user.name]));
 
                         this.data.tournament.matches.forEach((match: Match) => {
-                            const matchCard = new TournamentMatchCard(match, userMap, this.data.tournament.id);
+                            const matchCard = new TournamentMatchCard(match, userMap, this.data.tournament.id, this.data.tournament.adminId);
                             matchCard.render(matchesList);
                         });
                     });

@@ -24,7 +24,6 @@ const credentialAuthCheck: FastifyPluginCallback = fp(
                 if (!token) {
                     token = (request.query as { token?: string }).token;
                 }
-                console.log(token);
                 if (!token) throw new AuthError('Unauthorized!');
                 const decoded = server.jwt.verify<{
                     id: string;

@@ -2,6 +2,7 @@
 /// <reference types="babylonjs-gui"/>
 import State from "../services/state";
 import Component from "../components/Component";
+import { showToast, ToastState } from "../components/Toast";
 const assetPath = "../assets/"
 
 let keys = {
@@ -55,7 +56,7 @@ export default class GameComponent extends Component {
 	private keyDownHandler: (e: KeyboardEvent) => void;
 	private keyUpHandler: (e: KeyboardEvent) => void;
 	private resizeHandler: () => void;
-	private isFullscreen: boolean = false;
+
 	constructor() {
 		super();
 		this.canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -78,7 +79,12 @@ export default class GameComponent extends Component {
 
 	private async createScene(sceneString: string) {
 		this.scene?.dispose();
-		this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
+		try {
+			this.scene = await BABYLON.LoadSceneAsync("data:" + sceneString, this.engine);
+		} catch (error) {
+			console.error('Failed to load scene:', error);
+			return;
+		}
 		this.engine.hideLoadingUI();
 		this.scene.executeWhenReady(() => {
 			this.loadingScreenDiv.style.display = "none";
@@ -224,7 +230,7 @@ export default class GameComponent extends Component {
 			window.removeEventListener("keydown", this.keyDownHandler);
 			window.removeEventListener("keyup", this.keyUpHandler);
 			window.removeEventListener("resize", this.resizeHandler);
-			window.history.pushState({ path: '/' }, '', '/');
+			// window.history.pushState({ path: '/' }, '', '/');
 			// document.getElementById("loadingText")!.innerText = "Disconnected from game server";
 			// document.getElementById("loadingGif")!.style.display = "none";
 		};
@@ -286,7 +292,12 @@ export default class GameComponent extends Component {
 		container.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
 		container.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 		container.thickness = 0;
-		this.gui.addControl(container);
+		try {
+			this.gui.addControl(container);
+		} catch (error) {
+			console.log("Failed to add container to UI");
+			return;
+		}
 
 		if (this.settings.timeLimit && this.settings.timeLimit > 0) {
 			const timerText = new BABYLON.GUI.TextBlock();
@@ -342,6 +353,11 @@ export default class GameComponent extends Component {
 		text.shadowBlur = 8;
 		text.shadowColor = "black";
 		this.gui.addControl(text);
+		showToast(ToastState.SUCCESS, "Redirecting to home page...");
+		setTimeout(() => {
+			// this.cleanup();
+			window.history.pushState({ path: '/' }, '', '/');
+		}, 3000);
 	}
 
 	sendMessage(message: string) {
@@ -421,31 +437,10 @@ export default class GameComponent extends Component {
 
 	private enterFullscreen() {
 		document.body.style.overflow = "hidden";
-		if (!this.isFullscreen) {
-			const element = this.canvas;
-			if (element.requestFullscreen) {
-				element.requestFullscreen();
-			} else if ((element as any).webkitRequestFullscreen) {
-				(element as any).webkitRequestFullscreen();
-			} else if ((element as any).msRequestFullscreen) {
-				(element as any).msRequestFullscreen();
-			}
-			this.isFullscreen = true;
-		}
 	}
 
 	private exitFullscreen() {
 		document.body.style.overflow = "auto";
-		if (this.isFullscreen) {
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if ((document as any).webkitExitFullscreen) {
-				(document as any).webkitExitFullscreen();
-			} else if ((document as any).msExitFullscreen) {
-				(document as any).msExitFullscreen();
-			}
-			this.isFullscreen = false;
-		}
 	}
 
 	public render(parent: HTMLElement | Component): void {
@@ -468,8 +463,15 @@ export default class GameComponent extends Component {
 			return;
 		}
 		const matchId = window.location.search.split('matchId=')[1];
+		if (!matchId) {
+			console.error('No match ID found');
+			window.history.pushState({ path: '/' }, '', '/');
+			return;
+		}
 		const tournamentId = window.location.search.split('tournamentId=')[1];
-		this.ws = new WebSocket(`/match/game?token=${token}&userName=${userName}&matchId=${matchId}&tournamentId=${tournamentId}`, 'wss');
+		const spectate = window.location.search.split('spectate=')[1];
+		this.spectatorMode = spectate === 'true';
+		this.ws = new WebSocket(`/match/game?token=${token}&userName=${userName}&matchId=${matchId}&tournamentId=${tournamentId}&spectate=${spectate}`, 'wss');
 		console.log("connecting to game websocket");
 		this.connectWebSocket();
 

@@ -16,6 +16,7 @@ import TournamentComponent from './pages/tournament';
 import TournamentsComponent from './pages/tournaments';
 import UsersPageComponent from './pages/users';
 import GameComponent from './game/pong';
+import CustomGamePage from './pages/custom-game';
 
 export type Route = {
     path: string; // what follows in the url after the "http://localhost:3000/"
@@ -129,9 +130,15 @@ export const routes: Route[] = [
 		visible: false,
 	},
 	{
+		path: '/custom-game',
+		title: 'Custom Game',
+		component: new CustomGamePage(),
+		visible: false,
+	},
+	{
 		path: '/logout',
 		title: 'Logout',
 		component: new LogoutComponent(),
 		visible: false,
-	},
+	}
 ];

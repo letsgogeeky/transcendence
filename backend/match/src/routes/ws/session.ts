@@ -90,7 +90,7 @@ export class GameSession {
 			// set the match to in progress
 			this.app.prisma.match.update({
 				where: { id: this.id },
-				data: { status: 'in progress' }
+				data: { status: 'in progress', updatedAt: new Date() }
 			}).catch((err: any) => console.error('Error updating match status:', err));
 			this.startGameLoop().catch(err => console.error('Error starting game loop:', err));
 		}
@@ -224,8 +224,8 @@ export class GameSession {
 
 	addGuest(id: string, teamNumber?: number) {
 		const name = "Guest" + this.guests.length + 1;	
-		const guest = new Player(name, name);
 		const player = this.players.get(id);
+		const guest = new Player(name, name, player?.ws);
 		if (player && this.players.size < this.settings.players) {
 			player.guest = guest;
 			this.guests.push(guest);
