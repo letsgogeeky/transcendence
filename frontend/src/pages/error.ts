@@ -10,6 +10,7 @@ export default class ErrorComponent extends Component {
 
         const errorText = document.createElement('p');
         errorText.textContent = errorMessage;
+		errorText.className = 'text-white';
 
         this.element.appendChild(errorText);
     }
