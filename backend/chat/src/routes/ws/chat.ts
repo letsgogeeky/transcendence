@@ -199,24 +199,6 @@ export function chatRoutes(fastify: FastifyInstance) {
                                 },
                             ],
                         });
-        
-
-                        
-                        // const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
-                        // const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === req.user);
-                        // if (isBlocked) {
-                        //     console.log('User is blocked:', req.user);
-                        //     chatMessage.name = 'Info';
-                        //     chatMessage.content = 'You are blocked';
-                        //     fastify.connections.get(req.user)?.send(
-                        //         JSON.stringify({
-                        //             type: 'chatMessage',
-                        //             // data: 'You are blocked',
-                        //             data: chatMessage
-                        //         }),
-                        //     );
-                        //     return;
-                        // }
 
                         const chatRoom = await fastify.prisma.chatRoom.findUnique({
                             where: { id: chatMessage.chatRoomId },
@@ -240,25 +222,12 @@ export function chatRoutes(fastify: FastifyInstance) {
                                     );
 
                                 }
-
-
-
                             }
-
-
-
-
 
                         });
 
 
-                        
-                        // fastify.connections.get(chatMessage.userId)?.send(
-                        //     JSON.stringify({
-                        //         type: 'chatMessage',
-                        //         data: chatMessage,
-                        //     }),
-                        // );
+            
 
 
                     }
@@ -266,40 +235,18 @@ export function chatRoutes(fastify: FastifyInstance) {
                         try {
                             console.log(`Adding participant ${chatMessage.userId} to chat room ${chatMessage.chatRoomId}`);
                             await addParticipant(chatMessage.chatRoomId, chatMessage.userId, fastify);
-                    
-                            // Notify the added user
-                            // fastify.connections.get(chatMessage.userId)?.send(
-                            //     JSON.stringify({
-                            //         type: 'addedToChat',
-                            //         chatRoomId: chatMessage.chatRoomId,
-                            //         message: `You have been added to the chat room ${chatMessage.chatRoomId}.`,
-                            //     }),
-                            // );
+                
                     
                             // Notify all participants in the chat room
                             const chatRoom = await fastify.prisma.chatRoom.findUnique({
                                 where: { id: chatMessage.chatRoomId },
                                 include: { participants: true },
                             });
-                    
-                            // chatRoom?.participants.forEach((participant: { userId: string }) => {
-                            //     fastify.connections.get(participant.userId)?.send(
-                            //         JSON.stringify({
-                            //             type: 'participantAdded',
-                            //             chatRoomId: chatMessage.chatRoomId,
-                            //             userId: chatMessage.userId,
-                            //         }),
-                            //     );
-                            // });
+                
                     
                         } catch (error) {
                             console.error('Error adding participant:', error);
-                            // fastify.connections.get(req.user)?.send(
-                            //     JSON.stringify({
-                            //         type: 'error',
-                            //         message: `Failed to add participant`,
-                            //     }),
-                            // );
+
                         }
                         return
                     }
@@ -403,15 +350,8 @@ export function chatRoutes(fastify: FastifyInstance) {
                             const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === chatMessage.userId);
                             if (isBlocked) {
                                 console.log('User is blocked:', chatMessage.userId);
-                                chatMessage.name = 'Info';
-                                chatMessage.content = 'You blocked this user';
-                                // fastify.connections.get(req.user)?.send(
-                                //     JSON.stringify({
-                                //         type: 'chatMessage',
-                                //         // data: 'You blocked this user',
-                                //         data: chatMessage,
-                                //     }),
-                                // );
+
+
                                 chatMessage.name = 'true';
                                 chatMessage.type = 'isBlocked';
                                 fastify.connections.get(req.user)?.send(
@@ -491,100 +431,6 @@ export function chatRoutes(fastify: FastifyInstance) {
                             }),
                         );
                     }
-                    // if (chatMessage.type === 'groupMessage') {
-
-
-
-
-
-                    //     // const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
-                    //     // const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === req.user);
-                    //     // if (isBlocked) {
-                    //     //     console.log('User is blocked:', req.user);
-                    //     //     chatMessage.name = 'Info';
-                    //     //     chatMessage.content = 'You are blocked';
-                    //     //     fastify.connections.get(req.user)?.send(
-                    //     //         JSON.stringify({
-                    //     //             type: 'chatMessage',
-                    //     //             // data: 'You are blocked',
-                    //     //             data: chatMessage
-                    //     //         }),
-                    //     //     );
-                    //     //     return;
-                    //     // }
-
-                    //     // Store message in db
-                    //     await fastify.prisma.message.createMany({
-                    //         data: [
-                    //             {
-                    //                 content: chatMessage.content,
-                    //                 chatRoomId: chatMessage.chatRoomId,
-                    //                 userId: req.user,
-                    //                 name: chatMessage.name,
-                    //                 createdAt: new Date(2024, 1, 1),
-                    //                 updatedAt: new Date(2024, 1, 1),
-                    //             },
-                    //         ],
-                    //     });
-                    //     // send to all participants
-                    //     const chatRoom = await fastify.prisma.chatRoom.findFirst({
-                    //         where: {
-                    //             id: chatMessage.chatRoomId,
-                    //         },
-                    //         include: {
-                    //             participants: {
-                    //                 include: {
-                    //                     user: true,
-                    //                 },
-                    //             },
-                    //         },
-                    //     });
-                    //     console.log('chatRoom:', chatRoom);
-                    //     if (!chatRoom) {
-                    //         console.log('chatRoom not found:', chatMessage.chatRoomId);
-                    //         return;
-                    //     }
-                    //     const blockedUsers = await getBlockedUsers(chatMessage.userId, fastify);
-                    //     console.log('chatRoom.participants:', chatRoom.participants);
-                    //     chatRoom.participants.forEach((participant) => {
-                    //         // check if the participant is blocked
-                    //         const isBlocked = blockedUsers.some((blockedUser) => blockedUser.id === req.user);
-                    //         if (isBlocked) {
-                    //             console.log('User is blocked:', req.user);
-                    //             // chatMessage.name = 'Info';
-                    //             // chatMessage.content = 'You are blocked';
-                    //             // fastify.connections.get(req.user)?.send(
-                    //             //     JSON.stringify({
-                    //             //         type: 'chatMessage',
-                    //             //         // data: 'You are blocked',
-                    //             //         data: chatMessage
-                    //             //     }),
-                    //             // );
-                    //             // return;
-                    //         } else {
-    
-                    //             console.log('participant:', participant.userId);
-                    //             if (participant.userId !== req.user) {
-                    //                 fastify.connections.get(participant.userId)?.send(
-                    //                     JSON.stringify({
-                    //                         type: 'chatMessage',
-                    //                         data: chatMessage,
-                    //                     }),
-                    //                 );
-                    //             }
-                                
-                    //         }
-
-
-
-                    //     });
-                    //     // fastify.connections.get(chatMessage.userId)?.send(
-                    //     //     JSON.stringify({
-                    //     //         type: 'chatMessage',
-                    //     //         data: chatMessage,
-                    //     //     }),
-                    //     // );
-                    // }
 
                 } catch (error) {
                     console.error('Error parsing message:', error);
