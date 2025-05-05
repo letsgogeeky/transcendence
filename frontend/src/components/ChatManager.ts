@@ -68,10 +68,10 @@ export class ChatManager {
             //     console.error('Invalid message format:', data);
             //     return;
             // }
-            console.log('Incoming data:', data);
-            console.log('Incoming data:', data.tournamentId);
-            console.log('data.data:', data.data);
-            console.log('chatManager test:', data.data.name, data.data.userId);
+            // console.log('Incoming data:', data);
+            // console.log('Incoming data:', data.tournamentId);
+            // console.log('data.data:', data.data);
+            // console.log('chatManager test:', data.data.name, data.data.userId);
             chatManager.openChat(data.data.chatRoomId, data.data.name, data.data.senderId);
 
         };
@@ -83,10 +83,10 @@ export class ChatManager {
             //     console.error('Invalid message format:', data);
             //     return;
             // }
-            console.log('Incoming data:', data);
-            console.log('Incoming data:', data.tournamentId);
-            console.log('data.data:', data.data);
-            console.log('chatManager test:', data.data.name, data.data.userId);
+            // console.log('Incoming data:', data);
+            // console.log('Incoming data:', data.tournamentId);
+            // console.log('data.data:', data.data);
+            // console.log('chatManager test:', data.data.name, data.data.userId);
             // ChatManager.getInstance().initializeChatSocket();
             const chatManager = ChatManager.getInstance();
             const chatComponent = chatManager.openChat(data.data.chatRoomId, data.data.name, '');
@@ -233,7 +233,7 @@ export class ChatManager {
 
     private createTab(chatRoomId: string, friendName: string): void {
         const tab = document.createElement('button');
-        tab.textContent = friendName;
+        tab.textContent = friendName; // name of the ChatTab
         tab.className = 'px-4 py-2 bg-gray-600 rounded hover:bg-gray-500 text-left';
         tab.onclick = () => this.toggleChat(chatRoomId);
         tab.dataset.chatRoomId = chatRoomId;

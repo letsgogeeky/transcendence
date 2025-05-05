@@ -65,7 +65,7 @@ export default class ChatComponent extends Component {
         if (this.friendId) {
             title.textContent = `Chat with ${this.friendName}`;
         } else {
-            title.textContent = `Tournament chat ${this.friendName}`;
+            title.textContent = `🏆 ${this.friendName}`;
         }
         title.className = 'text-lg font-bold mb-2';
 

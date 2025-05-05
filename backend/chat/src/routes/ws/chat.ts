@@ -228,14 +228,23 @@ export function chatRoutes(fastify: FastifyInstance) {
                             include: { participants: true },
                         });
                         chatRoom?.participants.forEach((participant: { userId: string }) => {
-                            fastify.connections.get(participant.userId)?.send(
-                                JSON.stringify({
-                                    type: 'groupChatMessage',
-                                    chatRoomId: chatMessage.chatRoomId,
-                                    userId: chatMessage.userId,
-                                    data: chatMessage
-                                }),
-                            );
+
+                            // check if the paticipant is the sender
+                            if (participant.userId !== req.user) {
+                                fastify.connections.get(participant.userId)?.send(
+                                    JSON.stringify({
+                                        type: 'groupChatMessage',
+                                        chatRoomId: chatMessage.chatRoomId,
+                                        userId: chatMessage.userId,
+                                        data: chatMessage
+                                    }),
+                                );
+                            }
+
+
+
+
+
                         });
 
 
