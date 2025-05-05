@@ -79,26 +79,21 @@ export class Paddle {
 
 	defend(): void {
 		if (this.player || !this.balls) return;
-		let closest;
+		let closest = this.balls[0];
 		let closestDistance = BABYLON.Vector3.Distance(this.box.position, this.balls[0].position);
 		for (let i = 0; i < this.balls.length; i++) {
 			const distance = BABYLON.Vector3.Distance(this.box.position, this.balls[i].position);
-			if (distance <= closestDistance
-				&& distance >  BABYLON.Vector3.Distance(this.box.position, 
-					this.balls[i].ball.position.clone().addInPlace(this.balls[i].aggregate.body.getLinearVelocity()))) {
+			if (distance <= closestDistance) {
 				closest = this.balls[i];
 				closestDistance = BABYLON.Vector3.Distance(this.box.position, closest.position);
 			}
 		}
-		if (closest) {
-			closestDistance = BABYLON.Vector3.Distance(this.box.position, closest.position);
-			if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().add(this.up), closest.position))
-				this.moveUp();
-			else if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up), closest.position)) 
-				this.moveDown();
-			else
-				this.stopMoving();
-		} else
+		closestDistance = BABYLON.Vector3.Distance(this.box.position, closest.position);
+		if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().add(this.up), closest.position))
+			this.moveUp();
+		else if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up), closest.position)) 
+			this.moveDown();
+		else
 			this.stopMoving();
 	}
 
