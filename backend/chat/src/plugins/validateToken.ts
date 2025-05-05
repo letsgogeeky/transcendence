@@ -44,7 +44,7 @@ const credentialAuthCheck: FastifyPluginCallback = fp(
             } catch (error) {
                 console.log(error);
                 if (!(error instanceof AuthError)) {
-                    return reply.status(500).send({ error: 'Unknown error' });
+                    return reply.status(400).send({ error: 'Something went wrong' });
                 }
                 if (error.name === 'TokenExpiredError') {
                     reply.status(401).send({ error: error.message });

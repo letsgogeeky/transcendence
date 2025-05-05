@@ -25,7 +25,9 @@ export function userRoutes(fastify: FastifyInstance) {
     fastify.setErrorHandler(function (error, request, reply) {
         this.log.error(error);
         if (error.code == 'P2002') error.statusCode = 409;
-        reply.status(error.statusCode || 500).send({ error: error.message });
+        if (!error.statusCode || error.statusCode == 500)
+            reply.status(400).send({ error: 'Something went wrong.' });
+        else reply.status(error.statusCode).send({ error: error.message });
     });
 
     fastify.register(multipart);
@@ -68,7 +70,7 @@ export function userRoutes(fastify: FastifyInstance) {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'lax',
-                path: '/socket',
+                path: '/auth/socket',
             });
             reply.send(user);
         },

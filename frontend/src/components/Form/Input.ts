@@ -53,6 +53,10 @@ export default class Input extends Component {
             .replace(/'/g, '&#039;');
     }
 
+    disable() {
+        this.inputElement.disabled = true;
+    }
+
     get value(): string {
         return this.inputElement.value;
     }

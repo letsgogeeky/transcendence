@@ -5,6 +5,14 @@ import twoFAuthCheck from '../plugins/2fa.js';
 export function usersRoutes(fastify: FastifyInstance) {
     fastify.register(twoFAuthCheck);
 
+    fastify.setErrorHandler(function (error, request, reply) {
+        this.log.error(error);
+        if (error.code == 'P2002') error.statusCode = 409;
+        if (!error.statusCode || error.statusCode == 500)
+            reply.status(400).send({ error: 'Something went wrong.' });
+        else reply.status(error.statusCode).send({ error: error.message });
+    });
+
     fastify.get<{ Querystring: { status: string } }>(
         '/users',
         async (request, reply) => {
