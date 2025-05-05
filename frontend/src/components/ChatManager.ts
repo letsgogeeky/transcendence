@@ -17,9 +17,16 @@ export class ChatManager {
     private constructor() {
         this.tabContainer = document.createElement('div');
         this.tabContainer.className = 'fixed bottom-0 left-0 w-full bg-gray-800 text-white flex flex-row-reverse space-x-2 p-2 overflow-x-auto';
+        this.tabContainer.style.display = 'none'; // Initially hidden
         document.body.appendChild(this.tabContainer);
-        // this.initializeChatSocket();
-        // console.log('constructor chatManager:');
+    }
+
+    private updateTabContainerVisibility(): void {
+        if (this.activeChats.size > 0) {
+            this.tabContainer.style.display = 'flex'; // Show the tab container
+        } else {
+            this.tabContainer.style.display = 'none'; // Hide the tab container
+        }
     }
 
     public initializeChatSocket(): void {
@@ -29,6 +36,10 @@ export class ChatManager {
         }
     
         const token = State.getState().getAuthToken();
+        if (!token) {
+            console.log('No authentication token found. Cannot initialize WebSocket.');
+            return;
+        }
         this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
 
         this.chatSocket.onopen = () => {
@@ -128,7 +139,7 @@ export class ChatManager {
                 if (data.type === 'isBlocked') {
                     chatComponent.blockUserCheck(data);
                 } else if (data.type === 'chatMessage' || data.type === 'groupChatMessage') {
-                    chatComponent.displayMessage(data.data.content, data.data.name);
+                    chatComponent.displayMessage(data.data.content, data.data.name, data.data.senderId);
                 } else if (data.type === 'chatHistory') {
                     console.log('Received chat history:', data.data);
                     const myId = State.getState().getCurrentUser()?.id || 'Unknown';
@@ -137,7 +148,7 @@ export class ChatManager {
                         const senderName = message.userId === myId ? 'You' : message.name;
                         console.log('senderName: message.id: myId:', senderName, message.id, myId);
 
-                        chatComponent.displayMessage(message.content, senderName);
+                        chatComponent.displayMessage(message.content, senderName, message.userId);
                     });
                 }
             }
@@ -172,6 +183,7 @@ export class ChatManager {
         }
         return ChatManager.instance;
     }
+    
 
     public openChat(chatRoomId: string, friendName: string, friendId: string): ChatComponent {
         if (this.activeChats.has(chatRoomId)) {
@@ -182,7 +194,8 @@ export class ChatManager {
             }
         }
 
-        console.log('friendId is empty ', friendId);
+        // console.log('friendId is empty ', friendId);
+        
         if (friendId === '') {
             // create group chat
             const chatComponent = new ChatComponent(chatRoomId, friendId, friendName, this.chatSocket);
@@ -194,6 +207,7 @@ export class ChatManager {
             chatComponent.getMessages();
             chatComponent.isUserBlocked();
             this.updateChatPositions();
+            this.updateTabContainerVisibility(); // Update visibility after adding a tab
             return chatComponent;
 
         } else {
@@ -206,6 +220,7 @@ export class ChatManager {
             chatComponent.getMessages();
             chatComponent.isUserBlocked();
             this.updateChatPositions();
+            this.updateTabContainerVisibility(); // Update visibility after adding a tab
             return chatComponent;
         }
 
@@ -240,6 +255,7 @@ export class ChatManager {
                 tab.remove();
             }
             this.updateChatPositions();
+            this.updateTabContainerVisibility(); // Update visibility after removing a tab
         }
     }
 
@@ -250,6 +266,7 @@ export class ChatManager {
         this.activeChats.clear();
     
         this.tabContainer.innerHTML = '';
+        this.updateTabContainerVisibility(); // Update visibility after clearing all tabs
     }
 
     public cleanup(): void {
@@ -284,6 +301,10 @@ export class ChatManager {
             }
             this.updateChatPositions();
         }
+    }
+
+    public getChatComponent(chatRoomId: string): ChatComponent | undefined {
+        return this.activeChats.get(chatRoomId);
     }
 }
 

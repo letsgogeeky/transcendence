@@ -370,10 +370,11 @@ export function tournamentRoutes(app: FastifyInstance) {
             removedUserSocket.send(JSON.stringify({
                 type: 'TOURNAMENT_UPDATE',
                 tournamentId: tournament.id,
-                message: `You have been removed from tournament "${tournament.name}"`
+                message: `You have been removed from tournament "${tournament.name}"`,
+                test: 'removeChat',
             }));
         }
-
+        
         // Send notification to the tournament admin
         if (tournament.adminId) {
             const adminSocket = app.connections.get(tournament.adminId as string);
@@ -390,7 +391,8 @@ export function tournamentRoutes(app: FastifyInstance) {
                         adminSocket.send(JSON.stringify({
                             type: 'TOURNAMENT_UPDATE',
                             tournamentId: tournament.id,
-                            message: `User ${userData.name} has left tournament "${tournament.name}"`
+                            message: `User ${userData.name} has left tournament "${tournament.name}"`,
+                            // test: 'removeChat',
                         }));
                     }
                 } catch (error) {

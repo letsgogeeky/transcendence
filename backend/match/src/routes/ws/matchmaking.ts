@@ -134,6 +134,8 @@ async function handleTournamentAccept(app: FastifyInstance, userId: string, mess
             console.error('Missing adminId in TOURNAMENT_ACCEPT message');
             return;
         }
+        
+
 
         // Notify tournament creator about acceptance
         const creatorSocket = app.connections.get(tournament.adminId as string);
@@ -141,7 +143,8 @@ async function handleTournamentAccept(app: FastifyInstance, userId: string, mess
             creatorSocket.send(JSON.stringify({
                 type: messageTypes.TOURNAMENT_UPDATE,
                 tournamentId: message.tournamentId,
-                message: `User ${userId} has accepted the tournament invitation`
+                message: `User ${userId} has accepted the tournament invitation`,
+                // test: 'removeChat',
             }));
         }
     } catch (error) {
@@ -194,7 +197,8 @@ async function handleTournamentReject(app: FastifyInstance, userId: string, mess
             creatorSocket.send(JSON.stringify({
                 type: messageTypes.TOURNAMENT_UPDATE,
                 tournamentId: message.tournamentId,
-                message: `User ${userId} has rejected the tournament invitation`
+                message: `User ${userId} has rejected the tournament invitation`,
+                // test: 'removeChat',
             }));
         }
     } catch (error) {
