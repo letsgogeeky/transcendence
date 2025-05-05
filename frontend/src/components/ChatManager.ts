@@ -29,6 +29,10 @@ export class ChatManager {
         }
     
         const token = State.getState().getAuthToken();
+        if (!token) {
+            console.log('No authentication token found. Cannot initialize WebSocket.');
+            return;
+        }
         this.chatSocket = new WebSocket(`${endpoints.chatSocket}?token=${token}`, 'wss');
 
         this.chatSocket.onopen = () => {
