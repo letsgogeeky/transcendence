@@ -1,9 +1,5 @@
 import { Paddle } from './paddle.js';
-import { Ball } from './ball.js';
 import * as BABYLON from '@babylonjs/core';
-import HavokPhysics from '@babylonjs/havok';
-
-
 
 let sides: number = 2;
 let sideLength: number = 20;
@@ -11,7 +7,7 @@ let polygon: BABYLON.Mesh;
 let walls: BABYLON.Mesh[] = [];
 let paddleBoxes: BABYLON.Mesh[] = [];
 let paddles: Paddle[];
-let meshes: BABYLON.Mesh[];
+let obstacles: BABYLON.Mesh[] = [];
 
 function createShape(sides: number, sideLength: number, mode: number, scene: BABYLON.Scene): void {
   const points = getRegularPolygonPoints(sides, sideLength);
@@ -69,7 +65,7 @@ function createShape(sides: number, sideLength: number, mode: number, scene: BAB
     paddleBoxes.push(paddle1);
     paddleBoxes.push(paddle2);
 }
-	let obstacles = [];
+
 	if (mode == 1) {
 		obstacles.push(BABYLON.MeshBuilder.CreateBox("", { width: 2.5, height: 2.5}, scene)) 
 		obstacles[0].rotation.z = Math.PI / 4;
@@ -92,6 +88,17 @@ function createShape(sides: number, sideLength: number, mode: number, scene: BAB
 			o.computeWorldMatrix(true);
 			o.refreshBoundingInfo();
 			new BABYLON.PhysicsAggregate(o, BABYLON.PhysicsShapeType.MESH, { mass: 0 }, scene);
+		}
+	}
+	else if (mode == 3) {
+		const start = new BABYLON.Vector3(-10, 5, 0);
+		for (let i = 0; i < 10; i +=2) {
+			for (let j = 0; j < 20; j += 2) {
+				const box = BABYLON.MeshBuilder.CreateBox(("" + i) + j, {}, scene);
+				box.position = start.clone().addInPlace(new BABYLON.Vector3(j, -i, 0));
+				const aggregate = new BABYLON.PhysicsAggregate(box, BABYLON.PhysicsShapeType.MESH, { mass: 1 }, scene);
+				obstacles.push(box);
+			}
 		}
 	}
 	points.push(points[0]);
@@ -125,9 +132,10 @@ function getRegularPolygonPoints(n: number, sideLength: number): BABYLON.Vector3
   return points;
 }
 
-export const buildScene = function(players: number, mode: number, scene: BABYLON.Scene): Paddle[] {
+export const buildScene = function(players: number, mode: number, scene: BABYLON.Scene): any {
 	sides = players;
 	paddles = [];
+	obstacles = [];
   	createShape(sides, sideLength, mode, scene);
-	return paddles;
+	return {paddles: paddles, obstacles: obstacles};
 }

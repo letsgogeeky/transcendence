@@ -277,8 +277,11 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         kickerMode: false,
         obstacleMode: 0,
         balls: 1,
+		teams: [],
         guests: [],
-        aiLevel: 1,
+        aiLevel: 5,
+		gainPoints: true,
+		losePoints: false
     };
     if (mode === '1v1guest') {
         settings.players = 2;

@@ -162,12 +162,11 @@ export default class WebSocketService {
 
             case 'TOURNAMENT_INVITATION':
                 const acceptTournament = () => {
-                    this.sendMessage(
-                        JSON.stringify({
-                            type: 'ACCEPT_TOURNAMENT',
-                            tournamentId: data.tournamentId,
-                        }),
-                    );
+                    this.sendMessage(JSON.stringify({
+                        type: 'ACCEPT_TOURNAMENT',
+                        tournamentId: data.tournamentId
+                    }));
+
                     showToast(
                         ToastState.SUCCESS,
                         `You have joined tournament "${data.tournamentName}"`,
@@ -253,7 +252,7 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament Update: ${data.message}`,
-                    5000,
+                    2000
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
