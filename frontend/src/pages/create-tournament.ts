@@ -8,6 +8,10 @@ import State from "../services/state";
 import sendRequest from "../services/send-request";
 import { buttonStyle, inputStyle, selectStyle, selectStyle2 } from "../styles/classes";
 import { loadImage, copyrightLine } from '../styles/background'
+import UsersPageComponent from '../pages/users';
+import ChatComponent from '../components/ChatComponent';
+import ChatManager from '../components/ChatManager';
+
 
 export default class CreateTournamentComponent extends Component {
     readonly element: HTMLElement;
@@ -33,6 +37,10 @@ export default class CreateTournamentComponent extends Component {
     static async createTournamentCallback(data: any): Promise<void> {
         console.log('Create Tournament Callback', data);
         window.history.pushState({}, '', '/tournament?tournamentId=' + data.tournament.id);
+        // create chat for the tournament
+        console.log('Create Tournament Callback', data.tournament);
+        const chatManager = ChatManager.getInstance();
+        chatManager.openChat(data.tournament.id, data.tournament.name, '');
     }
 
     public render(parent: HTMLElement | Component): void {
