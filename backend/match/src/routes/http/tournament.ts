@@ -259,7 +259,10 @@ export function tournamentRoutes(app: FastifyInstance) {
                 friendlyFire: false,
                 kickerMode: false,
                 obstacleMode: 0,
-                balls: 1
+                balls: 1,
+				teams: [],
+				gainPoints: true,
+				losePoints: true
             }
             const options = tournament.options as unknown as TournamentOptions;
             if (options.winCondition === 'score') {

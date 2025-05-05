@@ -15,7 +15,6 @@ export class Ball {
   disposed: boolean;
   sceneLimit: number = 0;
   game: GameSession;
-  touching: boolean = false;
 
   constructor(game: GameSession, scene: BABYLON.Scene) {
 
@@ -49,10 +48,6 @@ export class Ball {
 				if (this.lastTouched != paddle) 
 					this.secondLastTouched = this.lastTouched;
 				this.lastTouched = paddle;
-				this.touching = true;
-				setTimeout(() => {
-					this.touching = false;
-				}, 100);
 				break;
 			}
 		}
@@ -89,21 +84,25 @@ export class Ball {
 
   async reset(scored: boolean): Promise<void> {
 	if (this.disposed) return;
-	if (scored) {
+	if (scored && Math.abs(this.position.z) < 1) {
 		const i = findPolygonSide(this.position);
 		let scorer;
-		if (this.game.settings.startScore === undefined || this.lastTouched !== undefined) {
-			if (!this.touching && this.lastTouched != this.game.paddles[i])
+		if (this.lastTouched !== undefined) {
+			if (this.lastTouched != this.game.paddles[i])
 				scorer = this.lastTouched;
-			else if (!this.touching && this.secondLastTouched != undefined)
+			else if (this.secondLastTouched != undefined)
 				scorer = this.secondLastTouched;
 		}
+
 		if (i < this.game.paddles.length && (this.game.settings.friendlyFire 
 			|| (!this.game.paddles[i].player?.teamNumber || !scorer?.player?.teamNumber
 				 || this.game.paddles[i].player?.teamNumber !== scorer?.player?.teamNumber))) {
-			if (!scorer)
+			if (this.game.settings.losePoints)
 				this.game.paddles[i].addPoints(-1);
-			scorer?.addPoints(1);
+			if (this.game.settings.gainPoints)
+				scorer?.addPoints(1);
+			else if (this.game.settings.players == 2)
+				this.position.x < 0 ? this.game.paddles[0].addPoints(1) : this.game.paddles[1].addPoints(1);
 		}
 		await this.game.updateScore();
 	}
@@ -113,15 +112,12 @@ export class Ball {
     this.aggregate.body.transformNode.position.set(0, 0, 0);
     this.aggregate.body.setLinearVelocity(BABYLON.Vector3.Zero());
     this.aggregate.body.setAngularVelocity(BABYLON.Vector3.Zero());
+	this.aggregate.body.setMassProperties({ mass: 0 });
 	setTimeout(() => {
-		try {
-			if (this.disposed) return;
-			if (this.position.length() < 1)
-				this.aggregate.body.applyImpulse(new BABYLON.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, 0).normalize().scale(10),
-					this.ball.absolutePosition);
-		} catch (error) {
-			console.error('Error resetting ball:', error);
-		}
+		if (this.disposed) return;
+		this.aggregate.body.setMassProperties({ mass: 1 });
+		this.aggregate.body.applyImpulse(new BABYLON.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, 0).normalize().scale(10),
+				this.ball.absolutePosition);
 	}, 1000);
   }
 
