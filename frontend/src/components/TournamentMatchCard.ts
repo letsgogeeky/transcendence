@@ -25,13 +25,15 @@ export default class TournamentMatchCard extends Component {
     private match: Match;
     private userMap: Map<string, string>;
     private tournamentId: string;
+    private tournamentAdminId: string;
 
-    constructor(match: Match, userMap: Map<string, string>, tournamentId: string) {
+    constructor(match: Match, userMap: Map<string, string>, tournamentId: string, tournamentAdminId: string) {
         super();
         this.element = document.createElement('div');
         this.match = match;
         this.userMap = userMap;
         this.tournamentId = tournamentId;
+        this.tournamentAdminId = tournamentAdminId;
     }
 
     private createMatchHeader(): HTMLElement {
@@ -97,6 +99,24 @@ export default class TournamentMatchCard extends Component {
                 window.location.reload();
             };
             rightSection.append(spectateButton);
+        } else if (this.match.status === 'pending' && State.getState().getCurrentUser()?.id === this.tournamentAdminId) {
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
+            deleteButton.onclick = async (evt) => {
+                evt.stopPropagation();
+                if (confirm('Are you sure you want to delete this match?')) {
+                    const success = await deleteMatch(this.match.id);
+                    if (success) {
+                        showToast(ToastState.SUCCESS, 'Match deleted successfully');
+                        this.element.innerHTML = '';
+                        this.element.remove();
+                    } else {
+                        showToast(ToastState.ERROR, 'Failed to delete match');
+                    }
+                }
+            };
+            rightSection.append(deleteButton);
         }
 
         matchHeader.append(leftSection, middleSection, rightSection);

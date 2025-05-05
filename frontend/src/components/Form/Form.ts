@@ -66,6 +66,7 @@ export default class FormComponent extends Component {
                 if (!submitCallback) return;
                 try {
                     const response = await submitCallback!(data);
+                    if (!response) return;
                     const responseBody = await response!.json();
                     if (!response!.ok) {
                         throw new Error(`Error: ${responseBody.error}`);
@@ -75,7 +76,6 @@ export default class FormComponent extends Component {
                 } catch (error) {
                     if (error instanceof Error) {
                         showToast(ToastState.ERROR, error.message);
-                        throw error;
                     } else {
                         showToast(
                             ToastState.ERROR,

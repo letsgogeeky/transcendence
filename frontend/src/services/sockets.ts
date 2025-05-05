@@ -1,6 +1,8 @@
 import { showToast, ToastState } from '../components/Toast';
 import { tryRefresh } from './send-request';
 import State from './state';
+import ChatManager from '../components/ChatManager';
+
 
 export default class WebSocketService {
     public socket: WebSocket | null = null;
@@ -171,6 +173,11 @@ export default class WebSocketService {
                         `You have joined tournament "${data.tournamentName}"`,
                         3000,
                     );
+                    ChatManager.getInstance().initializeChatSocket();
+                    const chatManager = ChatManager.getInstance();
+                    const chatComponent = chatManager.openChat(data.tournamentId, data.tournamentName, '');
+                    chatComponent.addParticipantToChat(State.getState().getCurrentUser()?.id || '');
+   
                 };
                 const rejectTournament = () => {
                     this.sendMessage(
@@ -237,11 +244,6 @@ export default class WebSocketService {
                     `Tournament Update: ${data.message}`,
                     5000,
                 );
-                // Refresh tournament page if user is on it
-                if (window.location.pathname.includes('/tournament')) {
-                    window.history.pushState({}, '', '/tournaments');
-                    window.dispatchEvent(new Event('popstate'));
-                }
                 break;
 
             case 'TOURNAMENT_ENDED':

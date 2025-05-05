@@ -211,8 +211,7 @@ export default class TournamentsComponent extends Component {
                         );
                         if (response.ok) {
                             await this.loadData();
-                            window.history.pushState({}, '', '/tournaments');
-                            this.render(parent);
+                            this.render(this.element);
                         }
                     } catch (error) {
                         console.error('Error deleting tournament:', error);

@@ -6,6 +6,8 @@ import LinkComponent from '../components/Link';
 import sendRequest, { endpoints, Services } from '../services/send-request';
 import State from '../services/state';
 import { loadBackgroundGif, loadImage, copyrightLine } from '../styles/background'
+// import { loadBackgroundGif, loadImage } from '../styles/background'
+import ChatManager from '../components/ChatManager';
 
 export default class LoginComponent extends Component {
     readonly element: HTMLElement = document.createElement('div');
@@ -79,7 +81,8 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
-		container.append(copyrightLine());
+        ChatManager.getInstance().initializeChatSocket();
+        
     }
 
 	static loginCallback(data: any): void {
@@ -102,6 +105,7 @@ export default class LoginComponent extends Component {
                 JSON.stringify(data.user || null),
             );
             State.getState().setCurrentUser(data.user);
+            ChatManager.getInstance().initializeChatSocket();
             window.history.pushState({ path: '/' }, '', '/');
         }
     }

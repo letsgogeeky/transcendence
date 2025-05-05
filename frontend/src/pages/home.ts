@@ -189,7 +189,9 @@ export default class HomeComponent extends Component {
 		const btn1v1Online = createStyledButtonWithHandler('1 v 1', () => this.createPreconfiguredGame('1v1'), '#baddf3');
 		const btn2v2 = createStyledButtonWithHandler('2 v 2', () => this.createPreconfiguredGame('2v2'), '#2acdf5');
 		const btnAllVsAll = createStyledButtonWithHandler('All vs All', () => this.createPreconfiguredGame('All vs All'), '#077eb9');
-		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll], '#20A4D6'); // blue
+		const createCustomGameLink = new LinkComponent('Custom Game', '/custom-game');
+		applyStyledAppearance(createCustomGameLink.element, '#07feb9');
+		const remoteSection = createSection('REMOTELY', [btn1v1Online, btn2v2, btnAllVsAll, createCustomGameLink.element], '#20A4D6'); // blue
 
 		// Tournament buttons
 		const createTournamentLink = new LinkComponent('Create Tournament', '/create-tournament');

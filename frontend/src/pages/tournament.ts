@@ -9,6 +9,8 @@ import Select from "../components/Form/Select";
 import { selectStyle } from "../styles/classes";
 import { showToast, ToastState } from "../components/Toast";
 import TournamentMatchCard from "../components/TournamentMatchCard";
+import ChatManager from '../components/ChatManager';
+
 
 interface Match {
     id: string;
@@ -295,6 +297,25 @@ export default class TournamentComponent extends Component {
             winScoreOrTime.element.className = 'text-white text-lg font-medium';
             winScoreOrTime.render(tournamentInfo);
 
+            const currentUserId = State.getState().getCurrentUser()?.id;
+            const isParticipant = this.data.tournament.participants.some((participant: { userId: string }) => participant.userId === currentUserId);
+            
+            if (isParticipant) {
+            const openChatButton = document.createElement('button');
+            openChatButton.textContent = 'Open Chat';
+            openChatButton.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mt-4';
+            
+
+                openChatButton.onclick = () => {
+                    ChatManager.getInstance().initializeChatSocket();
+                    const chatManager = ChatManager.getInstance();
+                    const params = new URLSearchParams(window.location.search);
+                    const tournamentId = params.get('tournamentId') ?? 'defaultTournamentId'; 
+                    const chatComponent = chatManager.openChat(tournamentId, this.data.tournament.name, '');
+                }
+                tournamentInfo.append(openChatButton);
+            };
+
             leftSide.append(tournamentInfo);
 
             // Action buttons section
@@ -372,7 +393,7 @@ export default class TournamentComponent extends Component {
                         const userMap = new Map(users.map(user => [user.id, user.name]));
 
                         this.data.tournament.matches.forEach((match: Match) => {
-                            const matchCard = new TournamentMatchCard(match, userMap, this.data.tournament.id);
+                            const matchCard = new TournamentMatchCard(match, userMap, this.data.tournament.id, this.data.tournament.adminId);
                             matchCard.render(matchesList);
                         });
                     });
