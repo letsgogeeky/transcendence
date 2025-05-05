@@ -57,10 +57,14 @@ declare module 'fastify' {
         transporter: Transporter;
         cache: NodeCache;
         googleOAuth2: OAuth2Namespace;
-        connections: Map<string, WebSocket>;
+        connections: Map<string, ExtendedWebSocket[]>;
     }
     interface FastifyRequest {
         auth: LoginLevel;
+    }
+
+    interface ExtendedWebSocket extends WebSocket {
+        id?: string;
     }
 }
 
