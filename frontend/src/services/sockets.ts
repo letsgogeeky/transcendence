@@ -111,7 +111,7 @@ export default class WebSocketService {
             localStorage.removeItem('currentUser');
             State.getState().setCurrentUser(null);
             this.socket!.close();
-            window.history.pushState({ path: '/login' }, '', '/login');
+            // window.history.pushState({ path: '/login' }, '', '/login');
         } else if (data.type == 'SUCCESS') {
             window.dispatchEvent(new Event('userChange'));
             showToast(ToastState.NOTIFICATION, data.message);
