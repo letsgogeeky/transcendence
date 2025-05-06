@@ -298,6 +298,26 @@ export default class WebSocketService {
                     window.history.pushState({}, '', '/tournaments');
                     window.dispatchEvent(new Event('popstate'));
                 }
+
+                // ChatMessage to tournament chat
+                const chatManager = ChatManager.getInstance();
+                // open chat if not already open
+                const chatComponent = chatManager.getChatComponent(
+                    data.tournament.id,
+                );
+                if (!chatComponent) {
+                    chatManager.openChat(
+                        data.tournament.id,
+                        data.tournament.name,
+                        '',
+                    );
+                }
+
+                if (chatComponent) {
+                    
+                    chatComponent.showInfo("Tournament ended");
+                }
+
                 break;
 
             case 'TOURNAMENT_MATCH_START':
