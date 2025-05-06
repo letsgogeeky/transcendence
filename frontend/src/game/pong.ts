@@ -291,13 +291,25 @@ export default class GameComponent extends Component {
 
 	createUI(playerList: string[], teams?: string[][]) {
 		let playerCount = playerList?.length;
+
 		if (!playerCount) playerCount = 1;
+
 		else if (playerCount > this.settings?.players) playerCount = this.settings.players;
-		document.getElementById("loadingText")!.innerText =
-			`Waiting for players... (${playerCount}/${this.settings?.players ?? '?'})`;
+		try {
+			document.getElementById("loadingText")!.innerText =
+				`Waiting for players... (${playerCount}/${this.settings?.players ?? '?'})`;
+		} catch (error) {
+			console.log("Failed to update loading text");
+		}
 		if (!this.scene?.getEngine()) return;
+
 		this.gui?.dispose();
-		this.gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+		try {
+			this.gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+		} catch (error) {
+			console.log("Failed to create UI");
+			return;
+		}
 	
 		const container = new BABYLON.GUI.ScrollViewer();
 		container.width = "100%";

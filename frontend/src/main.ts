@@ -107,10 +107,10 @@ const render = () => {
             return;
         } else if (pathName.includes('/game')) {
             navigator.navbar.hide();
-            State.getState().closeMatchSocket();
+            // State.getState().closeMatchSocket();
         } else {
             navigator.navbar.show();
-            State.getState().connectMatchSocket();
+            // State.getState().connectMatchSocket();
         }
         navigator.changeSelection(pathName);
         if (pathName == '/login') navigator.render(root);

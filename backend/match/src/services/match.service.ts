@@ -127,6 +127,9 @@ export async function findNextMatchesInTournament(tournamentId: string, app: Fas
             playersAddedToMatches.push(...match.participants.map(participant => participant.userId));
         }
     }
+    if (pendingMatches.length > 0 && filteredMatches.length === 0) {
+        return null;
+    }
     return filteredMatches || null;
 }
 
@@ -416,4 +419,5 @@ export async function proceedAllTournaments(app: FastifyInstance) {
     for (const tournament of tournaments) {
         await proceedTournament(tournament.id, app);
     }
+    return tournaments.length;
 }

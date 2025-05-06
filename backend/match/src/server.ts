@@ -11,6 +11,7 @@ import fastifyJwt from "@fastify/jwt";
 import fs from 'fs';
 import metrics from 'fastify-metrics';
 import { GameSession } from "./routes/ws/session.js";
+import { deleteMatch, proceedAllTournaments } from "./services/match.service.js";
 
 declare module '@fastify/jwt' {
     interface FastifyJWT {
@@ -80,10 +81,32 @@ const start = async () => {
         await server.register(app, options);
         await server.listen({ port: server.config.MATCH_PORT, host: '0.0.0.0' });
 
-        // Set up periodic cleanup of stale matches every 5 seconds
+        // Set up periodic cleanup of stale matches every 15 seconds
         setInterval(() => {
             server.log.info('Cleaning up stale matches');
-        }, 5 * 1000); // 5 seconds
+            server.prisma.match.findMany({
+                where: {
+                    status: 'pending',
+                    createdAt: {
+                        lt: new Date(Date.now() - 5 * 60 * 1000),
+                    },
+                },
+            }).then(async (matches) => {
+                for (const match of matches) {
+                    server.log.info(`Deleting match ${match.id}`);
+                    await deleteMatch(server, match.id, match.userId);
+                }
+            }).catch((err) => {
+                server.log.error(err);
+            });
+
+            // tournament processing
+            proceedAllTournaments(server).then((result) => {
+                server.log.info(`Tournament processing result: ${result}`);
+            }).catch((err) => {
+                server.log.error(err);
+            });
+        }, 15 * 1000); // 15 seconds
     } catch (err) {
         server.log.error(err);
         process.exit(1);

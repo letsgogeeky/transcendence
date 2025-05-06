@@ -25,8 +25,6 @@ export default class WebSocketService {
         );
         const authToken = State.getState().getAuthToken();
         if (!authToken) return;
-        console.log(`Auth token: ${authToken}`);
-        console.log(`URL: ${this.url}`);
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {
