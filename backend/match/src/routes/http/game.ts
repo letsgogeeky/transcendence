@@ -99,10 +99,10 @@ export function gameHttpRoutes(app: FastifyInstance) {
             const settings = request.body as GameSettings;
 
             // Validate settings
-            if (settings.players < 1 || settings.players > 4) {
+            if (settings.players < 1 || settings.players > 400) {
                 return reply.status(400).send({ error: 'Invalid number of players' });
             }
-            if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 3)) {
+            if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 300)) {
                 return reply.status(400).send({ error: 'Invalid number of AI players' });
             }
             if (settings.winScore && settings.winScore < 1) {
@@ -221,13 +221,13 @@ export function gameHttpRoutes(app: FastifyInstance) {
          if (settings.players < 1 || settings.players > 4) {
             return 'Invalid number of players';
         }
-        if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 3)) {
+        if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 300)) {
             return 'Invalid number of AI players';
         }
         if (settings.timeLimit && settings.timeLimit < 60000) { // Minimum 1 minute
             return 'Invalid time limit';
         }
-        if (settings.balls && (settings.balls < 1 || settings.balls > 3)) {
+        if (settings.balls && (settings.balls < 1 || settings.balls > 300)) {
             return 'Invalid number of balls';
         }
         if (settings.aiLevel && (settings.aiLevel < 1 || settings.aiLevel > 9)) {

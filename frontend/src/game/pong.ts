@@ -34,6 +34,7 @@ type GameSettings = {
 	timeLimit?: number;
 	teams?: string[][];
 	balls?: number
+	guests: string[];
 }
 
 let playerIndex: number;
@@ -134,8 +135,7 @@ export default class GameComponent extends Component {
 
 		const paddles = this.scene.meshes.filter(p => p.name.includes("paddle"));
 
-		//const player = this.scene.getMeshById("paddle" + playerIndex);
-		if (this.players == 2)
+		if (this.players == 2 && playerIndex && this.settings.guests.length >= 1)
 			playerIndex == 0 ? playerIndex = 1 : playerIndex = 0;
 		const player = this.scene.meshes.find(p => p.name == "paddle" + playerIndex);
 		if (player) (player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(1, 0, 0);
