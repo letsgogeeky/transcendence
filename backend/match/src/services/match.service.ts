@@ -315,7 +315,7 @@ export async function getPlayerLevelAgainstAI(userId: string, app: FastifyInstan
     if (playerScore > aiScore) {
         return (settings.aiLevel ?? 1) + 1;
     }
-    return settings.aiLevel ?? 1;
+    return (settings.aiLevel ?? 1) % 10;
 }
 
 export async function createMatch(app: FastifyInstance, mode: string, userId: string, userIds?: string[]) {

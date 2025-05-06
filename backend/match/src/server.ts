@@ -87,8 +87,9 @@ const start = async () => {
             server.prisma.match.findMany({
                 where: {
                     status: 'pending',
+					tournamentId: null,
                     createdAt: {
-                        lt: new Date(Date.now() - 5 * 60 * 1000),
+                        lt: new Date(Date.now() - 7 * 60 * 1000),
                     },
                 },
             }).then(async (matches) => {

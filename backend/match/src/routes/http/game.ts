@@ -254,6 +254,9 @@ export function gameHttpRoutes(app: FastifyInstance) {
 		if (settings.kickerMode && settings.kickerMode === true && (settings.players > 2 || (settings.aiPlayers && settings.aiPlayers + settings.players > 2))) {
 			return 'Cannot set kicker mode in a game with more than 2 total players and AIs';
 		}
+		if (!settings.losePoints && !settings.gainPoints) {
+			return 'Gain and Lose points cannot both be false!';
+		}
         return null;
     }
 
