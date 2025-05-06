@@ -22,7 +22,7 @@ export default class ForgotPasswordComponent extends Component {
 		// adds the 'forgetful me' gif
 		container.appendChild(loadImage('forgetful.gif', 'w-full max-w-[500px] h-auto mb-5 rounded-lg', 'Gif for forgetfulness'));
 
-        const inputStyle = 'border border-[#FFFF33] border-4 rounded-xl p-2 w-60 mb-4 bg-[#D1C4E9] shadow-[0_0_15px_#00FFFF] opacity-60';
+        const inputStyle = 'border border-[#FFFF33] border-4 rounded-xl p-2 w-60 mb-4 shadow-[0_0_15px_#00FFFF] opacity-60';
         const userInput = new Input(
             'username or email',
             'text',

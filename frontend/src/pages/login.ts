@@ -20,25 +20,23 @@ export default class LoginComponent extends Component {
 		container.appendChild(loadBackgroundGif());
 		container.appendChild(loadImage('welcome_back.jpg', 'w-full max-w-[300px] h-auto mb-5 rounded-lg', 'Welcome Image'));
 
-		const inputStyle = 'border border-[#00FFFF] border-4 rounded-xl p-2 w-80 mb-4 shadow-[0_0_15px_#00FFFF] opacity-60';
+		const inputStyle = 'border border-[#00FFFF] border-4 text-[00FFFF] rounded-xl p-2 w-80 mb-4 shadow-[0_0_15px_#00FFFF] opacity-60';
         // Email, Name, and Password Inputs
         const emailInput = new Input(
-            'email',
+            '📧 Email',
             'email',
             'email',
             true,
-            null,
+            'email',
             inputStyle,
-			false,
         );
         const passwordInput = new Input(
-            'password',
+            '🔒 Password',
             'password',
             'password',
             true,
-            null,
+            'password',
             inputStyle,
-			false,
         );
 
         const form = new FormComponent(
@@ -47,7 +45,7 @@ export default class LoginComponent extends Component {
             (data) => sendRequest('/login', 'POST', data, Services.AUTH),
 			LoginComponent.loginCallback,
         );
-        form.className = 'flex flex-col gap-4 w-80 mt-6 relative z-10'; // Form styling
+        form.className = 'flex flex-col text-left gap-4 w-80 mt-6 relative z-10'; // Form styling
 
         // Add form to container
         form.render(container);
@@ -81,8 +79,8 @@ export default class LoginComponent extends Component {
 
 		// Render the container
 		container.appendChild(alternativeContainer);
+		container.appendChild(copyrightLine());
         ChatManager.getInstance().initializeChatSocket();
-        
     }
 
 	static loginCallback(data: any): void {

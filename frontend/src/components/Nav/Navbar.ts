@@ -37,7 +37,7 @@ export default class Navbar extends Component {
 	
 				// Check if the route title matches one that should be an icon
 				const lowerTitle = route.title.toLowerCase();
-				const iconRoutes = ['pongjam', 'tournaments', 'users', 'settings', 'profile', 'logout']; // add more as needed
+				const iconRoutes = ['pongjam', 'log_in', 'sign_up','tournaments', 'users', 'settings', 'profile', 'logout']; // add more as needed
 	
 				if (iconRoutes.includes(lowerTitle)) {
 					// Use your icon link component

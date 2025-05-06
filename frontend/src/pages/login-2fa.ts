@@ -12,7 +12,7 @@ export default class LoginOtpComponent extends Component {
     constructor() {
         super();
         const container = document.createElement('div');
-        container.className = 'text-center';
+        container.className = 'text-center text-white';
         container.style.display = 'flex';
         container.style.flexDirection = 'column';
         container.style.gap = '10px';

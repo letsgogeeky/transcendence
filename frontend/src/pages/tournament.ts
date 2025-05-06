@@ -74,7 +74,7 @@ export default class TournamentComponent extends Component {
     constructor() {
         super();
         const container = document.createElement('div');
-        container.className = 'flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-gray-800';
+        container.className = 'flex flex-col items-center justify-center min-h-screen';
         const title = document.createElement('h1');
         title.textContent = 'Tournament';
         title.className = 'text-3xl font-bold mb-8 text-white';

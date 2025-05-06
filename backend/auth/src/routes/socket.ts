@@ -126,7 +126,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
                     socket.id = socketId;
                     const message = {
                         type: 'SUCCESS',
-                        message: 'Welcome ' + user.name,
+                        message: '👋  Welcome ' + user.name,
                     };
                     socket.send(JSON.stringify(message));
                     return;

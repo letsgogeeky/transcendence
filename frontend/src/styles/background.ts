@@ -44,7 +44,7 @@ export function loadBackgroundGif(): HTMLElement {
 
 export function copyrightLine(): HTMLElement {
 	const copyright = document.createElement('p');
-	copyright.className = 'text-[#c9b2d3] text-xs absolute bottom-6 left-6';
+	copyright.className = 'text-[#c9b2d3] text-xs fixed bottom-6 left-6';
 	copyright.textContent = '© 2025 PongJam. All rights reserved.';
 	return copyright;
 }

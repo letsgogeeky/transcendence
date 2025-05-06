@@ -17,9 +17,16 @@ export class ChatManager {
     private constructor() {
         this.tabContainer = document.createElement('div');
         this.tabContainer.className = 'fixed bottom-0 left-0 w-full bg-gray-800 text-white flex flex-row-reverse space-x-2 p-2 overflow-x-auto';
+        this.tabContainer.style.display = 'none'; // Initially hidden
         document.body.appendChild(this.tabContainer);
-        // this.initializeChatSocket();
-        // console.log('constructor chatManager:');
+    }
+
+    private updateTabContainerVisibility(): void {
+        if (this.activeChats.size > 0) {
+            this.tabContainer.style.display = 'flex'; // Show the tab container
+        } else {
+            this.tabContainer.style.display = 'none'; // Hide the tab container
+        }
     }
 
     public initializeChatSocket(): void {
@@ -200,6 +207,7 @@ export class ChatManager {
             chatComponent.getMessages();
             chatComponent.isUserBlocked();
             this.updateChatPositions();
+            this.updateTabContainerVisibility(); // Update visibility after adding a tab
             return chatComponent;
 
         } else {
@@ -212,6 +220,7 @@ export class ChatManager {
             chatComponent.getMessages();
             chatComponent.isUserBlocked();
             this.updateChatPositions();
+            this.updateTabContainerVisibility(); // Update visibility after adding a tab
             return chatComponent;
         }
 
@@ -245,8 +254,8 @@ export class ChatManager {
             if (tab) {
                 tab.remove();
             }
-
             this.updateChatPositions();
+            this.updateTabContainerVisibility(); // Update visibility after removing a tab
         }
     }
 
@@ -257,6 +266,7 @@ export class ChatManager {
         this.activeChats.clear();
     
         this.tabContainer.innerHTML = '';
+        this.updateTabContainerVisibility(); // Update visibility after clearing all tabs
     }
 
     public cleanup(): void {
