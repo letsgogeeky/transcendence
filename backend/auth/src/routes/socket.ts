@@ -18,8 +18,20 @@ interface FriendRequest {
 }
 
 export function SocketRoutes(fastify: FastifyInstance) {
+
+    fastify.setErrorHandler(function (error, request, reply) {
+        this.log.error(error);
+        if (!error.statusCode || error.statusCode == 500)
+            reply.status(400).send({ error: 'Something went wrong.' });
+        else reply.status(error.statusCode).send({ error: error.message });
+    });
+
     function verifyToken(token?: string): string | null {
         if (!token) return null;
+        if (fastify.cache.get(token)) {
+            console.log('blacklisted');
+            return null;
+        }
         let id = null;
         try {
             const decoded = fastify.jwt.verify<{
@@ -93,11 +105,6 @@ export function SocketRoutes(fastify: FastifyInstance) {
                 });
 
                 if (user) {
-                    const message = {
-                        type: 'SUCCESS',
-                        message: '👋  Welcome ' + user.name,
-                    };
-                    socket.send(JSON.stringify(message));
                     if (fastify.connections.has(id)) {
                         const sockets = fastify.connections.get(
                             id,
@@ -117,15 +124,24 @@ export function SocketRoutes(fastify: FastifyInstance) {
                     }
                     const socketId = uuidv4();
                     socket.id = socketId;
+                    const message = {
+                        type: 'SUCCESS',
+                        message: '👋  Welcome ' + user.name,
+                    };
+                    socket.send(JSON.stringify(message));
+                    return;
                 } else console.log('no user');
             } catch (error) {
                 console.error('Error finding user:', error);
-                socket.close();
             }
         } else {
             console.log('Invalid token');
-            socket.close();
         }
+        const message = {
+            type: 'REJECTED',
+        };
+        socket.send(JSON.stringify(message));
+        socket.close();
     }
 
     fastify.route({
@@ -136,7 +152,6 @@ export function SocketRoutes(fastify: FastifyInstance) {
         },
         wsHandler: (socket: ExtendedWebSocket, req: FastifyRequest) => {
             const { userId, userName } = req.cookies;
-            console.log('Cookie header:', req.headers.cookie);
             console.log('new connection, socket id: ' + socket.id);
 
             socket.on('message', (message: string) => {
@@ -156,6 +171,7 @@ export function SocketRoutes(fastify: FastifyInstance) {
             });
 
             socket.on('close', () => {
+                console.log('-------------close socket ' + socket.id);
                 if (userId && fastify.connections.has(userId)) {
                     console.log(
                         'last sockt id was ' + socket.id + 'for user ' + userId,
@@ -166,8 +182,10 @@ export function SocketRoutes(fastify: FastifyInstance) {
                         userId,
                         userSockets!.filter((s) => s.id != socket.id),
                     );
+                    console.log(fastify.connections.get(userId)!.length);
                     if (!fastify.connections.get(userId)!.length) {
                         fastify.connections.delete(userId);
+                        console.log('User has no tabs open');
                         notifyFriends(
                             userId,
                             userName + ' is offline',

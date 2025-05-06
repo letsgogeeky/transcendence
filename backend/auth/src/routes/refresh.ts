@@ -26,7 +26,11 @@ export function refreshRoutes(fastify: FastifyInstance) {
                 id: string;
                 loginLevel: LoginLevel;
             }>(accessToken);
-            if (decoded.id != decodedAccessToken?.id) throw Error();
+            if (
+                decoded.id != decodedAccessToken?.id ||
+                decodedAccessToken.loginLevel != LoginLevel.FULL
+            )
+                throw Error();
             const blacklistedToken = await fastify.cache.get(refreshToken);
             if (blacklistedToken) throw Error();
             const newAuthToken = fastify.jwt.sign(

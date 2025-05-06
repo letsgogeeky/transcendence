@@ -10,12 +10,19 @@ export function logoutRoutes(fastify: FastifyInstance) {
             600,
         );
         res.clearCookie('access_token', { path: '/auth/login/google/auth' });
-        res.clearCookie('refreshToken', { path: '/' });
+        res.clearCookie('refreshToken', { path: '/auth/refresh' });
         res.clearCookie('authToken', { path: '/' });
-        res.clearCookie('userId', { path: '/' });
-        res.clearCookie('userName', { path: '/' });
+        res.clearCookie('userId', { path: '/auth/socket' });
+        res.clearCookie('userName', { path: '/auth/socket' });
+        res.clearCookie('oauth2-redirect-state', { path: '/' });
         res.send({ message: 'Logged out' });
         const userSockets = fastify.connections.get(req.user);
-        userSockets?.forEach((s) => s.close());
+        userSockets?.forEach((s) => {
+            const message = JSON.stringify({
+                type: 'TERMINATE',
+            });
+            s.send(message);
+            s.close();
+        });
     });
 }

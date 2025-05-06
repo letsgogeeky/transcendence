@@ -52,6 +52,7 @@ export function showToast(
 
     const { text, border, shadow, raw } = colorMap[state];
 
+	console.log(JSON.stringify(message));
     const toast = document.createElement('div');
     toast.id = 'toast-notification';
 	toast.className = `
