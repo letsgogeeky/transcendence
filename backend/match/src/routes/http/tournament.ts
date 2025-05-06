@@ -3,7 +3,7 @@
 import { FastifyInstance } from 'fastify';
 import credentialAuthCheck from '../../plugins/validateToken.js';
 import { GameSettings } from '../ws/session.js';
-import { notifyMatchParticipants, proceedTournament } from '../../services/match.service.js';
+import { notifyMatchParticipants, proceedTournament, findTournamentWinner } from '../../services/match.service.js';
 
 interface TournamentOptions {
     winCondition: string; // score or time
@@ -14,6 +14,41 @@ interface TournamentPayload {
     name: string;
     options: TournamentOptions;
     participants: string[];
+}
+
+interface TournamentWinner {
+    winnerId: string;
+    participantStats: {
+        [key: string]: {
+            matchesWon: number;
+            totalScore: number;
+        };
+    };
+}
+
+interface Tournament {
+    id: string;
+    name: string;
+    status: string;
+    options: TournamentOptions;
+    adminId: string;
+    participants: Array<{
+        id: string;
+        status: string;
+        createdAt: Date;
+        tournamentId: string;
+        userId: string;
+    }>;
+    matches: Array<{
+        id: string;
+        participants: Array<{
+            id: string;
+            userId: string;
+            matchId: string;
+            joinedAt: Date;
+        }>;
+    }>;
+    winner?: TournamentWinner;
 }
 
 export function tournamentRoutes(app: FastifyInstance) {
@@ -42,7 +77,7 @@ export function tournamentRoutes(app: FastifyInstance) {
                     },
                 },
             }
-        });
+        }) as Tournament | null;
         if (!tournament) {
             return reply.status(404).send({
                 message: 'Tournament not found',
@@ -53,6 +88,15 @@ export function tournamentRoutes(app: FastifyInstance) {
             const result = await proceedTournament(tournament.id, app);
             console.log("proceed tournament result", result);
         }
+
+        // If tournament is finished, include winner and participant stats
+        if (tournament.status === 'finished') {
+            const winner = await findTournamentWinner(tournament.id, app);
+            if (winner) {
+                tournament.winner = winner as TournamentWinner;
+            }
+        }
+
         return reply.status(200).send({
             tournament,
         });

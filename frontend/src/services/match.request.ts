@@ -29,3 +29,19 @@ export async function deleteMatch(matchId: string) {
     const response = await sendRequest(`/queue/delete-match/${matchId}`, 'DELETE', {}, Services.MATCH);
     return response.ok;
 }
+
+export async function getMatch(matchId: string) {
+    return await sendRequest(`/queue/get-match/${matchId}`, 'GET', {}, Services.MATCH);
+}
+
+export async function getTournament(tournamentId: string) {
+	const response = await sendRequest(
+		`/tournament/${tournamentId}`,
+		'GET',
+		null,
+		Services.TOURNAMENTS,
+	);
+	if (!response.ok)
+		return null;
+	return response.json();
+}

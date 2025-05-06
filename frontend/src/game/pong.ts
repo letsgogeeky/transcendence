@@ -3,6 +3,7 @@
 import State from "../services/state";
 import Component from "../components/Component";
 import { showToast, ToastState } from "../components/Toast";
+import { getMatch } from "../services/match.request";
 const assetPath = "../assets/"
 
 let keys = {
@@ -135,7 +136,7 @@ export default class GameComponent extends Component {
 
 		const paddles = this.scene.meshes.filter(p => p.name.includes("paddle"));
 
-		if (this.players == 2 && playerIndex && this.settings.guests.length >= 1)
+		if (this.players == 2 && playerIndex && this.settings.guests && this.settings.guests.length >= 1)
 			playerIndex == 0 ? playerIndex = 1 : playerIndex = 0;
 		const player = this.scene.meshes.find(p => p.name == "paddle" + playerIndex);
 		if (player) (player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(1, 0, 0);
@@ -290,13 +291,25 @@ export default class GameComponent extends Component {
 
 	createUI(playerList: string[], teams?: string[][]) {
 		let playerCount = playerList?.length;
+
 		if (!playerCount) playerCount = 1;
+
 		else if (playerCount > this.settings?.players) playerCount = this.settings.players;
-		document.getElementById("loadingText")!.innerText =
-			`Waiting for players... (${playerCount}/${this.settings?.players ?? '?'})`;
+		try {
+			document.getElementById("loadingText")!.innerText =
+				`Waiting for players... (${playerCount}/${this.settings?.players ?? '?'})`;
+		} catch (error) {
+			console.log("Failed to update loading text");
+		}
 		if (!this.scene?.getEngine()) return;
+
 		this.gui?.dispose();
-		this.gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+		try {
+			this.gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+		} catch (error) {
+			console.log("Failed to create UI");
+			return;
+		}
 	
 		const container = new BABYLON.GUI.ScrollViewer();
 		container.width = "100%";
@@ -486,7 +499,7 @@ export default class GameComponent extends Component {
 		document.body.style.overflow = "auto";
 	}
 
-	public render(parent: HTMLElement | Component): void {
+	public async render(parent: HTMLElement | Component): Promise<void> {
 		if (this.isRendering) return;
 		console.log("Rendering game");
 		this.element.style.display = "block";
@@ -505,9 +518,28 @@ export default class GameComponent extends Component {
 			window.history.pushState({ path: '/login' }, '', '/login');
 			return;
 		}
-		const matchId = window.location.search.split('matchId=')[1];
+		// what if there is another query param after matchId?
+		const matchId = window.location.search.split('matchId=')[1]?.split('&')[0];
 		if (!matchId) {
 			console.error('No match ID found');
+			window.history.pushState({ path: '/' }, '', '/');
+			return;
+		}
+		const response = await getMatch(matchId);
+		if (!response || !response.ok) {
+			console.error('Failed to get match');
+			window.history.pushState({ path: '/' }, '', '/');
+			return;
+		}
+		const matchData = await response.json();
+		if (matchData.error) {
+			console.error('Failed to get match');
+			window.history.pushState({ path: '/' }, '', '/');
+			return;
+		}
+		const match = matchData.match;
+		if (match.status !== 'pending') {
+			console.error('Match is not pending');
 			window.history.pushState({ path: '/' }, '', '/');
 			return;
 		}

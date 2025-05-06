@@ -181,9 +181,23 @@ export default class TournamentsComponent extends Component {
         const header = document.createElement('div');
         header.className = 'flex justify-between items-center mb-6';
 
+        const titleContainer = document.createElement('div');
+        titleContainer.className = 'flex items-center gap-3';
+
         const title = document.createElement('h3');
         title.className = 'text-xl font-bold text-white';
         title.textContent = tournament.name;
+
+        const statusBadge = document.createElement('span');
+        statusBadge.className = `px-3 py-1 rounded-full text-sm font-medium ${
+            tournament.status === 'in progress' ? 'bg-blue-600 text-white' :
+            tournament.status === 'pending' ? 'bg-yellow-600 text-white' :
+            tournament.status === 'finished' ? 'bg-green-600 text-white' :
+            'bg-gray-600 text-white'
+        }`;
+        statusBadge.textContent = tournament.status?.toUpperCase() || 'NOT STARTED';
+
+        titleContainer.append(title, statusBadge);
 
         const actions = document.createElement('div');
         actions.className = 'flex gap-2';
@@ -220,9 +234,17 @@ export default class TournamentsComponent extends Component {
             });
             actions.append(starButton, deleteButton);
         }
-        header.append(title, actions);
+
+        header.append(titleContainer, actions);
         const details = document.createElement('div');
         details.className = 'grid grid-cols-2 gap-4 text-white';
+
+        const status = document.createElement('div');
+        status.className = 'flex flex-col';
+        status.innerHTML = `
+            <span class="text-xs uppercase tracking-wider font-semibold text-gray-400">Status</span>
+            <span class="text-lg font-medium">${tournament.status || 'Not Started'}</span>
+        `;
 
         const winCondition = document.createElement('div');
         winCondition.className = 'flex flex-col';
@@ -264,7 +286,7 @@ export default class TournamentsComponent extends Component {
             `;
         }
 
-        details.append(winCondition, limit, participants, admin);
+        details.append(status, winCondition, limit, participants, admin);
 
         card.append(header, details);
 

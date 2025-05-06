@@ -33,11 +33,13 @@ export async function notifyMatchParticipants(matchId: string, app: FastifyInsta
                 const client = app.connections.get(participant.userId);
                 if (client) {
                     if (isTournament) {
-                        client.send(JSON.stringify({ type: 'TOURNAMENT_UPDATE', message: 'Match is starting, get ready and do some pushups!' }));
+                        setTimeout(() => {
+                            client.send(JSON.stringify({ type: 'TOURNAMENT_UPDATE', message: 'Match is starting, get ready and do some pushups!', tournamentId: match.tournamentId }));
+                        }, 2000);
                     }
                     setTimeout(() => {
                         client.send(JSON.stringify({ type: 'MATCH_STARTED', match: match }));
-                    }, 3000);
+                    }, 5000);
                 }
             }
             return true;
@@ -125,10 +127,13 @@ export async function findNextMatchesInTournament(tournamentId: string, app: Fas
             playersAddedToMatches.push(...match.participants.map(participant => participant.userId));
         }
     }
+    if (pendingMatches.length > 0 && filteredMatches.length === 0) {
+        return null;
+    }
     return filteredMatches || null;
 }
 
-async function findTournamentWinner(tournamentId: string, app: FastifyInstance) {
+export async function findTournamentWinner(tournamentId: string, app: FastifyInstance) {
     const tournament = await app.prisma.tournament.findUnique({
         where: { id: tournamentId },
         include: {
@@ -142,13 +147,60 @@ async function findTournamentWinner(tournamentId: string, app: FastifyInstance) 
     if (!tournament) {
         return null;
     }
-    const winnderId = tournament?.matches.reduce((max, match) => {
+
+    // Calculate matches won for each participant
+    const participantStats = new Map<string, { matchesWon: number, totalScore: number }>();
+
+    for (const match of tournament.matches) {
+        if (!match.stats) continue;
+
         const stats = match.stats as Record<string, number>;
-        const player1 = stats[match.participants[0].userId] ?? 0;
-        const player2 = stats[match.participants[1].userId] ?? 0;
-        return player1 > player2 ? match.participants[0].userId : match.participants[1].userId;
-    }, tournament?.matches[0].participants[0].userId);
-    return winnderId ?? null;
+        const participants = match.participants;
+
+        if (participants.length !== 2) continue;
+
+        const player1Id = participants[0].userId;
+        const player2Id = participants[1].userId;
+        const player1Score = stats[player1Id] ?? 0;
+        const player2Score = stats[player2Id] ?? 0;
+
+        // Initialize stats if not exists
+        if (!participantStats.has(player1Id)) {
+            participantStats.set(player1Id, { matchesWon: 0, totalScore: 0 });
+        }
+        if (!participantStats.has(player2Id)) {
+            participantStats.set(player2Id, { matchesWon: 0, totalScore: 0 });
+        }
+
+        // Update stats
+        const player1Stats = participantStats.get(player1Id)!;
+        const player2Stats = participantStats.get(player2Id)!;
+
+        player1Stats.totalScore += player1Score;
+        player2Stats.totalScore += player2Score;
+
+        if (player1Score > player2Score) {
+            player1Stats.matchesWon++;
+        } else if (player2Score > player1Score) {
+            player2Stats.matchesWon++;
+        }
+    }
+
+    // Find winner (player with most matches won)
+    let winnerId = null;
+    let maxMatchesWon = -1;
+
+    for (const [playerId, stats] of participantStats.entries()) {
+        if (stats.matchesWon > maxMatchesWon) {
+            maxMatchesWon = stats.matchesWon;
+            winnerId = playerId;
+        }
+    }
+
+    return {
+        winnerId,
+        participantStats: Object.fromEntries(participantStats)
+    };
 }
 
 export async function proceedTournament(tournamentId: string, app: FastifyInstance) {
@@ -170,17 +222,19 @@ export async function proceedTournament(tournamentId: string, app: FastifyInstan
         // find winner by comparing stats in matches of a tournament
         const winner = await findTournamentWinner(tournamentId, app);
         // announce winner
-        if (winner) {
-            const client = app.connections.get(winner);
+        if (winner && winner.winnerId) {
+            const client = app.connections.get(winner.winnerId);
             if (client) {
-                client.send(JSON.stringify({ type: 'TOURNAMENT_ENDED', message: 'You won the tournament!', winner }));
+                client.send(JSON.stringify({ type: 'TOURNAMENT_ENDED', message: 'You won the tournament!', winner, tournament }));
             }
         }
         // annount to other participants
-        for (const participant of tournament.participants.filter(participant => participant.userId !== winner)) {
-            const client = app.connections.get(participant.userId);
-            if (client) {
-                client.send(JSON.stringify({ type: 'TOURNAMENT_ENDED', message: 'You lost the tournament... OFC!', winner }));
+        if (winner && winner.winnerId) {
+            for (const participant of tournament.participants.filter(participant => participant.userId !== winner.winnerId)) {
+                const client = app.connections.get(participant.userId);
+                if (client) {
+                    client.send(JSON.stringify({ type: 'TOURNAMENT_ENDED', message: 'You lost the tournament... OFC!', winner, tournament }));
+                }
             }
         }
         return;
@@ -277,11 +331,11 @@ export async function createMatch(app: FastifyInstance, mode: string, userId: st
         kickerMode: false,
         obstacleMode: 0,
         balls: 1,
-		teams: [],
+        teams: [],
         guests: [],
         aiLevel: 5,
-		gainPoints: true,
-		losePoints: false
+        gainPoints: true,
+        losePoints: false
     };
     if (mode === '1v1guest') {
         settings.players = 2;
@@ -356,4 +410,14 @@ export async function deleteMatch(app: FastifyInstance, matchId: string, userId:
         where: { id: matchId, userId: userId },
     });
     return true;
+}
+
+export async function proceedAllTournaments(app: FastifyInstance) {
+    const tournaments = await app.prisma.tournament.findMany({
+        where: { status: { in: ['in progress'] } },
+    });
+    for (const tournament of tournaments) {
+        await proceedTournament(tournament.id, app);
+    }
+    return tournaments.length;
 }
