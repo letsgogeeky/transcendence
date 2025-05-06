@@ -1,8 +1,7 @@
+import ChatManager from '../components/ChatManager';
 import { showToast, ToastState } from '../components/Toast';
 import { tryRefresh } from './send-request';
 import State from './state';
-import ChatManager from '../components/ChatManager';
-
 
 export default class WebSocketService {
     public socket: WebSocket | null = null;
@@ -103,9 +102,18 @@ export default class WebSocketService {
         } else if (data.type == 'EXPIRED') {
             tryRefresh();
             this.reconnect();
+        } else if (data.type == 'REJECTED') {
+            this.reconnectAttempts = 11;
+        } else if (data.type == 'TERMINATE') {
+            showToast(ToastState.SUCCESS, 'You logged out from all tabs');
+            State.getState().setAuthToken(null);
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            State.getState().setCurrentUser(null);
+            this.socket!.close();
+            window.history.pushState({ path: '/login' }, '', '/login');
         } else if (data.type == 'SUCCESS') {
             window.dispatchEvent(new Event('userChange'));
-            document.title = document.title.replace(/ \(Offline\)$/, '');
             showToast(ToastState.NOTIFICATION, data.message);
         } else {
             showToast(ToastState.NOTIFICATION, data.message);
@@ -162,10 +170,12 @@ export default class WebSocketService {
 
             case 'TOURNAMENT_INVITATION':
                 const acceptTournament = () => {
-                    this.sendMessage(JSON.stringify({
-                        type: 'ACCEPT_TOURNAMENT',
-                        tournamentId: data.tournamentId
-                    }));
+                    this.sendMessage(
+                        JSON.stringify({
+                            type: 'ACCEPT_TOURNAMENT',
+                            tournamentId: data.tournamentId,
+                        }),
+                    );
 
                     showToast(
                         ToastState.SUCCESS,
@@ -174,8 +184,14 @@ export default class WebSocketService {
                     );
                     ChatManager.getInstance().initializeChatSocket();
                     const chatManager = ChatManager.getInstance();
-                    const chatComponent = chatManager.openChat(data.tournamentId, data.tournamentName, '');
-                    chatComponent.addParticipantToChat(State.getState().getCurrentUser()?.id || '');
+                    const chatComponent = chatManager.openChat(
+                        data.tournamentId,
+                        data.tournamentName,
+                        '',
+                    );
+                    chatComponent.addParticipantToChat(
+                        State.getState().getCurrentUser()?.id || '',
+                    );
                     // if (window.location.pathname.includes('/tournament')) {
                     //     window.history.pushState({}, '', '/tournament');
                     //     window.dispatchEvent(new Event('popstate'));
@@ -227,7 +243,6 @@ export default class WebSocketService {
                             `/game?matchId=${data.matchId}`,
                         );
                     }
-                    
                 };
                 const rejectMatch = () => {
                     this.sendMessage(
@@ -252,7 +267,7 @@ export default class WebSocketService {
                 showToast(
                     ToastState.NOTIFICATION,
                     `Tournament Update: ${data.message}`,
-                    2000
+                    2000,
                 );
                 // Refresh tournament page if user is on it
                 if (window.location.pathname.includes('/tournament')) {
@@ -265,7 +280,9 @@ export default class WebSocketService {
                 if (data.test === 'removeChat') {
                     // remove chat from tournament page
                     const chatManager = ChatManager.getInstance();
-                    const chatComponent = chatManager.getChatComponent(data.tournamentId);
+                    const chatComponent = chatManager.getChatComponent(
+                        data.tournamentId,
+                    );
                     if (chatComponent) {
                         chatComponent.closeChat();
                     }

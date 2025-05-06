@@ -13,6 +13,13 @@ export type FriendAction = 'accept' | 'delete';
 export function friendRequestsRoutes(fastify: FastifyInstance) {
     fastify.register(twoFAuthCheck);
 
+    fastify.setErrorHandler(function (error, request, reply) {
+        this.log.error(error);
+        if (!error.statusCode || error.statusCode == 500)
+            reply.status(400).send({ error: 'Something went wrong.' });
+        else reply.status(error.statusCode).send({ error: error.message });
+    });
+
     fastify.get<{ Querystring: { status: string } }>(
         '/friends',
         async (request, reply) => {
