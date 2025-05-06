@@ -131,14 +131,19 @@ export default class GameComponent extends Component {
 		);
 
 		this.scene.meshes.filter(p => p.name.includes("wall")).
-			forEach(wall => (wall.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5));
+			forEach(wall => (wall.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5)); //color of the walls
 
 		const paddles = this.scene.meshes.filter(p => p.name.includes("paddle"));
+		paddles.forEach(p => (p.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(1, 1, 1)); // color of opponents
 
 		if (this.players == 2 && playerIndex && this.settings.guests.length >= 1)
 			playerIndex == 0 ? playerIndex = 1 : playerIndex = 0;
+		
 		const player = this.scene.meshes.find(p => p.name == "paddle" + playerIndex);
-		if (player) (player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(1, 0, 0);
+		if (player) {
+			(player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(42 / 255, 252 / 255, 233 / 255); //color of the user
+			// (player.material as BABYLON.StandardMaterial).emissiveColor = new BABYLON.Color3(42 / 255, 252 / 255, 233 / 255);
+		}
 
 		const balls = this.scene.meshes.filter(mesh => mesh.name.includes("ball"));
 		for (let i = 0; i < balls.length; i++) {
