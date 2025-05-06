@@ -16,8 +16,9 @@ export class Paddle {
 	name: string;
 	balls?: Ball[];
 	moving: boolean = false;
+	index: number;
 
-	constructor(box: BABYLON.Mesh, material: BABYLON.Material, reverse: boolean, scene: BABYLON.Scene) {
+	constructor(box: BABYLON.Mesh, material: BABYLON.Material, reverse: boolean, index: number, scene: BABYLON.Scene) {
 		this.box = box;
 		this.aggregate = new BABYLON.PhysicsAggregate(box, BABYLON.PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
 		this.aggregate.body.setMotionType(BABYLON.PhysicsMotionType.ANIMATED);
@@ -31,6 +32,7 @@ export class Paddle {
 		this.score = 0;
 		this.reverse = reverse;
 		this.name = "";
+		this.index = index;
 		if (reverse && this.startPos.x < 0) this.up.scaleInPlace(-1);
 	}
 
@@ -79,26 +81,21 @@ export class Paddle {
 
 	defend(): void {
 		if (this.player || !this.balls) return;
-		let closest;
+		let closest = this.balls[0];
 		let closestDistance = BABYLON.Vector3.Distance(this.box.position, this.balls[0].position);
 		for (let i = 0; i < this.balls.length; i++) {
 			const distance = BABYLON.Vector3.Distance(this.box.position, this.balls[i].position);
-			if (distance <= closestDistance
-				&& distance >  BABYLON.Vector3.Distance(this.box.position, 
-					this.balls[i].ball.position.clone().addInPlace(this.balls[i].aggregate.body.getLinearVelocity()))) {
+			if (distance <= closestDistance) {
 				closest = this.balls[i];
 				closestDistance = BABYLON.Vector3.Distance(this.box.position, closest.position);
 			}
 		}
-		if (closest) {
-			closestDistance = BABYLON.Vector3.Distance(this.box.position, closest.position);
-			if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().add(this.up), closest.position))
-				this.moveUp();
-			else if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up), closest.position)) 
-				this.moveDown();
-			else
-				this.stopMoving();
-		} else
+		closestDistance = BABYLON.Vector3.Distance(this.box.position, closest.position);
+		if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().add(this.up), closest.position))
+			this.moveUp();
+		else if (closestDistance > BABYLON.Vector3.Distance(this.box.position.clone().subtract(this.up), closest.position)) 
+			this.moveDown();
+		else
 			this.stopMoving();
 	}
 

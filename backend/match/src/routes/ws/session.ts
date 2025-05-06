@@ -142,7 +142,10 @@ export class GameSession {
 	public sendScene(client: WebSocket | undefined) {
 		if (!client) return;
 		const sceneString = JSON.stringify(BABYLON.SceneSerializer.Serialize(this.scene));
-		client?.send(JSON.stringify({type: 'scene', data: sceneString}));
+		let index;
+		for (let p of this.players.values())
+			if (p.ws === client) index = p.paddle?.index;
+		client?.send(JSON.stringify({type: 'scene', data: sceneString, index: index}));
 		this.sendPlayerList(client);
 	}
 
@@ -325,7 +328,7 @@ export class GameSession {
 				for (const ball of this.balls) ball.step();
 				this.scene.getPhysicsEngine()?._step(deltaTime);
 				for (const paddle of this.paddles) {
-					if (frameCount % (20 - 2 * this.settings.aiLevel!) == 0)
+					if (frameCount % ((20 - 2 * this.settings.aiLevel!) || 1) == 0)
 						paddle.defend();
 					paddle.checkBounds();
 				}

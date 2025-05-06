@@ -153,7 +153,7 @@ async function findTournamentWinner(tournamentId: string, app: FastifyInstance) 
 
 export async function proceedTournament(tournamentId: string, app: FastifyInstance) {
     const nextMatches = await findNextMatchesInTournament(tournamentId, app);
-    if (!nextMatches) {
+    if (nextMatches === null) {
         // tournament is finished
         // announce winner
         return;

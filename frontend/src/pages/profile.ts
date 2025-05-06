@@ -100,7 +100,7 @@ export default class ProfileComponent extends Component {
         return card;
     }
 
-    private createTabs(): HTMLElement {
+    private createTabs(parent: HTMLElement): HTMLElement {
         const tabsContainer = document.createElement('div');
         tabsContainer.className = 'flex gap-4 mb-6';
 
@@ -112,7 +112,7 @@ export default class ProfileComponent extends Component {
         tournamentsTab.textContent = 'Tournaments';
         tournamentsTab.onclick = () => {
             this.activeTab = 'tournaments';
-            this.render(this.element);
+            this.render(parent);
         };
 
         const matchesTab = document.createElement('button');
@@ -123,7 +123,7 @@ export default class ProfileComponent extends Component {
         matchesTab.textContent = 'Matches';
         matchesTab.onclick = () => {
             this.activeTab = 'matches';
-            this.render(this.element);
+            this.render(parent);
         };
 
         tabsContainer.append(tournamentsTab, matchesTab);
@@ -142,7 +142,7 @@ export default class ProfileComponent extends Component {
                 this.usersMap.set(participant.userId, userData.name);
             }
         }
-        const matchCard = new TournamentMatchCard(match, userMap, '');
+        const matchCard = new TournamentMatchCard(match, userMap, '', '');
         return matchCard;
     }
 
@@ -184,7 +184,7 @@ export default class ProfileComponent extends Component {
             contentSection.className = 'w-full max-w-4xl';
 
             // Add tabs
-            const tabs = this.createTabs();
+            const tabs = this.createTabs(parent);
 			tabs.className = 'flex justify-center items-center gap-4 mb-8';  // Add flex and center styles
 			contentSection.append(tabs);
 
