@@ -7,7 +7,7 @@ import State from '../services/state';
 import { endpoints } from '../services/send-request';
 import { showToast, ToastState } from '../components/Toast';
 import ChatManager from './ChatManager';
-
+import { getTournament } from '../services/match.request';
 
 import { createPreconfiguredGame } from '../services/match.request';
 
@@ -19,6 +19,7 @@ export default class ChatComponent extends Component {
     private socket: WebSocket | null = null;
     public blockButton: HTMLButtonElement;
     private groupChat: boolean = false;
+    private id: string = '';
 
     readonly element: HTMLElement;
 
@@ -35,7 +36,7 @@ export default class ChatComponent extends Component {
         this.chatWindow.style.display = 'block';
 
         this.element = this.chatWindow;
-        
+        this.id = chatRoomId;
         this.socket = ws;
 
         if (!friendId) {
@@ -131,7 +132,7 @@ export default class ChatComponent extends Component {
                 window.history.pushState(
                     {},
                     'View Tournament',
-                    '/tournament?tournamentId=' + this.chatRoomId,
+                    '/tournament?tournamentId=' + this.id,
                 );
             };
             buttonsContainer.append(viewProfileButton, this.closeButton);
@@ -233,7 +234,7 @@ export default class ChatComponent extends Component {
                     this.socket?.send(
                         JSON.stringify({
                             type: 'groupChatMessage',
-                            chatRoomId: this.chatRoomId,
+                            chatRoomId: this.id,
                             userId: this.friendId,
                             content: message,
                             name: myName,
@@ -260,7 +261,7 @@ export default class ChatComponent extends Component {
                     this.socket?.send(
                         JSON.stringify({
                             type: 'chatMessage',
-                            chatRoomId: this.chatRoomId,
+                            chatRoomId: this.id,
                             userId: this.friendId,
                             content: message,
                             name: myName,
@@ -292,7 +293,7 @@ export default class ChatComponent extends Component {
             this.socket?.send(
                 JSON.stringify({
                     type: 'chatHistory',
-                    chatRoomId: this.chatRoomId,
+                    chatRoomId: this.id,
                     userId: this.friendId,
                     senderId: State.getState().getCurrentUser()?.id,
                 }),
@@ -357,9 +358,53 @@ export default class ChatComponent extends Component {
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
     }
 
+    private async getUser(id: string) {
+        const userResponse = await sendRequest(
+            `/users/${id}`,
+            'GET',
+            null,
+            Services.AUTH,
+        );
+        return await userResponse.json();
+    }
+    
+    public async  showInfo(tournamentResults: string): Promise<void> {
+        try {
+            const tournamentData = await getTournament(this.id); // Fetch tournament data using the chat room ID
+            if (tournamentData) {
+                const infoElement = document.createElement('div');
+                infoElement.className = 'p-2 bg-gray-700 rounded break-words max-w-full flex flex items-start gap-2 text-green-400 hover:underline hover:bg-green-600';
+                
+                const user = await this.getUser(tournamentData.tournament.winner.winnerId);
+                infoElement.textContent = `Tournament Winner: ${user.name}`;
+                
+
+
+                // Create a clickable link for the tournament
+
+                infoElement.onclick = () => {
+                    window.history.pushState(
+                        {},
+                        'View Tournament',
+                        '/tournament?tournamentId=' + this.id,
+                    );
+                }
+
+    
+                // Append the info element to the chat messages container
+                this.chatMessages.appendChild(infoElement);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            } else {
+                console.error('Failed to fetch tournament data.');
+            }
+        } catch (error) {
+            console.error('Error fetching tournament data:', error);
+        }
+    }
+
     public closeChat(): void {
         this.chatWindow.remove(); // Remove the chat window from the DOM
-        ChatManager.getInstance().closeChat(this.chatRoomId); // Notify the ChatManager to remove the tab
+        ChatManager.getInstance().closeChat(this.id); // Notify the ChatManager to remove the tab
     }
 
     private async blockUser(): Promise<void> {
@@ -402,7 +447,7 @@ export default class ChatComponent extends Component {
                 this.socket?.send(
                     JSON.stringify({
                         type: 'addParticipant',
-                        chatRoomId: this.chatRoomId,
+                        chatRoomId: this.id,
                         userId: participantId,
                         content: "addParticipant",
                         name: myName,
@@ -433,7 +478,7 @@ export default class ChatComponent extends Component {
                 this.socket?.send(
                     JSON.stringify({
                         type: 'removeParticipant',
-                        chatRoomId: this.chatRoomId,
+                        chatRoomId: this.id,
                         userId: participantId,
                         content: "removeParticipant",
                         name: myName,
@@ -466,7 +511,7 @@ export default class ChatComponent extends Component {
             this.socket?.send(
                 JSON.stringify({
                     type: 'inviteToPlay',
-                    chatRoomId: this.chatRoomId,
+                    chatRoomId: this.id,
                     userId: this.friendId,
                     content: "Invite to play",
                     name: myName,
