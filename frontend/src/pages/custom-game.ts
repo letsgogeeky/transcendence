@@ -7,13 +7,14 @@ import State from '../services/state';
 export default class CustomGamePage extends Component {
     readonly element: HTMLElement;
     private customGamesList: HTMLElement;
-
+    private parent: HTMLElement;
     constructor() {
         super();
         this.element = document.createElement('div');
         this.element.className = 'container mx-auto px-4 py-8';
         this.customGamesList = document.createElement('div');
         this.customGamesList.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mt-8';
+        this.parent = this.element;
     }
 
     private async handleGameCreation(data: any) {
@@ -41,15 +42,10 @@ export default class CustomGamePage extends Component {
         }
     }
 
-    public async createCallback(response: Response): Promise<void> {
-        if (!response || !response.ok) {
-            showToast(ToastState.ERROR, 'Failed to create custom game');
-            return;
-        }
-        const result = await response.json();
-        showToast(ToastState.SUCCESS, `Custom game created successfully! Match ID: ${result.match.id}`);
-        // rerender the page
-        this.render(this.element);
+    public async createCallback(data: any): Promise<void> {
+        console.log(`result`, data);
+        showToast(ToastState.SUCCESS, `Custom game created successfully! Match ID: ${data.match.id}`);
+        this.render(this.parent);
     }
 
     private async loadCustomGames() {
@@ -88,9 +84,9 @@ export default class CustomGamePage extends Component {
         }
     }
 
-    public render(parent: HTMLElement | Component): void {
+    public render(parent: HTMLElement): void {
         this.element.innerHTML = '';
-
+        this.parent = parent;
         // Create header
         const header = document.createElement('h1');
         header.className = 'text-4xl font-bold text-white mb-8 text-center';

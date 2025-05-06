@@ -292,8 +292,8 @@ export default class WebSocketService {
             case 'TOURNAMENT_ENDED':
                 showToast(
                     ToastState.NOTIFICATION,
-                    `Tournament "${data.tournamentName}" has ended! ${data.message}`,
-                    5000,
+                    `Tournament "${data.tournament.name}" has ended! ${data.message}`,
+                    7000,
                 );
                 // Redirect to tournament results if on tournament page
                 if (window.location.pathname.includes('/tournament')) {

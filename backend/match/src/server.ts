@@ -11,6 +11,7 @@ import fastifyJwt from "@fastify/jwt";
 import fs from 'fs';
 import metrics from 'fastify-metrics';
 import { GameSession } from "./routes/ws/session.js";
+
 declare module '@fastify/jwt' {
     interface FastifyJWT {
         user: string;
@@ -78,6 +79,11 @@ const start = async () => {
         });
         await server.register(app, options);
         await server.listen({ port: server.config.MATCH_PORT, host: '0.0.0.0' });
+
+        // Set up periodic cleanup of stale matches every 5 seconds
+        setInterval(() => {
+            server.log.info('Cleaning up stale matches');
+        }, 5 * 1000); // 5 seconds
     } catch (err) {
         server.log.error(err);
         process.exit(1);

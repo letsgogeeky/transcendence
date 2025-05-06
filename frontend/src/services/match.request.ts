@@ -29,3 +29,7 @@ export async function deleteMatch(matchId: string) {
     const response = await sendRequest(`/queue/delete-match/${matchId}`, 'DELETE', {}, Services.MATCH);
     return response.ok;
 }
+
+export async function getMatch(matchId: string) {
+    return await sendRequest(`/queue/get-match/${matchId}`, 'GET', {}, Services.MATCH);
+}

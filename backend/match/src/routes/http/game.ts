@@ -293,4 +293,21 @@ export function gameHttpRoutes(app: FastifyInstance) {
             return reply.status(500).send({ error: 'Internal server error' });
         }
     });
+
+    app.get('/get-match/:matchId', async (request, reply) => {
+        const matchId = (request.params as { matchId: string }).matchId;
+        if (!matchId) {
+            return reply.status(400).send({ error: 'Match ID is required' });
+        }
+        const match = await app.prisma.match.findFirst({
+            where: { id: matchId },
+            include: {
+                participants: true,
+            },
+        });
+        if (!match) {
+            return reply.status(404).send({ error: 'Match not found' });
+        }
+        return reply.status(200).send({ message: 'Match', match });
+    });
 } 
