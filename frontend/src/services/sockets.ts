@@ -25,8 +25,6 @@ export default class WebSocketService {
         );
         const authToken = State.getState().getAuthToken();
         if (!authToken) return;
-        console.log(`Auth token: ${authToken}`);
-        console.log(`URL: ${this.url}`);
         this.socket = new WebSocket(this.url);
 
         this.socket.addEventListener('open', () => {
@@ -292,14 +290,34 @@ export default class WebSocketService {
             case 'TOURNAMENT_ENDED':
                 showToast(
                     ToastState.NOTIFICATION,
-                    `Tournament "${data.tournamentName}" has ended! ${data.message}`,
-                    5000,
+                    `Tournament "${data.tournament.name}" has ended! ${data.message}`,
+                    7000,
                 );
                 // Redirect to tournament results if on tournament page
                 if (window.location.pathname.includes('/tournament')) {
                     window.history.pushState({}, '', '/tournaments');
                     window.dispatchEvent(new Event('popstate'));
                 }
+
+                // ChatMessage to tournament chat
+                const chatManager = ChatManager.getInstance();
+                // open chat if not already open
+                const chatComponent = chatManager.getChatComponent(
+                    data.tournament.id,
+                );
+                if (!chatComponent) {
+                    chatManager.openChat(
+                        data.tournament.id,
+                        data.tournament.name,
+                        '',
+                    );
+                }
+
+                if (chatComponent) {
+                    
+                    chatComponent.showInfo("Tournament ended");
+                }
+
                 break;
 
             case 'TOURNAMENT_MATCH_START':

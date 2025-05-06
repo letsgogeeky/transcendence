@@ -99,6 +99,26 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
 			new Select(
+                'Gain Points (Score incements)',
+                'gainPoints',
+                [
+                    { value: 'true', text: 'Yes' },
+                    { value: 'false', text: 'No' }
+                ],
+                true,
+                ''
+            ),
+			new Select(
+                'Lose Points (Score decrements)',
+                'losePoints',
+                [
+                    { value: 'false', text: 'No' },
+                    { value: 'true', text: 'Yes' }
+                ],
+                true,
+                ''
+            ),
+			new Select(
                 'Kicker Mode (Mess with gravity and find out!)',
                 'kickerMode',
                 [

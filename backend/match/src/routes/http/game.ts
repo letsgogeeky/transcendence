@@ -254,6 +254,9 @@ export function gameHttpRoutes(app: FastifyInstance) {
 		if (settings.kickerMode && settings.kickerMode === true && (settings.players > 2 || (settings.aiPlayers && settings.aiPlayers + settings.players > 2))) {
 			return 'Cannot set kicker mode in a game with more than 2 total players and AIs';
 		}
+		if (!settings.losePoints && !settings.gainPoints) {
+			return 'Gain and Lose points cannot both be false!';
+		}
         return null;
     }
 
@@ -292,5 +295,22 @@ export function gameHttpRoutes(app: FastifyInstance) {
             console.error('Error creating custom game:', error);
             return reply.status(500).send({ error: 'Internal server error' });
         }
+    });
+
+    app.get('/get-match/:matchId', async (request, reply) => {
+        const matchId = (request.params as { matchId: string }).matchId;
+        if (!matchId) {
+            return reply.status(400).send({ error: 'Match ID is required' });
+        }
+        const match = await app.prisma.match.findFirst({
+            where: { id: matchId },
+            include: {
+                participants: true,
+            },
+        });
+        if (!match) {
+            return reply.status(404).send({ error: 'Match not found' });
+        }
+        return reply.status(200).send({ message: 'Match', match });
     });
 } 

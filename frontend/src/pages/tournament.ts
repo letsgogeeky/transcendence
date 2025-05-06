@@ -10,6 +10,7 @@ import { selectStyle } from "../styles/classes";
 import { showToast, ToastState } from "../components/Toast";
 import TournamentMatchCard from "../components/TournamentMatchCard";
 import ChatManager from '../components/ChatManager';
+import TournamentStats from '../components/TournamentStats';
 
 
 interface Match {
@@ -20,6 +21,41 @@ interface Match {
     }>;
     stats?: {
         [key: string]: number;
+    };
+    createdAt?: string;
+    gameType?: string;
+}
+
+interface ParticipantStats {
+    matchesWon: number;
+    totalScore: number;
+}
+
+interface TournamentWinner {
+    winnerId: string;
+    participantStats: {
+        [key: string]: ParticipantStats;
+    };
+}
+
+interface Tournament {
+    id: string;
+    name: string;
+    status: string;
+    adminId: string;
+    participants: Array<{
+        userId: string;
+        status: string;
+        createdAt?: string;
+    }>;
+    options: {
+        winCondition: string;
+        limit: number;
+    };
+    matches: Match[];
+    winner?: TournamentWinner;
+    participantStats?: {
+        [key: string]: ParticipantStats;
     };
 }
 
@@ -33,6 +69,8 @@ export default class TournamentComponent extends Component {
     private tournamentContainer: HTMLElement | null = null;
     private participantsSection: HTMLElement | null = null;
     private isRenderingParticipants = false;
+    public data: { tournament: Tournament } | null = null;
+    private userMap: Map<string, string> = new Map();
     constructor() {
         super();
         const container = document.createElement('div');
@@ -84,7 +122,7 @@ export default class TournamentComponent extends Component {
         window.history.pushState(
             {},
             'View Tournament',
-            '/tournament?tournamentId=' + this.data.tournament.id,
+            '/tournament?tournamentId=' + this.data?.tournament.id,
         );
     }
 
@@ -102,7 +140,7 @@ export default class TournamentComponent extends Component {
         if (!parent) return;
 
         const participantsList = await this.getUsers();
-        const addedParticipants = this.data.tournament.participants;
+        const addedParticipants = this.data?.tournament.participants;
         const filteredParticipants = participantsList.filter((user: any) => !addedParticipants.some((participant: any) => participant.userId === user.id));
         if (filteredParticipants.length === 0) {
             return;
@@ -112,7 +150,7 @@ export default class TournamentComponent extends Component {
         const form = new FormComponent(
             'Add Participant',
             [select],
-            (data) => this.addPlayer(this.data.tournament.id, data),
+            (data) => this.addPlayer(this.data?.tournament.id ?? '', data),
             this.addPlayerCallback.bind(this),
             'add-participant-form'
         );
@@ -202,18 +240,18 @@ export default class TournamentComponent extends Component {
             participantName.className = 'text-white text-lg font-medium';
             participantName.textContent = user.name;
 
-            if (this.data.tournament.adminId === State.getState().getCurrentUser()?.id) {
+            if (this.data?.tournament.adminId === State.getState().getCurrentUser()?.id) {
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
                 removeButton.onclick = async (evt) => {
                     evt.preventDefault();
-                    if (this.data.tournament.status === 'in progress') {
+                    if (this.data?.tournament.status === 'in progress') {
                         showToast(ToastState.ERROR, 'Cannot remove players from a tournament that is in progress');
                         return;
                     }
                     try {
-                        const response = await this.removePlayer(this.data.tournament.id, participant.userId);
+                        const response = await this.removePlayer(this.data?.tournament.id ?? '', participant.userId);
                         if (response.ok) {
                             await this.removePlayerCallback(response);
                         }
@@ -228,25 +266,25 @@ export default class TournamentComponent extends Component {
                 leaveButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
                 leaveButton.onclick = async (evt) => {
                     evt.preventDefault();
-                    if (this.data.tournament.status === 'in progress') {
+                    if (this.data?.tournament.status === 'in progress') {
                         showToast(ToastState.ERROR, 'Cannot leave a tournament that is in progress');
                         return;
                     }
                     if (confirm('Are you sure you want to leave this tournament?')) {
                         try {
-                            const response = await this.removePlayer(this.data.tournament.id, participant.userId);
+                            const response = await this.removePlayer(this.data?.tournament.id ?? '', participant.userId);
                             if (response.ok) {
                                 ChatManager.getInstance().initializeChatSocket();
                                 const chatManager = ChatManager.getInstance();
-                                const chatComponent = chatManager.openChat(this.data.tournament.id, this.data.tournament.name, '');
-                                chatManager.closeChat(this.data.tournament.id);
+                                const chatComponent = chatManager.openChat(this.data?.tournament.id ?? '', this.data?.tournament.name ?? '', '');
+                                chatManager.closeChat(this.data?.tournament.id ?? '');
                                 chatComponent.removeParticipantFromChat(State.getState().getCurrentUser()?.id || '');
 
                                 // test
                                 window.history.pushState(
                                     {},
                                     'View Tournament',
-                                    '/tournament?tournamentId=' + this.data.tournament.id,
+                                    '/tournament?tournamentId=' + this.data?.tournament.id,
                                 );
                                 
                                 // notyfy admin about tournament_update
@@ -409,7 +447,7 @@ export default class TournamentComponent extends Component {
 
                 if (this.data.tournament.matches && this.data.tournament.matches.length > 0) {
                     // Create an array of promises to fetch user data for all participants
-                    const userPromises = this.data.tournament.matches.flatMap((match: Match) =>
+                    const userPromises = this.data?.tournament.matches.flatMap((match: Match) =>
                         match.participants.map((participant: { userId: string }) =>
                             this.getUser(participant.userId)
                         )
@@ -418,20 +456,29 @@ export default class TournamentComponent extends Component {
                     // Wait for all user data to be fetched
                     Promise.all(userPromises).then((users: User[]) => {
                         const userMap = new Map(users.map(user => [user.id, user.name]));
-
-                        this.data.tournament.matches.forEach((match: Match) => {
-                            const matchCard = new TournamentMatchCard(match, userMap, this.data.tournament.id, this.data.tournament.adminId);
+                        // Add tournament results section if tournament is finished
+                        if (this.data?.tournament.status === 'finished' && this.data.tournament.winner) {
+                            const stats = document.createElement('div');
+                            const tournamentStats = new TournamentStats({
+                                winner: this.data.tournament.winner,
+                                userMap: userMap
+                            });
+                            tournamentStats.render(stats);
+                            rightSide.append(stats);
+                        }
+                        this.data?.tournament.matches.forEach((match: Match) => {
+                            const matchCard = new TournamentMatchCard(match, userMap, this.data?.tournament.id ?? '', this.data?.tournament.adminId ?? '');
                             matchCard.render(matchesList);
                         });
+                        rightSide.append(matchesList);
                     });
                 } else {
                     const noMatches = document.createElement('div');
                     noMatches.className = 'text-gray-400 text-center py-4';
                     noMatches.textContent = 'No matches have been created yet';
                     matchesList.append(noMatches);
+                    rightSide.append(matchesList);
                 }
-
-                rightSide.append(matchesList);
                 container.append(rightSide);
             }
 

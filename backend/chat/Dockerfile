@@ -13,4 +13,4 @@ RUN npm i  && \
     npx tsc
 
 
-CMD npm run dev
+CMD npm run start

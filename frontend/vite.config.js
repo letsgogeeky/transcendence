@@ -9,7 +9,7 @@ export default defineConfig({
         https: {
             key: fs.readFileSync('./localhost-key.pem'),
             cert: fs.readFileSync('./localhost-cert.pem'),
-        },
+        }
     },
     build: {
         outDir: 'dist', // Output directory for production build
