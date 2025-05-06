@@ -105,8 +105,10 @@ export default class GameComponent extends Component {
 			pointLight.diffuse = new BABYLON.Color3(1, 1, 1);
 			this.lights.push(pointLight);
 		}
-		this.lights[this.lights.length - 1].diffuse = new BABYLON.Color3(0, 0, 1);
-		this.lights[this.lights.length - 1].intensity = 1;
+		const playerColor = new BABYLON.Color3(0, 1, 1);
+
+		this.lights[this.lights.length - 1].diffuse = playerColor;
+		this.lights[this.lights.length - 1].intensity = 1.2;
 
 		this.players = this.settings.players + (this.settings.aiPlayers ?? 0);
 
@@ -141,7 +143,10 @@ export default class GameComponent extends Component {
 		if (this.players == 2 && playerIndex && this.settings.guests && this.settings.guests.length >= 1)
 			playerIndex == 0 ? playerIndex = 1 : playerIndex = 0;
 		const player = this.scene.meshes.find(p => p.name == "paddle" + playerIndex);
-		if (player) (player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(0, 0, 1);
+		if (player) {
+			(player.material as BABYLON.StandardMaterial).diffuseColor = playerColor;
+			(player.material as BABYLON.StandardMaterial).emissiveColor = playerColor;
+		} 
 
 		const balls = this.scene.meshes.filter(mesh => mesh.name.includes("ball"));
 		for (let i = 0; i < balls.length; i++) {
