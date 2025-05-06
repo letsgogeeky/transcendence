@@ -144,19 +144,25 @@ export function tournamentRoutes(app: FastifyInstance) {
         async (request, reply) => {
             // create a tournament
             const { name, options, participants } = request.body as TournamentPayload;
-            if (options.winCondition === 'score' && !options.limit) {
+            if (options.winCondition === 'score' && (!options.limit || options.limit < 1)) {
                 return reply.status(400).send({
-                    message: 'Win score is required for score-based tournaments',
+                    error: 'Win score is required for score-based tournaments',
                 });
             }
             if (options.winCondition === 'time' && !options.limit) {
                 return reply.status(400).send({
-                    message: 'Win time is required for time-based tournaments',
+                    error: 'Win time is required for time-based tournaments',
                 });
             }
             if (options.winCondition !== 'score' && options.winCondition !== 'time') {
                 return reply.status(400).send({
-                    message: 'Invalid win condition. Must be either "score" or "time"',
+                    error: 'Invalid win condition. Must be either "score" or "time"',
+                });
+            }
+
+            if (options.winCondition === 'time' && options.limit < 60 * 1000) {
+                return reply.status(400).send({
+                    error: 'Time must be at least 1 minute. Timo!',
                 });
             }
 

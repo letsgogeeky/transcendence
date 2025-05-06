@@ -21,7 +21,7 @@ export default class CreateTournamentComponent extends Component {
         this.element = document.createElement('div');
     }
     
-    static async createTournament(formData: any): Promise<Response> {
+    async createTournament(formData: any): Promise<Response> {
         const limit = formData.condition === 'score' ? formData.win_score_time : formData.win_score_time * 1000;
         const tournament = {
             name: formData.name,
@@ -34,7 +34,7 @@ export default class CreateTournamentComponent extends Component {
         return await sendRequest('/tournament', 'POST', tournament, Services.TOURNAMENTS, State.getState().getAuthToken());
     }
 
-    static async createTournamentCallback(data: any): Promise<void> {
+    async createTournamentCallback(data: any): Promise<void> {
         console.log('Create Tournament Callback', data);
         window.history.pushState({}, '', '/tournament?tournamentId=' + data.tournament.id);
         // create chat for the tournament
@@ -70,8 +70,8 @@ export default class CreateTournamentComponent extends Component {
         const form = new FormComponent(
             'Create',
             [tournamentNameInput, winConditionDropdown, winScoreOrTimeInput],
-            (data) => CreateTournamentComponent.createTournament(data),
-            CreateTournamentComponent.createTournamentCallback,
+            this.createTournament.bind(this),
+            this.createTournamentCallback.bind(this),
         );
         form.render(formContainer);
 		
