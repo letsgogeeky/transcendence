@@ -59,44 +59,48 @@ export default class HomeComponent extends Component {
 		this.element.innerHTML = '';
 		// Set the background image section
 		const backgroundImage = document.createElement('div');
-		backgroundImage.className = 'absolute top-1/2 left-0 right-0 transform -translate-y-1/2';  // Ensures it's centered vertically and left
+		backgroundImage.className = 'w-full flex justify-center mt-[-6rem]';
 
-		// adds the background transparent decorative stripes:
-		backgroundImage.appendChild(loadImage('background_elem.png', 'w-full h-[300px] object-cover', 'background styling element', 0.6));
+		const gifWrapper = document.createElement('div');
+		gifWrapper.className = 'fade-mask w-full max-w-[1000px] scale-[1.6] mx-auto';
+		const video = document.createElement('video');
+		video.src = 'assets/PONG.mp4'; // path to your video file
+		video.autoplay = true;
+		video.muted = true;
+		video.loop = true;
+		video.playsInline = true; // important for mobile
+		video.className = 'w-full h-auto object-contain';
+		
+		gifWrapper.appendChild(video);
+		backgroundImage.appendChild(gifWrapper);
+
 		this.element.appendChild(backgroundImage);
-
-		// adds the background gif 
-		this.element.appendChild(loadBackgroundGif());
-
-		// Logo and Button Wrapper
-		const contentContainer = document.createElement('div');
-		contentContainer.className = 'flex flex-col items-center';
-
-		// Logo section
-		const logoContainer = document.createElement('div');
-		logoContainer.className = 'flex justify-center items-center w-full mb-6'; // Adds spacing below the logo
-		logoContainer.appendChild(loadImage('PongJamLogo.png', 'w-full max-w-[450px] h-auto object-contain scale-[1.6]', 'Game Logo'));
 
 		// Buttons section
 		const buttonContainer = document.createElement('div');
-		buttonContainer.className = 'flex justify-center space-x-8 mt-16 relative z-10';
+		buttonContainer.className = `
+				absolute top-[65%] left-1/2 transform -translate-x-1/2
+				flex justify-center items-center space-x-8 z-10
+			`;
 
 		const loginLink = new LinkComponent('Log In', '/login');
-		loginLink.element.className = 'w-60 border-2 text-center border-white bg-white text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]';
+		// applyStyledAppearance(loginLink.element, '#d4cade');
+		loginLink.element.className = 'w-60 border-2 text-center border-white bg-[#a59daf] text-purple-900 text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#D1C4E9]';
 		loginLink.render(this.element);
 
 		const signupLink = new LinkComponent('Sign Up', '/register');
-		signupLink.element.className = 'w-60 border-2 text-center border-white text-white text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
+		// applyStyledAppearance(signupLink.element, '#d4cade');
+		signupLink.element.className = 'w-60 border-2 text-center border-white text-[#e9daf0] text-xl font-bold py-2 px-4 rounded-lg hover:bg-[#451f6b]';
 		signupLink.render(this.element);
 
 		// Append buttons to the container
 		buttonContainer.appendChild(loginLink.element);
 		buttonContainer.appendChild(signupLink.element);
 
-		contentContainer.append(logoContainer, buttonContainer);
+		// contentContainer.append(logoContainer, );
 
 		// Append everything to main element
-		this.element.append(contentContainer, copyrightLine());
+		this.element.append(buttonContainer, copyrightLine());
 	}
 
 	private async createPreconfiguredGame(mode: string) {

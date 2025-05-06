@@ -8,6 +8,7 @@
 
 html, body {
     height: 100%; /* Ensure full viewport height */
+    width: 100%; /* Ensure full viewport height */
     margin: 0;    /* Remove any default margin */
     padding: 0;   /* Remove any default padding */
 }
@@ -62,4 +63,17 @@ html, body {
         animation: fadeOut 0.5s ease-in forwards;
     }
 }
+
+.fade-mask {
+	-webkit-mask-image: 
+	  linear-gradient(to top, transparent, black 20%, black 80%, transparent),
+	  linear-gradient(to left, transparent, black 20%, black 80%, transparent);
+	-webkit-mask-composite: intersect;
+	mask-image: 
+	  linear-gradient(to top, transparent, black 20%, black 80%, transparent),
+	  linear-gradient(to left, transparent, black 20%, black 80%, transparent);
+	mask-composite: intersect;
+	mask-repeat: no-repeat;
+	mask-size: cover;
+  }
 
