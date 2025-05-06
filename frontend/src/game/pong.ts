@@ -96,13 +96,15 @@ export default class GameComponent extends Component {
 		light.intensity = 1.5;
 		this.scene.clearColor = new BABYLON.Color4(0, 0, 0.1, 1);
 
-		for (let i = 0; i < (this.settings.balls ?? 1); i++) {
+		for (let i = 0; i < (this.settings.balls ?? 1) + 1; i++) {
 			const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 0, 0), this.scene);
 			pointLight.intensity = 0.7;
 			pointLight.range = 10;
 			pointLight.diffuse = new BABYLON.Color3(1, 1, 1);
 			this.lights.push(pointLight);
 		}
+		this.lights[this.lights.length - 1].diffuse = new BABYLON.Color3(0, 0, 1);
+		this.lights[this.lights.length - 1].intensity = 1;
 
 		this.players = this.settings.players + (this.settings.aiPlayers ?? 0);
 
@@ -138,7 +140,7 @@ export default class GameComponent extends Component {
 		if (this.players == 2)
 			playerIndex == 0 ? playerIndex = 1 : playerIndex = 0;
 		const player = this.scene.meshes.find(p => p.name == "paddle" + playerIndex);
-		if (player) (player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(1, 0, 0);
+		if (player) (player.material as BABYLON.StandardMaterial).diffuseColor = new BABYLON.Color3(0, 0, 1);
 
 		const balls = this.scene.meshes.filter(mesh => mesh.name.includes("ball"));
 		for (let i = 0; i < balls.length; i++) {
@@ -268,6 +270,12 @@ export default class GameComponent extends Component {
 			for (let i = 0; i < balls.length; i++) {
 				this.lights[i].position.copyFrom(balls[i].position);
 				this.lights[i].position._z = -1;
+			}
+
+			const player = this.scene.meshes.find(p => p.name == "paddle" + playerIndex);
+			if (player) {
+				this.lights[this.lights.length - 1].position.copyFrom(player.position);
+				this.lights[this.lights.length - 1].position._z = -1;
 			}
 
 		}
