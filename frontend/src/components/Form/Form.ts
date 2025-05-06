@@ -45,9 +45,9 @@ export default class FormComponent extends Component {
             const formData = new FormData(this.element);
             const formValues = Object.fromEntries(formData.entries());
             // this.inputs.forEach((input) => input.disable());
-            this.submitButton.disable();
+            // this.submitButton.disable();
             if (this.submitCallback) await this.submitCallback(formValues);
-            this.submitButton.enable();
+            //this.submitButton.enable();
             // this.inputs.forEach((input) => input.enable());
         });
         this.inputs.forEach((input) => {
