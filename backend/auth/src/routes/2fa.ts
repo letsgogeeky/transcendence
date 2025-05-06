@@ -82,6 +82,13 @@ function generateSecret(): {
 export function otpRoutes(fastify: FastifyInstance) {
     fastify.register(credentialAuthCheck);
 
+    fastify.setErrorHandler(function (error, request, reply) {
+        this.log.error(error);
+        if (!error.statusCode || error.statusCode == 500)
+            reply.status(400).send({ error: 'Something went wrong.' });
+        else reply.status(error.statusCode).send({ error: error.message });
+    });
+
     fastify.post(
         '/otp/generate',
 
@@ -165,9 +172,7 @@ export function otpRoutes(fastify: FastifyInstance) {
             const delta = totp.validate({ token });
             console.log(`delta: ${delta}`);
             if (delta === null) {
-                return res.status(401).send({
-                    message,
-                });
+                return res.status(401).send({ error: message });
             }
             return successfulLogin(fastify, res, user, true);
         },

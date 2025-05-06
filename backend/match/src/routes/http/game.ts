@@ -99,12 +99,12 @@ export function gameHttpRoutes(app: FastifyInstance) {
             const settings = request.body as GameSettings;
 
             // Validate settings
-            if (settings.players < 1 || settings.players > 4) {
+            if (settings.players < 1 || settings.players + (settings.aiPlayers ?? 0) > 8) {
                 return reply.status(400).send({ error: 'Invalid number of players' });
             }
-            if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 3)) {
-                return reply.status(400).send({ error: 'Invalid number of AI players' });
-            }
+            // if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 300)) {
+            //     return reply.status(400).send({ error: 'Invalid number of AI players' });
+            // }
             if (settings.winScore && settings.winScore < 1) {
                 return reply.status(400).send({ error: 'Invalid win score' });
             }
@@ -218,19 +218,19 @@ export function gameHttpRoutes(app: FastifyInstance) {
 
     const isValidSettings = (settings: GameSettings) : string | null => {
          // Validate settings
-         if (settings.players < 1 || settings.players > 4) {
+         if (settings.players < 1 || settings.players + (settings.aiPlayers ?? 0) > 8) {
             return 'Invalid number of players';
         }
-        if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 3)) {
-            return 'Invalid number of AI players';
-        }
+        // if (settings.aiPlayers && (settings.aiPlayers < 0 || settings.aiPlayers > 300)) {
+        //     return 'Invalid number of AI players';
+        // }
         if (settings.timeLimit && settings.timeLimit < 60000) { // Minimum 1 minute
             return 'Invalid time limit';
         }
-        if (settings.balls && (settings.balls < 1 || settings.balls > 3)) {
+        if (settings.balls && (settings.balls < 1 || settings.balls > 10)) {
             return 'Invalid number of balls';
         }
-        if (settings.aiLevel && (settings.aiLevel < 1 || settings.aiLevel > 9)) {
+        if (settings.aiLevel && (settings.aiLevel < 1 || settings.aiLevel > 10)) {
             return 'Invalid AI level';
         }
         if (settings.winScore && settings.winScore < 1) {
@@ -292,5 +292,22 @@ export function gameHttpRoutes(app: FastifyInstance) {
             console.error('Error creating custom game:', error);
             return reply.status(500).send({ error: 'Internal server error' });
         }
+    });
+
+    app.get('/get-match/:matchId', async (request, reply) => {
+        const matchId = (request.params as { matchId: string }).matchId;
+        if (!matchId) {
+            return reply.status(400).send({ error: 'Match ID is required' });
+        }
+        const match = await app.prisma.match.findFirst({
+            where: { id: matchId },
+            include: {
+                participants: true,
+            },
+        });
+        if (!match) {
+            return reply.status(404).send({ error: 'Match not found' });
+        }
+        return reply.status(200).send({ message: 'Match', match });
     });
 } 

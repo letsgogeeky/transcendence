@@ -32,21 +32,21 @@ export async function successfulLogin(
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        path: '/',
+        path: '/auth/refresh',
         maxAge: 7 * 24 * 60 * 60, // 7 days
     });
     reply.setCookie('userId', user.id, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        path: '/',
+        path: '/auth/socket',
         maxAge: 7 * 24 * 60 * 60, // 7 days
     });
     reply.setCookie('userName', user.name, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        path: '/',
+        path: '/auth/socket',
         maxAge: 7 * 24 * 60 * 60, // 7 days
     });
     const newTimestamp = new Date().toISOString();
@@ -87,7 +87,7 @@ export function loginRoutes(fastify: FastifyInstance) {
                 error: error.message,
             });
         if (!error.statusCode)
-            reply.status(500).send({ error: 'Something went wrong' });
+            reply.status(400).send({ error: 'Something went wrong' });
         else
             reply.code(403).send({
                 error: 'Invalid username or password. Please check your credentials and try again.',
@@ -126,7 +126,7 @@ export function loginRoutes(fastify: FastifyInstance) {
             });
             if (!email || !user)
                 return reply.code(403).send({ error: 'Invalid google token' });
-            return successfulLogin(fastify, reply, user);
+            return successfulLogin(fastify, reply, user, !user.otpMethod);
         } catch {
             return reply.code(403).send({ error: 'Invalid google token' });
         }
@@ -138,10 +138,10 @@ export function loginRoutes(fastify: FastifyInstance) {
         return lastDigit + 1;
     }
 
-	function assignAvatarRandomly(): string {
-		const randomIndex = Math.floor(Math.random() * 10) + 1; // 1 to 10
-		return `assets/avatars/${randomIndex}.gif`;
-	}
+    function assignAvatarRandomly(): string {
+        const randomIndex = Math.floor(Math.random() * 10) + 1; // 1 to 10
+        return `assets/avatars/${randomIndex}.gif`;
+    }
 
     async function registerGoogleUser(email: string, name: string) {
         try {
@@ -191,7 +191,7 @@ export function loginRoutes(fastify: FastifyInstance) {
         reply.setCookie('access_token', token.access_token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'lax',
+            sameSite: 'none',
             path: '/auth/login/google/auth',
         });
         reply.redirect(`${fastify.config.FRONTEND}/login/google`);

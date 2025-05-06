@@ -44,11 +44,11 @@ export default class FormComponent extends Component {
             event.preventDefault();
             const formData = new FormData(this.element);
             const formValues = Object.fromEntries(formData.entries());
-            this.inputs.forEach((input) => input.disable());
-            this.submitButton.disable();
+            // this.inputs.forEach((input) => input.disable());
+            // this.submitButton.disable();
             if (this.submitCallback) await this.submitCallback(formValues);
-            this.submitButton.enable();
-            this.inputs.forEach((input) => input.enable());
+            //this.submitButton.enable();
+            // this.inputs.forEach((input) => input.enable());
         });
         this.inputs.forEach((input) => {
             input.render(this.element);
@@ -69,7 +69,8 @@ export default class FormComponent extends Component {
                     if (!response) return;
                     const responseBody = await response!.json();
                     if (!response!.ok) {
-                        throw new Error(`Error: ${responseBody.error}`);
+                        showToast(ToastState.ERROR, responseBody.error);
+                        return;
                     }
                     if (successCallback) await successCallback(responseBody);
                     showToast(ToastState.SUCCESS, "Success!");
