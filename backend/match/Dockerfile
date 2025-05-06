@@ -3,8 +3,7 @@ WORKDIR /app
 COPY package*.json .
 COPY . .
 RUN npm i  && \
-    npx prisma generate
-
-RUN npm run build
+	npx prisma generate  && \
+	npx tsc
 
 CMD npm run dev
