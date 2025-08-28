@@ -2,7 +2,7 @@
 
 # <p align="center">**ft_transcendence**</p>
 
-# <p align="center"> 🕹️ A realtime web-based pong game, _as our graduation project at [42](https://www.42network.org) 🎓_ </p>
+## <p align="center"> 🕹️ A realtime web-based pong game, _as our graduation project at [42](https://www.42network.org) 🎓_ </p>
 
 ### 👥 Team members & collaboration: 
 - 🛠️ [Ramy](https://github.com/letsgogeeky): Team & Project Management, Devops, containerization & overall infrastructure 
