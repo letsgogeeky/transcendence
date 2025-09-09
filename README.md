@@ -49,7 +49,7 @@ cd transcendence
 make up
 ```
 
-> 🏁 _And if everything boots correctly you should see this terminal output at the end:_
+> 🏁 _And if everything boots correctly the output should finish as follows:_
 ![makeup_succesful_output](readme_assets/makeup_success_output.png)
 
 ## 🚀 Usage
@@ -68,9 +68,10 @@ which should serve you the following main page:
 
 ### 🔑 The importance of the missing SECRETS in the .env file
 
-When you first first do `make up` you get some certificates generated (`server.crt`, `server.csr`, `server.key`) among with the following **`.env`** file:
+When you first first do `make up` this generates some certificates (`server.crt`, `server.csr`, `server.key`) and the following **`.env`** file:
 
 ![env_file](readme_assets/envfile.png)
+
 
 
 
