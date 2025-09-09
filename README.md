@@ -82,7 +82,7 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 - **Google App Password** (`GOOGLE_PASS`): You can generate from your Google Account → Security → App Passwords.
 - **Infobip SMS** (`INFOBIP_ID`, `INFOBIP_TOKEN`, `INFOBIP_SENDER`): You can obtain from your Infobip Dashboard. -->
 
-#### Explanation of the necessary Secrets & How they can be obtained:
+#### 🔎 Explanation of the necessary Secrets & How they can be obtained:
 
 | Secrets | Functionality | How to Obtain |
 |---------|----------------------------|---------------|
@@ -97,17 +97,9 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 ### 🧭 USER JOURNEY
 ![User Journey](readme_assets/user_journey_updated.png)
 
-### 🔍  Some additional available links in the platform:
-- `http://localhost:3001`: access to Grafana
-- `http://localhost:9090`: access to Prometheus
-- `http://localhost:9100/metrics`: node Exporter
-- `http://localhost:9113/metrics`:nginx Exporter 
-- `https://localhost/chat/docs`: chat API docs
-- `https://localhost/match/docs`: match API docs
+## 🛠️ Some more technical Info
 
-## 🛠️ Services Configuration
-
-For more detailed information regarding the infrastructure and core application services, check [here](./docs/SERVICES.md) 👈 🔍
+For more detailed information regarding the infrastructure and **core application services**, check [here](./docs/SERVICES.md) 👈 🔍
 
 ## 🙌 &nbsp;Acknowledgements
 
