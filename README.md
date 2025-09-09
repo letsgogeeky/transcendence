@@ -35,8 +35,13 @@ git clone https://github.com/letsgogeeky/transcendence
 ```bash
 cd transcendence
 ```
+<!-- [❕ _Make sure you have <img src="https://skillicons.dev/icons?i=docker" alt="Docker" height="12"> [*Docker*](https://www.docker.com) installed, so that you can move on to..._] -->
+
+<div align="center">
+
 [❕ _Make sure you have <img src="https://skillicons.dev/icons?i=docker" alt="Docker" height="12"> [*Docker*](https://www.docker.com) installed, so that you can move on to..._]
 
+</div>
 
 3. Boot everything up with the help of our magic [`Makefile`](Makefile):
 
@@ -44,11 +49,31 @@ cd transcendence
 make up
 ```
 
-4. Here I should explain the situation with the .env creation
+> 🏁 _And if everything boots correctly you should see this terminal output at the end:_
+![makeup_succesful_output](readme_assets/makeup_success_output.png)
 
 ## 🚀 Usage
 
-You can access the **main platform-website** from any browser of yours at: **`https://localhost`** — and from there on we'd like to believe the navigation is pretty straightforward! _(Check the components of the website more analytically above so that you know what to expect and look for. )_
+Now you can go to any broswer and access the website by simply typing:
+
+![broswer_image](readme_assets/localhost_broswer.png)
+
+which should serve you the following main page:
+
+![main_page_video](readme_assets/main_page.gif)
+
+❗️ At this point though, you would only be able to see the main pages _(Welcome, Log In & Sign Up pages)_ without being able to actually sign up & access the game.
+
+💁‍♀️ Let's clarify now **WHY**'s that and what you can do to fully browse the website... 💪
+
+### 🔑 The importance of the missing SECRETS in the .env file
+
+When you first first do `make up` you get some certificates generated (`server.crt`, `server.csr`, `server.key`) among with the following **`.env`** file:
+
+![env_file](readme_assets/envfile.png)
+
+
+
 
 ### ➕ Additional available links in the platform:
 - `http://localhost:3001`: access to Grafana
