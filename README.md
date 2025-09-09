@@ -66,6 +66,8 @@ which should serve you the following main page:
 
 💁‍♀️ Let's clarify now **WHY**'s that and what you can do to fully browse the website... 💪
 
+#
+
 ### 🔑 The importance of the missing SECRETS in the .env file
 
 When you first do `make up` this generates some certificates (`server.crt`, `server.csr`, `server.key`) and the following **`.env`** file:
@@ -73,6 +75,7 @@ When you first do `make up` this generates some certificates (`server.crt`, `ser
 ![env_file](readme_assets/envfile.png)
 
 This `.env file` is considered _"enough"_ for the containers to boot up and the frontend to be accessed at https://localhost. ❗️ However, it uses <span style="color:#9667F0;">placeholder values</span> (_the ones in the purple boxes above_) like `your-secret-key-here`, which means <span style="color:#F54570;">the core functionality (registration, login, SMS, Google OAuth, etc) will not work until they are replaced with **real credentials**.</span> ❗️❗️
+
 
 <!-- - **Secrets** (`SECRET`, `COOKIE_SECRET`, `REFRESH_SECRET`): You can generate your own with `openssl rand -hex 32`.
 - **Google OAuth** (`GOOGLE_ID`, `GOOGLE_SECRET`): You can obtain from Google Cloud Console.
@@ -92,7 +95,7 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 ✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉 (_as shown in the [Main Components of the project](https://github.com/MaryKateEvan/transcendence?tab=readme-ov-file#-main-components-of-the-project) section above_).
 
 ### 🧭 USER JOURNEY
-![User Journey](docs/user-journey.png)
+![User Journey](readme_assets/user_journey_updated.png)
 
 ### 🔍  Some additional available links in the platform:
 - `http://localhost:3001`: access to Grafana
@@ -102,4 +105,9 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 - `https://localhost/chat/docs`: chat API docs
 - `https://localhost/match/docs`: match API docs
 
+## 🛠️ Services Configuration
+
+For more detailed information regarding the infrastructure and core application services, check [here](./docs/SERVICES.md) 👈 🔍
+
 ## 🙌 &nbsp;Acknowledgements
+
