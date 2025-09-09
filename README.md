@@ -99,7 +99,7 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 
 ## 🛠️ Some more technical Info
 
-For more detailed information regarding the infrastructure and **core application services**, check [here](./docs/SERVICES.md) 👈 🔍
+For more detailed information regarding the infrastructure and **core application services**, check [here](./infra) 👈 🔍
 
 ## 🙌 &nbsp;Acknowledgements
 
