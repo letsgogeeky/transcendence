@@ -68,28 +68,38 @@ which should serve you the following main page:
 
 ### 🔑 The importance of the missing SECRETS in the .env file
 
-When you first first do `make up` this generates some certificates (`server.crt`, `server.csr`, `server.key`) and the following **`.env`** file:
+When you first do `make up` this generates some certificates (`server.crt`, `server.csr`, `server.key`) and the following **`.env`** file:
 
 ![env_file](readme_assets/envfile.png)
 
+This `.env file` is considered _"enough"_ for the containers to boot up and the frontend to be accessed at https://localhost. ❗️ However, it uses <span style="color:#9667F0;">placeholder values</span> (_the ones in the purple boxes above_) like `your-secret-key-here`, which means <span style="color:#F54570;">the core functionality (registration, login, SMS, Google OAuth, etc) will not work until they are replaced with **real credentials**.</span> ❗️❗️
 
+<!-- - **Secrets** (`SECRET`, `COOKIE_SECRET`, `REFRESH_SECRET`): You can generate your own with `openssl rand -hex 32`.
+- **Google OAuth** (`GOOGLE_ID`, `GOOGLE_SECRET`): You can obtain from Google Cloud Console.
+- **Google App Password** (`GOOGLE_PASS`): You can generate from your Google Account → Security → App Passwords.
+- **Infobip SMS** (`INFOBIP_ID`, `INFOBIP_TOKEN`, `INFOBIP_SENDER`): You can obtain from your Infobip Dashboard. -->
 
+#### Explanation of the necessary Secrets & How they can be obtained:
 
+| Secrets | Functionality | How to Obtain |
+|---------|----------------------------|---------------|
+| SECRET, <br>COOKIE_SECRET, <br>REFRESH_SECRET | Are used to generate and verify JWTs or **session cookies**. Without real values, authentication tokens will either fail to generate or won’t validate. | You can generate your own with `openssl rand -hex 32`. |
+| GOOGLE_PASS, <br>GOOGLE_ID, <br>GOOGLE_SECRET | Are required if the platform supports Google OAuth. Without them, **Google login** won’t work at all. | GOOGLE_ID, GOOGLE_SECRET: Obtain from Google Cloud Console.<br>GOOGLE_PASS: Generate from your Google Account → Security → App Passwords. |
+| INFOBIP_ID, <br>INFOBIP_TOKEN, <br>INFOBIP_SENDER | Are for SMS verification (or similar). Without them, **phone-based 2FA** or notifications won’t work. | You can obtain from your Infobip Dashboard. |
 
-### ➕ Additional available links in the platform:
+<br>
+
+✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉 (_as shown in the [Main Components of the project](https://github.com/MaryKateEvan/transcendence?tab=readme-ov-file#-main-components-of-the-project) section above_).
+
+### 🧭 USER JOURNEY
+![User Journey](docs/user-journey.png)
+
+### 🔍  Some additional available links in the platform:
 - `http://localhost:3001`: access to Grafana
 - `http://localhost:9090`: access to Prometheus
 - `http://localhost:9100/metrics`: node Exporter
 - `http://localhost:9113/metrics`:nginx Exporter 
 - `https://localhost/chat/docs`: chat API docs
 - `https://localhost/match/docs`: match API docs
-
-### 🔍 More specific **Makefile commands** available:
-- `make down`: stops the platform
-- `make restart`: restarts the platform
-- `make logs`: shows the docker logs
-- `make generate-certs`: generates the necessary certificates
-- `make clean`: stops the platform and removes the containers
-
 
 ## 🙌 &nbsp;Acknowledgements
