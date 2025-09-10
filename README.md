@@ -27,6 +27,7 @@ In simpler words: imagine gathering with friends, entering your nicknames, and p
 
 ## 👀 Preview:
 
+https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 
 ## 🎯 Main Components of the project:
 
@@ -101,10 +102,15 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 
 <br>
 
-✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉 (_as shown in the [Main Components of the project](https://github.com/MaryKateEvan/transcendence?tab=readme-ov-file#-main-components-of-the-project) section above_).
+✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉 
 
-### 🧭 USER JOURNEY
-![User Journey](readme_assets/user_journey_updated.png)
+<!-- ### 🧭 USER JOURNEY
+![User Journey](readme_assets/user_journey_updated.png) -->
+
+Let's explore now the different pages and functionality of the Website:
+
+### User Registration
+
 
 ## 🛠️ Some more technical Info
 
