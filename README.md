@@ -29,7 +29,32 @@ In simpler words: imagine gathering with friends, entering your nicknames, and p
 
 https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 
-## 🎯 Main Components of the project:
+## 🎯 Main Components
+
+### 👤 User Management
+- Sign in with alias or Google account
+- 2FA & JWT ensure secure access
+<!-- ![user_registration](assets/gifs/user_registration.gif) -->
+
+### 🏓 Game & 3D Interface
+- Play live Pong against friends or AI
+- Tournament system organizes matches
+- 3D visuals with BabylonJS
+<!-- ![gameplay_demo](assets/gifs/gameplay_demo.gif) -->
+
+### 💬 Live Chat
+- Chat with other players during matches
+<!-- ![live_chat](assets/gifs/live_chat.gif) -->
+
+### ⚙️ Backend & Microservices
+- Auth, Match, and Chat services
+- Handles matchmaking & live game state
+<!-- ![backend_diagram](assets/images/backend_overview.png) -->
+
+### 📊 Monitoring & Infrastructure
+- Prometheus + Grafana metrics
+- Nginx routing
+<!-- ![monitoring](assets/gifs/monitoring.gif) -->
 
 
 ## ⚙️ Installation
@@ -109,12 +134,91 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 
 Let's explore now the different pages and functionality of the Website:
 
-### User Registration
+<!-- ### User Registration
 
 
 ## 🛠️ Some more technical Info
 
-For more detailed information regarding the infrastructure and **core application services**, check [here](./docs/SERVICES.md) 👈 🔍
+For more detailed information regarding the infrastructure and **core application services**, check [here](./docs/SERVICES.md) 👈 🔍 -->
+
+## 🛠️ Services Configuration
+
+<details>
+  <summary>👈 Expand here to view more detailed information regarding the configuration of the core application services & infrastructure  🔍</summary>
+
+  ### 🎯 Core Application Services
+
+  #### 1. Auth Service
+  - **Location**: `./backend/auth`
+  - **Port**: 8081
+  - **Protocol**: HTTP
+  - **Database**: SQLite at `/app/db/auth.db`
+
+  #### 2. Match Service
+  - **Location**: `./backend/match`
+  - **Port**: 8082
+  - **Protocol**: HTTP
+  - **Database**: SQLite at `/app/db/match.db`
+  - 🔍 **API docs** at: `https://localhost/match/docs`
+
+  #### 3. Chat Service
+  - **Location**: `./backend/chat`
+  - **Port**: 8083
+  - **Protocol**: HTTP
+  - **Database**: SQLite at `/app/db/chat.db`
+  - 🔍 **API docs** at: `https://localhost/chat/docs`
+
+  #### 4. Frontend Service
+  - **Location**: `./frontend`
+  - **Port**: 3000
+  - **Protocol**: HTTP
+
+  ### ⚙️ Infrastructure Services
+
+  #### 1. Nginx
+  - **Location**: `./infra/nginx`
+  - **Ports**:
+  - 80 (HTTP)
+  - 443 (HTTPS)
+  - **Protocol**: HTTP/HTTPS
+
+  #### 2. Nginx Exporter
+  - **Image**: `nginx/nginx-prometheus-exporter`
+  - **Port**: 9113
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:9113/metrics`
+
+  #### 3. Node Exporter
+  - **Image**: `prom/node-exporter`
+  - **Port**: 9100
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:9100/metrics`
+
+  #### 4. Prometheus
+  - **Image**: `prom/prometheus`
+  - **Port**: 9090
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:9090`
+
+  #### 5. Grafana
+  - **Image**: `grafana/grafana`
+  - **Port**: 3001
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:3001`
+
+  ### 🛜 Network Configuration
+  All services are connected through a bridge network named `app-network`
+
+  ### 💾 Volume Mounts
+  Common volumes shared across services:
+  - `./certs` (SSL certificates)
+  - `./uploads` (file storage)
+  - `./db` (database files)
+
+  Each service has its own source code mounted from its respective directory
+
+</details>
+
 
 ## 🙌 &nbsp;Acknowledgements
 
