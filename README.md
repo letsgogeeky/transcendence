@@ -32,25 +32,70 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 ## 🎯 Main Components
 
 ### 👤 User Management
-- Sign in with alias or Google account
-- 2FA & JWT ensure secure access
-<!-- ![user_registration](assets/gifs/user_registration.gif) -->
 
-### 🏓 Game & 3D Interface
-- Play live Pong against friends or AI
-- Tournament system organizes matches
-- 3D visuals with BabylonJS
-<!-- ![gameplay_demo](assets/gifs/gameplay_demo.gif) -->
+#### 🔐 Registration & Log In
+![registration](readme_assets/registration.gif)
+&nbsp;&nbsp;✔️ User can register with **email and password**, and then <br>
+&nbsp;&nbsp;✔️ Log in with these credentials, or<br>
+&nbsp;&nbsp;✔️ ***Log in with Google***, or<br>
+&nbsp;&nbsp;✔️ **Recover account** through email if password forgotten.<br>
+&nbsp;&nbsp;✔️ **Log out** whenever they wish to.
 
+#### ⚙️ User Settings
+![user_settings](readme_assets/user_settings.gif)
+&nbsp;&nbsp;✔️ User can update their **profile picture**<br>
+&nbsp;&nbsp;✔️ **Change username**<br>
+&nbsp;&nbsp;✔️ **Change Password**<br>
+&nbsp;&nbsp;✔️ Activate ***2-Factor Authentication***:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• either with **email code**, or <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• **authenticator app** with QRcode.
+
+#### 👤 Profile Information & 📊 Statistics
+![user_profile](readme_assets/profile.gif)
+&nbsp;&nbsp;✔️ User can see their **history of matches** and **tournaments** in their profile.
+
+#### 🤝 Friends Management & 🔎 User Search
+- User can search for other users
+- User can view other users' profile information
+- User can send friend requests to other users
+- User can accept or reject friend requests
+- User can unfriend other users
+
+#### 🎯 Matchmaking System
+- User can create a match
+- User can join a match
+- User can leave a match
+- User can view other users' match history
+- User can view other users' match stats
+- User can view other users' match achievements
+
+#
+
+### 🏓 THE GAME
+- User can see in real-time the game and the other players
+- User can chat with other players
+- User can see the game stats (score, etc..)
+- User can leave the game at any time
+- User can play in different modes (1v1, 2v2, 3v3, etc..)
+- Opponents can be:
+	* Other player on the same device using different keyboard keys
+	* AI (pre-defined level of difficulty)
+	* Other players on different devices (using the same keyboard keys)
+
+#### 🏆 TOURNAMENTS
+
+#
 ### 💬 Live Chat
 - Chat with other players during matches
 <!-- ![live_chat](assets/gifs/live_chat.gif) -->
 
+#
 ### ⚙️ Backend & Microservices
 - Auth, Match, and Chat services
 - Handles matchmaking & live game state
 <!-- ![backend_diagram](assets/images/backend_overview.png) -->
 
+#
 ### 📊 Monitoring & Infrastructure
 - Prometheus + Grafana metrics
 - Nginx routing
@@ -219,6 +264,35 @@ For more detailed information regarding the infrastructure and **core applicatio
 
 </details>
 
+## 🧠 Additional Info for 42 Students:
+
+### 📘 Subject Modules We Chose:
+
+- Major module: Use a framework to build the backend. (fastify)
+- Minor module: Use a framework or toolkit to build the front-end. (TailwindCSS)
+- Minor module: Use a database for the backend -and more. (SQLite)
+- Major module: Standard user management, authentication and users across tournaments. (Auth)
+- Major module: Implement remote authentication. (Google Auth)
+- Major module: Remote players (socket.io) To be tested.
+- Major module: Multiple players (socket.io, multiple clients) To be tested.
+- Major module: Live Chat. (socket.io) To be tested. and continue feature-set required
+- Major module: Implement Two-Factor Authentication (2FA) and JWT. (Auth + SQLite + fastify-jwt)
+- Minor module: Monitoring system. (Prometheus, Grafana, Node Exporter, Nginx Exporter)
+- Major module: Designing the Backend as Microservices. (Auth, Match, Chat)
+- Major module: Implementing Advanced 3D Techniques. (BabylonJS)
+
+Count of Major modules: 9 Count of Minor modules: 3
+
+Total: 10.5
+
+### 🧾 Decision Records — 💡 Advice From Our Experience
+
+✔️ Use the new subject **Fastify** is a good lightweight and flexible framework.
+
+✔️ **Backend as Microservices**. We have a good opportunity to build each backend component independently since we're using SQLite. (User Management, Match Making System, Real-time server for gaming, live chat, etc..) each one of these components can be built independently.
 
 ## 🙌 &nbsp;Acknowledgements
 
+## 📜 License
+
+This project is released under the [MIT License](https://github.com/MaryKateEvan/transcendence?tab=License-1-ov-file). Contributions are welcome!
