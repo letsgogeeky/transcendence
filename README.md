@@ -40,7 +40,7 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 &nbsp;&nbsp;✔️ ***Log in with Google***, or<br>
 &nbsp;&nbsp;✔️ **Recover account** through email if password forgotten.<br>
 &nbsp;&nbsp;✔️ **Log out** whenever they wish to.
-
+#
 #### ⚙️ User Settings
 ![user_settings](readme_assets/user_settings.gif)
 &nbsp;&nbsp;✔️ User can update their **profile picture**<br>
@@ -49,18 +49,18 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 &nbsp;&nbsp;✔️ Activate ***2-Factor Authentication***:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• either with **email code**, or <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• **authenticator app** with QRcode.
-
+#
 #### 👤 Profile Information & 📊 Statistics
 ![user_profile](readme_assets/profile.gif)
 &nbsp;&nbsp;✔️ User can see their **history of matches** and **tournaments** in their profile.
-
+#
 #### 🤝 Friends Management & 🔎 User Search
 - User can search for other users
 - User can view other users' profile information
 - User can send friend requests to other users
 - User can accept or reject friend requests
 - User can unfriend other users
-
+#
 #### 🎯 Matchmaking System
 - User can create a match
 - User can join a match
