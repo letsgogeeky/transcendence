@@ -40,13 +40,20 @@ export default class UserGridComponent extends Component {
 
         // Avatar container with status
         const avatarContainer = document.createElement('div');
-        avatarContainer.className = 'relative mb-4';
+        // avatarContainer.className = 'relative mb-4';
+		avatarContainer.className = 'relative mb-4 flex justify-center items-center';
 
-        const avatar = new AvatarImage(
-            user.name,
-            user.avatarUrl!,
-            `/profile?userId=${user.id}`,
-        );
+        // const avatar = new AvatarImage(
+        //     user.name,
+        //     user.avatarUrl!,
+        //     `/profile?userId=${user.id}`,
+        // );
+		const avatar = new AvatarImage(
+			user.name,
+			user.avatarUrl!,
+			`/profile?userId=${user.id}`,
+			'w-20 h-20 rounded-full object-cover border-4 border-gray-700 shadow-md overflow-hidden'
+		);
         avatar.element.className = 'w-20 h-20 rounded-full object-cover border-4 border-gray-700 shadow-md overflow-hidden';
         if (this.showOnlineStatus) {
             const statusPill = createStatusPill(user.isOnline ? 'online' : 'offline');

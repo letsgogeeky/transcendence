@@ -16,8 +16,10 @@ export default class AvatarImageComponent extends Component {
 
         const avatar = document.createElement('img');
         avatar.alt = label;
+        // avatar.className = className || 'w-32 h-32 rounded-full object-cover';
         avatar.className = className || 'w-32 h-32 rounded-full object-cover';
-        avatar.src = this.url;
+		this.element.className = 'relative'; // optional container styling
+		avatar.src = this.url;
 
         if (href) {
             avatar.style.cursor = 'pointer';
