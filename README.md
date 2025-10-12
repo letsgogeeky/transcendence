@@ -55,7 +55,7 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 &nbsp;&nbsp;✔️ User can see their **history of matches** and **tournaments** in their profile.
 #
 #### 🤝 Friends Management & 🔎 User Search
-![user_search](readme_assets/users_search.gif)
+![user_search](readme_assets/search_users.gif)
 &nbsp;&nbsp;✔️ User can **search** for other users, <br>
 &nbsp;&nbsp;✔️ view other users' **profile information** <br>
 &nbsp;&nbsp;✔️ send ***friend request*** to other users <br>
