@@ -55,11 +55,14 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 &nbsp;&nbsp;✔️ User can see their **history of matches** and **tournaments** in their profile.
 #
 #### 🤝 Friends Management & 🔎 User Search
-- User can search for other users
-- User can view other users' profile information
-- User can send friend requests to other users
-- User can accept or reject friend requests
-- User can unfriend other users
+![user_search](readme_assets/users_search.gif)
+&nbsp;&nbsp;✔️ User can **search** for other users, <br>
+&nbsp;&nbsp;✔️ view other users' **profile information** <br>
+&nbsp;&nbsp;✔️ send ***friend request*** to other users <br>
+&nbsp;&nbsp;✔️ **cancel** a friend request <br>
+&nbsp;&nbsp;✔️ **accept** or **reject friend requests** <br>
+&nbsp;&nbsp;✔️ **unfriend** other users <br>
+&nbsp;&nbsp;✔️ see if their friends are ***online*** or ***offline*** <br>
 #
 #### 🎯 Matchmaking System
 - User can create a match
