@@ -167,7 +167,7 @@ export default class UsersPageComponent extends Component {
             [
                 {
                     callback: this.declineRequest,
-                    label: 'Unfriend',
+                    label: '💔 Unfriend',
                 },
                 {
                     callback: (friendData: any) => {
@@ -180,29 +180,29 @@ export default class UsersPageComponent extends Component {
         );
 
         this.pendingReceived = new UserGridComponent(
-            'Pending',
+            '⏳ Pending Received Requests ',
             pendingReceivedReq.map((rel: any) => rel.user),
             pendingReceivedReq,
             [
                 {
                     callback: this.acceptRequest,
-                    label: 'Confirm',
+                    label: '✓ Confirm',
                 },
                 {
                     callback: this.declineRequest,
-                    label: 'Decline',
+                    label: '❌ Decline',
                 },
             ],
         );
 
         this.pendingSent = new UserGridComponent(
-            'Pending',
+            '⌛️ Pending Requests Sent',
             pendingSentReq.map((rel: any) => rel.user),
             pendingSentReq,
             [
                 {
                     callback: this.declineRequest,
-                    label: 'Cancel',
+                    label: '🛑 Cancel',
                 },
 				{
                     callback: (friendData: any) => {
@@ -214,13 +214,13 @@ export default class UsersPageComponent extends Component {
         );
 
         this.strangers = new UserGridComponent(
-            'People you might know',
+            '👥 People you might know',
             strangerUsers.map((rel: any) => rel.user),
             strangerUsers,
             [
                 {
                     callback: this.sendFriendRequest,
-                    label: 'Add Friend',
+                    label: '➕ Add Friend',
                 },
                 {
                     callback: (friendData: any) => {
@@ -336,7 +336,7 @@ export default class UsersPageComponent extends Component {
         // Create search input
         const searchInput = document.createElement('input');
         searchInput.type = 'text';
-        searchInput.placeholder = 'Search users...';
+        searchInput.placeholder = '🔎 Search users...';
         searchInput.className = 'w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors';
 
         // Add input event listener for real-time filtering
