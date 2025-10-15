@@ -34,43 +34,83 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 ### 👤 User Management
 
 #### 🔐 Registration & Log In
-![registration](readme_assets/registration.gif)
-&nbsp;&nbsp;✔️ User can register with **email and password**, and then <br>
-&nbsp;&nbsp;✔️ Log in with these credentials, or<br>
-&nbsp;&nbsp;✔️ ***Log in with Google***, or<br>
-&nbsp;&nbsp;✔️ **Recover account** through email if password forgotten.<br>
-&nbsp;&nbsp;✔️ **Log out** whenever they wish to.
-#
+<table>
+  <tr valign="top">
+    <td>
+      <img src="readme_assets/registration.gif" width="500" alt="Registration demo" />
+    </td>
+    <td>
+        <br>
+		<i>User can</i> 💁‍♀️ :<br>
+        ✔️ register with <strong>email & password</strong><br>
+        ✔️ Log in with credentials<br>
+        ✔️ <strong>Log in with Google</strong><br>
+        ✔️ <strong>Recover account</strong> if password lost<br>
+        ✔️ <strong>Log out</strong> whenever they wish to<br>
+    </td>
+  </tr>
+</table>
+
+<!-- the approach with the table -->
+<!-- #### 🔐 Registration & Log In:
+| | |
+|---|---|
+| <img src="readme_assets/registration.gif" width="500"/> | ✔️ User can register with **email and password**, and then <br>✔️ Log in with these credentials, or<br>✔️ ***Log in with Google***, or<br>✔️ **Recover account** through email if password forgotten.<br>✔️ **Log out** whenever they wish to.| -->
+
 #### ⚙️ User Settings
-![user_settings](readme_assets/user_settings.gif)
-&nbsp;&nbsp;✔️ User can update their **profile picture**<br>
-&nbsp;&nbsp;✔️ **Change username**<br>
-&nbsp;&nbsp;✔️ **Change Password**<br>
-&nbsp;&nbsp;✔️ Activate ***2-Factor Authentication***:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• either with **email code**, or <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• **authenticator app** with QRcode.
-#
+<table>
+  <tr valign="top">
+    <td>
+      <img src="readme_assets/user_settings.gif" width="500" alt="Registration demo" />
+    </td>
+    <td>
+        <br>
+		<i>User can</i> 💁‍♀️ :<br>
+        ✔️ Update their <strong>profile picture</strong><br>
+        ✔️ <strong>Change username</strong><br>
+        ✔️ <strong>Change password</strong><br>
+        ✔️ Activate <strong>2-Factor Authentication</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• either with <strong>email code</strong>, or<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• <strong>authenticator app</strong> with QRcode<br>
+    </td>
+  </tr>
+</table>
+
 #### 👤 Profile Information & 📊 Statistics
-![user_profile](readme_assets/profile.gif)
-&nbsp;&nbsp;✔️ User can see their **history of matches** and **tournaments** in their profile.
-#
+<table>
+  <tr valign="top">
+    <td>
+      <img src="readme_assets/profile.gif" width="500" alt="Registration demo" />
+    </td>
+    <td>
+        <br>
+		<i>User can</i> 💁‍♀️ :<br>
+        ✔️ See their <strong>history of matches & tournaments</strong>, in their profile<br>
+    </td>
+  </tr>
+</table>
+
+
 #### 🤝 Friends Management & 🔎 User Search
-![user_search](readme_assets/search_users.gif)
-&nbsp;&nbsp;✔️ User can **search** for other users, <br>
-&nbsp;&nbsp;✔️ view other users' **profile information** <br>
-&nbsp;&nbsp;✔️ send ***friend request*** to other users <br>
-&nbsp;&nbsp;✔️ **cancel** a friend request <br>
-&nbsp;&nbsp;✔️ **accept** or **reject friend requests** <br>
-&nbsp;&nbsp;✔️ **unfriend** other users <br>
-&nbsp;&nbsp;✔️ see if their friends are ***online*** or ***offline*** <br>
-#
-#### 🎯 Matchmaking System
-- User can create a match
-- User can join a match
-- User can leave a match
-- User can view other users' match history
-- User can view other users' match stats
-- User can view other users' match achievements
+<table>
+  <tr valign="top">
+    <td>
+      <img src="readme_assets/search_users.gif" width="500" alt="User Search demo" />
+    </td>
+    <td>
+        <br>
+		<i>Users can</i> 💁‍♀️ :<br>
+        ✔️ <strong>Search</strong> for other users<br>
+        ✔️ View other users' <strong>profile information</strong><br>
+        ✔️ Send <strong>friend requests</strong><br>
+        ✔️ <strong>Accept </strong> or <strong>reject</strong> friend requests<br>
+        ✔️ <strong>Unfriend</strong> other users<br>
+        ✔️ see if their friends are <strong>Online</strong> or <strong>Offline</strong> <br>
+    </td>
+  </tr>
+</table>
+
+
 
 #
 
@@ -84,6 +124,14 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 	* Other player on the same device using different keyboard keys
 	* AI (pre-defined level of difficulty)
 	* Other players on different devices (using the same keyboard keys)
+
+#### 🎯 Matchmaking System
+- User can create a match
+- User can join a match
+- User can leave a match
+- User can view other users' match history
+- User can view other users' match stats
+- User can view other users' match achievements
 
 #### 🏆 TOURNAMENTS
 
