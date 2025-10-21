@@ -44,7 +44,7 @@ export default class TournamentsComponent extends Component {
 		createTournLink.render(this.element);
 
 		const title = document.createElement('h1');
-		title.textContent = 'Tournaments';
+		title.textContent = '🏆 Tournaments';
 		title.className = 'text-sm font-semibold text-white';  // Title styling
 	
 		this.element.appendChild(createTournLink.element);
@@ -311,7 +311,7 @@ export default class TournamentsComponent extends Component {
 			createTournLink.render(this.element);
 
 			const title = document.createElement('h1');
-			title.textContent = 'Tournaments';
+			title.textContent = '🏆 Tournaments';
 			// title.className = 'text-sm font-semibold text-white';  // Title styling
             title.className = 'text-3xl font-bold mb-8 text-white';
 		
