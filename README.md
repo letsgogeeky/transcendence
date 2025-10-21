@@ -110,24 +110,20 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a 
   </tr>
 </table>
 
-
-
 #
 
 ### 🏓 THE GAME
 
-Can be as simple as:
+💁‍♀️ Can be as simple as:
 
 https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
-Or, as complicated as:
-![extreme_game](readme_assets/extreme_game.gif)
+🤯 Or, as complicated as:
 
+https://github.com/user-attachments/assets/23fd0bd5-f082-4f41-97c2-b0e5289a9908
 
-#### CHARACTERISTICS OF THE GAME (Custom game shown)
+#### 🖌️ Customization of the game
 
-- User can see in real-time the game and the other players
-- User can chat with other players
 - User can see the game stats (score, etc..)
 - User can leave the game at any time
 - User can play in different modes (1v1, 2v2, 3v3, etc..)
@@ -136,7 +132,7 @@ Or, as complicated as:
 	* AI (pre-defined level of difficulty)
 	* Other players on different devices (using the same keyboard keys)
 
-
+#
 #### 🏆 TOURNAMENTS
 
 #
