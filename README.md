@@ -116,7 +116,8 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a 
 
 ### 🏓 THE GAME
 
-Can be as simple as:<br>
+Can be as simple as:
+
 https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
 Or, as complicated as:
