@@ -25,9 +25,9 @@ In simpler words: imagine gathering with friends, entering your nicknames, and p
 
 #
 
-## 👀 Preview:
+<!-- ## 👀 Preview:
 
-https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
+https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a -->
 
 ## 🎯 Main Components
 
@@ -116,9 +116,8 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 
 ### 🏓 THE GAME
 
-Can be as simple as:
-![simple_game](readme_assets/simple_game.gif)
-![simple_game](readme_assets/faster2.gif)
+Can be as simple as:<br>
+https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
 Or, as complicated as:
 ![extreme_game](readme_assets/extreme_game.gif)
