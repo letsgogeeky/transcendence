@@ -155,7 +155,18 @@ Using this Custom Game panel, users can _fine-tune nearly every gameplay aspect_
 #
 #### 3️⃣ TOURNAMENTS 🏆
 
+![tournaments](./readme_assets/tournaments.gif)
+
+The **Tournaments** module enables users to _create, configure, and manage competitive matches_:
+- 🏗️ **Creation**: Define the tournament name and choose the victory condition (time-based or score-based).
+- 👑 **Administration**: The creator acts as the admin, managing invitations and controlling the tournament’s start.
+- ⚔️ **Gameplay**: Each player faces all other participants in one-on-one matches. The player with the ***highest cumulative score*** across all matches wins.
+- 📋 **Overview**: The Tournaments page provides filters to view:
+	* all existing tournaments,
+	* those the user participates in, or
+	* those managed by the user.
 #
+
 ### 💬 Live Chat
 - Chat with other players during matches
 <!-- ![live_chat](assets/gifs/live_chat.gif) -->
