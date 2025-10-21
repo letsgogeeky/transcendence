@@ -122,7 +122,22 @@ https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
 https://github.com/user-attachments/assets/23fd0bd5-f082-4f41-97c2-b0e5289a9908
 
-#### 🖌️ Customization of the game
+#### 🚀 Ready-to-Play Games
+
+When the user first enters the platform, they see the following **Main Page**, where they can choose one of following _predefined games_:
+
+![ready-to-play](./readme_assets/Ready-to-Play%20Games.gif)
+
+- ⌨️ **1 vs 1 (same keyboard)** – Two players share the same device: one uses the **W A S D** keys, the other uses the **arrow keys**.
+- 🤖 **Against AI** – Play a solo **1 vs 1** match against the AI. The game starts at **Level 1**, and each victory unlocks the next, more challenging level.
+- 👥 **2 Players (Online)** – Join the matchmaking queue to play a 1 vs 1 match with another player online.
+- 👥👥 **4 Players (Online)** – Enter the 4-player queue; once three other players join, the game starts automatically.
+
+
+#### 🖌️ Game Customization 
+
+Else, they can select the Button "***Custom Game***" from the Main Page aboveꜛ and customize their game by setting the following features:
+
 
 - User can see the game stats (score, etc..)
 - User can leave the game at any time
