@@ -9,7 +9,7 @@ export default class GameSettingsForm extends FormComponent {
     ) {
         const inputs = [
             new Input(
-                'Number of Players',
+                '👨‍💻 Number of Physical Players',
                 'number',
                 'players',
                 true,
@@ -18,7 +18,7 @@ export default class GameSettingsForm extends FormComponent {
                 true
             ),
             new Input(
-                'Number of AI Players',
+                '🤖 Number of AI Players',
                 'number',
                 'aiPlayers',
                 false,
@@ -27,7 +27,7 @@ export default class GameSettingsForm extends FormComponent {
                 true
             ),
             new Select(
-                'AI Difficulty Level',
+                '📈 AI Difficulty Level',
                 'aiLevel',
                 [
                     { value: '1', text: 'Very Easy' },
@@ -40,7 +40,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
             new Input(
-                'Time Limit (seconds)',
+                '⏱️ Time Limit (seconds)',
                 'number',
                 'timeLimit',
                 false,
@@ -49,7 +49,7 @@ export default class GameSettingsForm extends FormComponent {
                 true
             ),
             new Input(
-                'Win Score',
+                '🔢 Win Score',
                 'number',
                 'winScore',
                 false,
@@ -58,7 +58,7 @@ export default class GameSettingsForm extends FormComponent {
                 true
             ),
             new Input(
-                'Starting Score',
+                '🏁 Starting Score',
                 'number',
                 'startScore',
                 false,
@@ -67,7 +67,7 @@ export default class GameSettingsForm extends FormComponent {
                 true
             ),
             new Select(
-                'Replace Disconnected Players',
+                '🔄 Replace Disconnected Players',
                 'replaceDisconnected',
                 [
                     { value: 'false', text: 'No' },
@@ -77,7 +77,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
             new Select(
-                'Terminate Players at Zero Score',
+                '🔴 Terminate Players at Zero Score',
                 'terminatePlayers',
                 [
                     { value: 'false', text: 'No' },
@@ -87,7 +87,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
             new Select(
-                'Obstacle Mode',
+                '📦 Obstacle Mode',
                 'obstacleMode',
                 [
                     { value: '0', text: 'No Obstacles' },
@@ -99,7 +99,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
 			new Select(
-                'Gain Points (Score incements)',
+                '↗️ Gain Points (Score increments)',
                 'gainPoints',
                 [
                     { value: 'true', text: 'Yes' },
@@ -109,7 +109,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
 			new Select(
-                'Lose Points (Score decrements)',
+                '↘️ Lose Points (Score decrements)',
                 'losePoints',
                 [
                     { value: 'false', text: 'No' },
@@ -119,7 +119,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
 			new Select(
-                'Kicker Mode (Mess with gravity and find out!)',
+                '☄️ Kicker Mode (Mess with gravity and find out!)',
                 'kickerMode',
                 [
                     { value: 'false', text: 'No' },
@@ -129,7 +129,7 @@ export default class GameSettingsForm extends FormComponent {
                 ''
             ),
             new Input(
-                'Number of Balls',
+                '🎾 Number of Balls',
                 'number',
                 'balls',
                 false,
