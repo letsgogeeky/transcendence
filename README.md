@@ -168,8 +168,10 @@ The **Tournaments** module enables users to _create, configure, and manage compe
 #
 
 ### 💬 Live Chat
-- Chat with other players during matches
-<!-- ![live_chat](assets/gifs/live_chat.gif) -->
+
+https://github.com/user-attachments/assets/b44479aa-015d-42f2-a5a4-8ac006729a97
+
+![live_chat](./readme_assets/chatpreview.gif)
 
 #
 ### ⚙️ Backend & Microservices
