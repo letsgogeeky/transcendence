@@ -122,9 +122,9 @@ https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
 https://github.com/user-attachments/assets/23fd0bd5-f082-4f41-97c2-b0e5289a9908
 
-#### 🚀 Ready-to-Play Games
+#### 1️⃣ Ready-to-Play Games
 
-When the user first enters the platform, they see the following **Main Page**, where they can choose one of following _predefined games_:
+When the user first enters the platform, they are welcomed by the **Main Page**, where they can choose from the following _predefined game modes_ to **play directly**:
 
 ![ready-to-play](./readme_assets/Ready-to-Play%20Games.gif)
 
@@ -133,10 +133,10 @@ When the user first enters the platform, they see the following **Main Page**, w
 - 👥 **2 Players (Online)** – Join the matchmaking queue to play a 1 vs 1 match with another player online.
 - 👥👥 **4 Players (Online)** – Enter the 4-player queue; once three other players join, the game starts automatically.
 
+#### 2️⃣ Custom Games 
 
-#### 🖌️ Game Customization 
+Alternatively, they can click the ***Custom Game*** button on the Main Page (see aboveꜛ) to create a personalized match by adjusting the available game settings:
 
-Else, they can select the Button "***Custom Game***" from the Main Page aboveꜛ and customize their game by setting the following features:
 
 
 - User can see the game stats (score, etc..)
