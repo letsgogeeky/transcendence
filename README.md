@@ -122,6 +122,7 @@ https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
 https://github.com/user-attachments/assets/23fd0bd5-f082-4f41-97c2-b0e5289a9908
 
+#
 #### 1️⃣ Ready-to-Play Games 🎮
 
 When the user first enters the platform, they are welcomed by the **Main Page**, where they can choose from the following _predefined game modes_ to **play directly**:
@@ -133,13 +134,25 @@ When the user first enters the platform, they are welcomed by the **Main Page**,
 - 👥 **2 Players (Online)** – Join the matchmaking queue to play a 1 vs 1 match with another player online.
 - 👥👥 **4 Players (Online)** – Enter the 4-player queue; once three other players join, the game starts automatically.
 
+#
 #### 2️⃣ Custom Games 🖌️
 
 Alternatively, they can click the ***Custom Game*** button on the Main Page (see aboveꜛ) to create a personalized match by adjusting the available game settings:
 
 ![custom_game_settings](./readme_assets/custom_game_settings.png)
 
+Using this Custom Game panel, users can _fine-tune nearly every gameplay aspect_:
+- ⚙️ **Players**: Choose the number of physical and AI players.
+- 🧠 **AI Difficulty**: Adjust from easy to hard for progressive challenge.
+- 🕒 **Game Rules**: Set a **time or score limit** to end the match.
+- 🧱 **Environment**: Enable **obstacle mode** for extra dynamics.
+- ⚡ **Gameplay Options**: Decide whether players can lose points, get replaced by AI if disconnected, or be removed at zero score.
+- 🌍 **Physics**: Activate _Kicker Mode_ to apply gravity-based movement to the ball.<br>
 
+💡 With all these combinations, users can create ***hundreds of unique matches***—from quick duels to chaotic multi-ball battles.
+
+
+#
 #### 3️⃣ TOURNAMENTS 🏆
 
 #
