@@ -122,7 +122,7 @@ https://github.com/user-attachments/assets/60552130-2f5f-4b2e-a972-eac6212412eb
 
 https://github.com/user-attachments/assets/23fd0bd5-f082-4f41-97c2-b0e5289a9908
 
-#### 1️⃣ Ready-to-Play Games
+#### 1️⃣ Ready-to-Play Games 🎮
 
 When the user first enters the platform, they are welcomed by the **Main Page**, where they can choose from the following _predefined game modes_ to **play directly**:
 
@@ -133,22 +133,14 @@ When the user first enters the platform, they are welcomed by the **Main Page**,
 - 👥 **2 Players (Online)** – Join the matchmaking queue to play a 1 vs 1 match with another player online.
 - 👥👥 **4 Players (Online)** – Enter the 4-player queue; once three other players join, the game starts automatically.
 
-#### 2️⃣ Custom Games 
+#### 2️⃣ Custom Games 🖌️
 
 Alternatively, they can click the ***Custom Game*** button on the Main Page (see aboveꜛ) to create a personalized match by adjusting the available game settings:
 
+![custom_game_settings](./readme_assets/custom_game_settings.png)
 
 
-- User can see the game stats (score, etc..)
-- User can leave the game at any time
-- User can play in different modes (1v1, 2v2, 3v3, etc..)
-- Opponents can be:
-	* Other player on the same device using different keyboard keys
-	* AI (pre-defined level of difficulty)
-	* Other players on different devices (using the same keyboard keys)
-
-#
-#### 🏆 TOURNAMENTS
+#### 3️⃣ TOURNAMENTS 🏆
 
 #
 ### 💬 Live Chat
