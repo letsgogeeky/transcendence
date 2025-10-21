@@ -115,6 +115,17 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 #
 
 ### 🏓 THE GAME
+
+Can be as simple as:
+![simple_game](readme_assets/simple_game.gif)
+![simple_game](readme_assets/faster2.gif)
+
+Or, as complicated as:
+![extreme_game](readme_assets/extreme_game.gif)
+
+
+#### CHARACTERISTICS OF THE GAME (Custom game shown)
+
 - User can see in real-time the game and the other players
 - User can chat with other players
 - User can see the game stats (score, etc..)
@@ -125,13 +136,6 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 	* AI (pre-defined level of difficulty)
 	* Other players on different devices (using the same keyboard keys)
 
-#### 🎯 Matchmaking System
-- User can create a match
-- User can join a match
-- User can leave a match
-- User can view other users' match history
-- User can view other users' match stats
-- User can view other users' match achievements
 
 #### 🏆 TOURNAMENTS
 
@@ -152,6 +156,7 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a
 - Nginx routing
 <!-- ![monitoring](assets/gifs/monitoring.gif) -->
 
+#
 
 ## ⚙️ Installation
 
