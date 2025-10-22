@@ -341,7 +341,7 @@ export default class TournamentComponent extends Component {
             error.render(this.element);
         } else {
             const container = document.createElement('div');
-            container.className = 'flex flex-col md:flex-row gap-8 w-full max-w-7xl mx-auto p-8';
+            container.className = 'flex flex-col md:flex-row gap-8 w-full max-w-3xl mx-auto p-8';
 
             // Left side - Tournament info and participants
             const leftSide = document.createElement('div');
