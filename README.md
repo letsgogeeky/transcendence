@@ -8,7 +8,7 @@
 - 🛠️ [Ramy](https://github.com/letsgogeeky): Team & Project Management, Devops, containerization & overall infrastructure 
 - 🔐 [Bori](https://github.com/pisakbori): User Management, authentication (2FA & remote), database & microservices for the backend
 - 🎮 [Alex](https://github.com/aoprea42): Game component with 3D graphics & AI opponent
-- 🎨 [Mary Kate](https://github.com/MaryKateEvan): front-end and overall design across the website
+- 🎨 [Mary Kate](https://github.com/bitsbyMK): front-end and overall design across the website
 - 💬 [Timo](https://github.com/TimoKillinger): live-chat component (tournament & private chat)
 
 #
@@ -170,21 +170,114 @@ The **Tournaments** module enables users to _create, configure, and manage compe
 ### 💬 Live Chat
 
 <!-- https://github.com/user-attachments/assets/b44479aa-015d-42f2-a5a4-8ac006729a97 -->
+
 ![live_chat](./readme_assets/chatpreview.gif)
 
+Our platform features a dynamic chat system supporting both **private conversations** 🤝 and **tournament-wide discussions** 🏆.
+
+- **Private Chats** 💌
+	* Send direct messages between users.
+	* View the recipient’s profile directly from the chat window 👤.
+	* Block or unblock other users 🚫.
+	* **Invite directly to a 1v1 game** 🎮 — challenge your friend instantly without leaving the chat!
+- **Tournament Chats** 🗨️
+	* All tournament participants can communicate in a shared chat room.
+	* Navigate directly to the tournament page from within the chat 🏓.
+	* View the profiles of other participants easily 👥.<br>
+
+Each chat box can be **minimized to the bottom-right corner** 🔽 or **expanded again anytime** ↩️, allowing you to stay connected while continuing your game.
+
 
 
 #
-### ⚙️ Backend & Microservices
-- Auth, Match, and Chat services
-- Handles matchmaking & live game state
-<!-- ![backend_diagram](assets/images/backend_overview.png) -->
+### 🛠️ Backend & Monitoring system 
 
-#
-### 📊 Monitoring & Infrastructure
-- Prometheus + Grafana metrics
-- Nginx routing
-<!-- ![monitoring](assets/gifs/monitoring.gif) -->
+🔩 Our backend follows a ***microservices architecture***, separating the main application logic into smaller, independent services — **Auth**, **Match**, and **Chat**.<br>
+This design allows each service to be **developed, tested, deployed, and scaled independently**, improving maintainability and fault isolation.
+Using **SQLite** for each microservice provides lightweight persistence with minimal setup overhead, making it ideal for containerized environments and local development.
+
+📊 🧐 For **monitoring and observability**, we integrated a complete stack with ***Prometheus, Grafana, Node Exporter***, and ***Nginx Exporter***.
+- Prometheus collects real-time metrics from all services, 
+- Grafana visualizes them through interactive dashboards, and 
+- the exporters ensure both system-level and Nginx-specific performance data are continuously available.<br>
+
+This setup gives us a _clear view of system health, traffic, and resource usage_ — helping detect issues early and ensure smooth operation.
+
+<details>
+  <summary>👈 Expand here to see detailed information about the configuration of the core application services & infrastructure 🔍 </summary>
+
+  #### 🎯 Core Application Services
+
+  ##### 1. Auth Service
+  - **Location**: `./backend/auth`
+  - **Port**: 8081
+  - **Protocol**: HTTP
+  - **Database**: SQLite at `/app/db/auth.db`
+
+  ##### 2. Match Service
+  - **Location**: `./backend/match`
+  - **Port**: 8082
+  - **Protocol**: HTTP
+  - **Database**: SQLite at `/app/db/match.db`
+  - 🔍 **API docs** at: `https://localhost/match/docs`
+
+  ##### 3. Chat Service
+  - **Location**: `./backend/chat`
+  - **Port**: 8083
+  - **Protocol**: HTTP
+  - **Database**: SQLite at `/app/db/chat.db`
+  - 🔍 **API docs** at: `https://localhost/chat/docs`
+
+  ##### 4. Frontend Service
+  - **Location**: `./frontend`
+  - **Port**: 3000
+  - **Protocol**: HTTP
+
+  #### ⚙️ Infrastructure Services
+
+  ##### 1. Nginx
+  - **Location**: `./infra/nginx`
+  - **Ports**:
+  - 80 (HTTP)
+  - 443 (HTTPS)
+  - **Protocol**: HTTP/HTTPS
+
+  ##### 2. Nginx Exporter
+  - **Image**: `nginx/nginx-prometheus-exporter`
+  - **Port**: 9113
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:9113/metrics`
+
+  ##### 3. Node Exporter
+  - **Image**: `prom/node-exporter`
+  - **Port**: 9100
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:9100/metrics`
+
+  ##### 4. Prometheus
+  - **Image**: `prom/prometheus`
+  - **Port**: 9090
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:9090`
+
+  ##### 5. Grafana
+  - **Image**: `grafana/grafana`
+  - **Port**: 3001
+  - **Protocol**: HTTP
+  - 🔍 **Access**: `http://localhost:3001`
+
+  #### 🛜 Network Configuration
+  All services are connected through a bridge network named `app-network`
+
+  #### 💾 Volume Mounts
+  Common volumes shared across services:
+  - `./certs` (SSL certificates)
+  - `./uploads` (file storage)
+  - `./db` (database files)
+
+  Each service has its own source code mounted from its respective directory
+
+</details>
 
 #
 
@@ -258,127 +351,28 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 
 <br>
 
-✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉 
+✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉, as shown in the [Main Components](https://github.com/bitsbyMK/transcendence?tab=readme-ov-file#-main-components) above.
 
-<!-- ### 🧭 USER JOURNEY
-![User Journey](readme_assets/user_journey_updated.png) -->
+## 📘 Subject Modules
+This project contains the following modules from the _New Subject_:
 
-Let's explore now the different pages and functionality of the Website:
+- Major module: Use a framework to build the backend. (**fastify**)
+- Minor module: Use a framework or toolkit to build the front-end. (**TailwindCSS**)
+- Minor module: Use a database for the backend -and more. (**SQLite**)
+- Major module: Standard user management, authentication and users across tournaments. (**Auth**)
+- Major module: Implement remote authentication. (**Google Auth**)
+- Major module: **Remote players** (socket.io)
+- Major module: **Multiple players** (socket.io, multiple clients)
+- Major module: **Live Chat**. (socket.io)
+- Major module: Implement **Two-Factor Authentication** (2FA) and **JWT**. (Auth + SQLite + fastify-jwt)
+- Minor module: Monitoring system. (**Prometheus, Grafana, Node Exporter, Nginx Exporter**)
+- Major module: Designing the **Backend as Microservices**. (Auth, Match, Chat)
+- Major module: Implementing Advanced **3D Techniques**. (BabylonJS)
 
-<!-- ### User Registration
-
-
-## 🛠️ Some more technical Info
-
-For more detailed information regarding the infrastructure and **core application services**, check [here](./docs/SERVICES.md) 👈 🔍 -->
-
-## 🛠️ Services Configuration
-
-<details>
-  <summary>👈 Expand here to view more detailed information regarding the configuration of the core application services & infrastructure  🔍</summary>
-
-  ### 🎯 Core Application Services
-
-  #### 1. Auth Service
-  - **Location**: `./backend/auth`
-  - **Port**: 8081
-  - **Protocol**: HTTP
-  - **Database**: SQLite at `/app/db/auth.db`
-
-  #### 2. Match Service
-  - **Location**: `./backend/match`
-  - **Port**: 8082
-  - **Protocol**: HTTP
-  - **Database**: SQLite at `/app/db/match.db`
-  - 🔍 **API docs** at: `https://localhost/match/docs`
-
-  #### 3. Chat Service
-  - **Location**: `./backend/chat`
-  - **Port**: 8083
-  - **Protocol**: HTTP
-  - **Database**: SQLite at `/app/db/chat.db`
-  - 🔍 **API docs** at: `https://localhost/chat/docs`
-
-  #### 4. Frontend Service
-  - **Location**: `./frontend`
-  - **Port**: 3000
-  - **Protocol**: HTTP
-
-  ### ⚙️ Infrastructure Services
-
-  #### 1. Nginx
-  - **Location**: `./infra/nginx`
-  - **Ports**:
-  - 80 (HTTP)
-  - 443 (HTTPS)
-  - **Protocol**: HTTP/HTTPS
-
-  #### 2. Nginx Exporter
-  - **Image**: `nginx/nginx-prometheus-exporter`
-  - **Port**: 9113
-  - **Protocol**: HTTP
-  - 🔍 **Access**: `http://localhost:9113/metrics`
-
-  #### 3. Node Exporter
-  - **Image**: `prom/node-exporter`
-  - **Port**: 9100
-  - **Protocol**: HTTP
-  - 🔍 **Access**: `http://localhost:9100/metrics`
-
-  #### 4. Prometheus
-  - **Image**: `prom/prometheus`
-  - **Port**: 9090
-  - **Protocol**: HTTP
-  - 🔍 **Access**: `http://localhost:9090`
-
-  #### 5. Grafana
-  - **Image**: `grafana/grafana`
-  - **Port**: 3001
-  - **Protocol**: HTTP
-  - 🔍 **Access**: `http://localhost:3001`
-
-  ### 🛜 Network Configuration
-  All services are connected through a bridge network named `app-network`
-
-  ### 💾 Volume Mounts
-  Common volumes shared across services:
-  - `./certs` (SSL certificates)
-  - `./uploads` (file storage)
-  - `./db` (database files)
-
-  Each service has its own source code mounted from its respective directory
-
-</details>
-
-## 🧠 Additional Info for 42 Students:
-
-### 📘 Subject Modules We Chose:
-
-- Major module: Use a framework to build the backend. (fastify)
-- Minor module: Use a framework or toolkit to build the front-end. (TailwindCSS)
-- Minor module: Use a database for the backend -and more. (SQLite)
-- Major module: Standard user management, authentication and users across tournaments. (Auth)
-- Major module: Implement remote authentication. (Google Auth)
-- Major module: Remote players (socket.io) To be tested.
-- Major module: Multiple players (socket.io, multiple clients) To be tested.
-- Major module: Live Chat. (socket.io) To be tested. and continue feature-set required
-- Major module: Implement Two-Factor Authentication (2FA) and JWT. (Auth + SQLite + fastify-jwt)
-- Minor module: Monitoring system. (Prometheus, Grafana, Node Exporter, Nginx Exporter)
-- Major module: Designing the Backend as Microservices. (Auth, Match, Chat)
-- Major module: Implementing Advanced 3D Techniques. (BabylonJS)
-
-Count of Major modules: 9 Count of Minor modules: 3
-
-Total: 10.5
-
-### 🧾 Decision Records — 💡 Advice From Our Experience
-
-✔️ Use the new subject **Fastify** is a good lightweight and flexible framework.
-
-✔️ **Backend as Microservices**. We have a good opportunity to build each backend component independently since we're using SQLite. (User Management, Match Making System, Real-time server for gaming, live chat, etc..) each one of these components can be built independently.
-
-## 🙌 &nbsp;Acknowledgements
+Count of Major modules: 9 <br>
+Count of Minor modules: 3<br>
+Total: 10.5<br>
 
 ## 📜 License
 
-This project is released under the [MIT License](https://github.com/MaryKateEvan/transcendence?tab=License-1-ov-file). Contributions are welcome!
+This project is released under the [MIT License](https://github.com/bitsbyMK/transcendence?tab=License-1-ov-file). Contributions are welcome!
