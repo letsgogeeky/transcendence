@@ -76,7 +76,7 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a 
   </tr>
 </table>
 
-#### 👤 Profile Information & 📊 Statistics
+#### 👤 Profile Information & Matches History
 <table>
   <tr valign="top">
     <td>
@@ -374,6 +374,11 @@ Count of Major modules: 9 <br>
 Count of Minor modules: 3<br>
 Total: 10.5<br>
 
+
 ## 📜 License
 
 This project is released under the [MIT License](https://github.com/bitsbyMK/transcendence?tab=License-1-ov-file). Contributions are welcome!
+
+## 🫶 Acknowledgments
+
+_We’d like to give a special thanks to [Ramy](https://github.com/letsgogeeky) for his incredible project management and coordination of the team. Without his guidance, this project wouldn’t have been nearly as fun or as smooth!_
