@@ -80,7 +80,7 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a 
 <table>
   <tr valign="top">
     <td>
-      <img src="readme_assets/profile.gif" width="500" alt="Registration demo" />
+      <img src="readme_assets/profile_info.gif" width="500" alt="Registration demo" />
     </td>
     <td>
         <br>
@@ -352,6 +352,7 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 <br>
 
 ✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉, as shown in the [Main Components](https://github.com/bitsbyMK/transcendence?tab=readme-ov-file#-main-components) above.
+#
 
 ## 📘 Subject Modules
 This project contains the following modules from the _New Subject_:
