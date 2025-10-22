@@ -286,7 +286,7 @@ This setup gives us a _clear view of system health, traffic, and resource usage_
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/letsgogeeky/transcendence
+git clone https://github.com/bitsbyMK/transcendence
 ```
 
 2. Navigate to the project's directory:
@@ -372,12 +372,14 @@ This project contains the following modules from the _New Subject_:
 
 Count of Major modules: 9 <br>
 Count of Minor modules: 3<br>
-Total: 10.5<br>
-
+Total: 10.5
+<br>
 
 ## 📜 License
 
 This project is released under the [MIT License](https://github.com/bitsbyMK/transcendence?tab=License-1-ov-file). Contributions are welcome!
+<br>
+
 
 ## 🫶 Acknowledgments
 
