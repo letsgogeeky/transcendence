@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/b09e53ef-8071-42dd-a90b-62f60663945a 
 <table>
   <tr valign="top">
     <td>
-      <img src="readme_assets/registration.gif" width="500" alt="Registration demo" />
+      <img src="readme_assets/registration_preview.gif" width="500" alt="Registration demo" />
     </td>
     <td>
         <br>
