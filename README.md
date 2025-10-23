@@ -8,7 +8,7 @@
 - 🛠️ [Ramy](https://github.com/letsgogeeky): Team & Project Management, Devops, containerization & overall infrastructure 
 - 🔐 [Bori](https://github.com/pisakbori): User Management, authentication (2FA & remote), database & microservices for the backend
 - 🎮 [Alex](https://github.com/aoprea42): Game component with 3D graphics & AI opponent
-- 🎨 [Mary Kate](https://github.com/bitsbyMK): front-end and overall design across the website
+- 🎨 [Mary Kate](https://github.com/bitsbyMK): frontend & overall design of the platform, creation of this README
 - 💬 [Timo](https://github.com/TimoKillinger): live-chat component (tournament & private chat)
 
 #
@@ -187,7 +187,12 @@ Our platform features a dynamic chat system supporting both **private conversati
 
 Each chat box can be **minimized to the bottom-right corner** 🔽 or **expanded again anytime** ↩️, allowing you to stay connected while continuing your game.
 
+#
+#### 🎮 3D Gameplay with BabylonJS
+The Pong arena comes alive through **BabylonJS**, a powerful 3D engine that transforms the classic game into a modern, immersive experience.<br>
+Beyond the dynamic paddles, ball, and light effects, players find themselves in a ***360° interactive space*** 🌌 — they can freely rotate the camera, explore different angles, and play from any perspective they like; _as shown in the following video_:
 
+https://github.com/user-attachments/assets/3d03ae41-ed5a-46bc-8eef-c71d96689d06
 
 #
 ### 🛠️ Backend & Monitoring system 
