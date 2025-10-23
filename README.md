@@ -167,6 +167,13 @@ The **Tournaments** module enables users to _create, configure, and manage compe
 	* those managed by the user.
 #
 
+#### 🎮 3D Gameplay with BabylonJS
+The Pong arena comes alive through **BabylonJS**, a powerful 3D engine that transforms the classic game into a modern, immersive experience.<br>
+Beyond the dynamic paddles, ball, and light effects, players find themselves in a ***360° interactive space*** 🌌 — they can freely rotate the camera, explore different angles, and play from any perspective they like; _as shown in the following video_:
+
+https://github.com/user-attachments/assets/3d03ae41-ed5a-46bc-8eef-c71d96689d06
+
+#
 ### 💬 Live Chat
 
 <!-- https://github.com/user-attachments/assets/b44479aa-015d-42f2-a5a4-8ac006729a97 -->
@@ -186,13 +193,6 @@ Our platform features a dynamic chat system supporting both **private conversati
 	* View the profiles of other participants easily 👥.<br>
 
 Each chat box can be **minimized to the bottom-right corner** 🔽 or **expanded again anytime** ↩️, allowing you to stay connected while continuing your game.
-
-#
-#### 🎮 3D Gameplay with BabylonJS
-The Pong arena comes alive through **BabylonJS**, a powerful 3D engine that transforms the classic game into a modern, immersive experience.<br>
-Beyond the dynamic paddles, ball, and light effects, players find themselves in a ***360° interactive space*** 🌌 — they can freely rotate the camera, explore different angles, and play from any perspective they like; _as shown in the following video_:
-
-https://github.com/user-attachments/assets/3d03ae41-ed5a-46bc-8eef-c71d96689d06
 
 #
 ### 🛠️ Backend & Monitoring system 
