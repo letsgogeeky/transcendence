@@ -1,1 +1,0 @@
-# Infra components and how to use them

@@ -81,13 +81,13 @@ export default class ChatComponent extends Component {
 
             // Close button
             this.closeButton.textContent = 'Close';
-            this.closeButton.className = 'text-sm text-red-500 hover:underline';
+            this.closeButton.className = 'text-sm text-[#DE649B] hover:underline';
             this.closeButton.onclick = () => this.closeChat();
 
             // View Profile button
             const viewProfileButton = document.createElement('button');
             viewProfileButton.textContent = 'View Profile';
-            viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
+            viewProfileButton.className = 'text-sm text-[#05F2FA] hover:underline';
             viewProfileButton.onclick = () => {
                 window.history.pushState(
                     {},
@@ -97,7 +97,7 @@ export default class ChatComponent extends Component {
             };
 
             // Block/Unblock button
-            this.blockButton.className = 'text-sm text-yellow-500 hover:underline';
+            this.blockButton.className = 'text-sm text-[#FACD05] hover:underline';
             this.blockButton.textContent = 'Block'; // Default text
 
             // Add click event for the Block/Unblock button
@@ -121,13 +121,13 @@ export default class ChatComponent extends Component {
 
             // Close button
             this.closeButton.textContent = 'Close';
-            this.closeButton.className = 'text-sm text-red-500 hover:underline';
+            this.closeButton.className = 'text-sm text-[#DE649B] hover:underline';
             this.closeButton.onclick = () => this.closeChat();
 
             // View button tournament
             const viewProfileButton = document.createElement('button');
             viewProfileButton.textContent = 'View Tournament';
-            viewProfileButton.className = 'text-sm text-blue-500 hover:underline';
+            viewProfileButton.className = 'text-sm text-[#05F2FA] hover:underline';
             viewProfileButton.onclick = () => {
                 window.history.pushState(
                     {},
@@ -172,7 +172,7 @@ export default class ChatComponent extends Component {
         // Send button
         const sendButton = document.createElement('button');
         sendButton.textContent = 'Send';
-        sendButton.className = 'px-4 py-2 bg-blue-500 rounded hover:bg-blue-600';
+        sendButton.className = 'px-4 py-2 font-bold bg-[#31AAB0] rounded hover:bg-[#0A8B91]';
         sendButton.style.flexShrink = '0';
         sendButton.onclick = () => this.sendMessage();
 
@@ -183,7 +183,7 @@ export default class ChatComponent extends Component {
             // Invite to Play button
             const inviteButton = document.createElement('button');
             inviteButton.textContent = 'Invite to play';
-            inviteButton.className = 'px-4 py-2 bg-green-500 rounded hover:bg-green-600 w-full';
+            inviteButton.className = 'px-4 py-2 font-bold bg-[#8A5EC4] rounded hover:bg-[#7D44B2] w-full';
             inviteButton.onclick = () => this.inviteToPlay(); // not implemented yet
 
             // Append all elements to the input container
@@ -328,7 +328,8 @@ export default class ChatComponent extends Component {
     
         // Create a clickable sender element
         const senderElement = document.createElement('span');
-        senderElement.className = 'font-bold text-blue-400 cursor-pointer hover:underline';
+        senderElement.className = "font-extrabold text-[#5C139C] cursor-pointer hover:underline [text-shadow:_0_0_5px_rgba(255,255,255,1),_0_0_15px_rgba(255,255,255,0.9),_0_0_30px_rgba(255,255,255,0.8)]";
+        // senderElement.className = "font-bold text-[#520FB8] cursor-pointer hover:underline [-webkit-text-stroke:1px_white]";
         senderElement.textContent = sender;
         senderElement.onclick = () => {
             // Action when clicking on the sender's name

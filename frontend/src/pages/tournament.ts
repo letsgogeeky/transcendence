@@ -243,7 +243,7 @@ export default class TournamentComponent extends Component {
             if (this.data?.tournament.adminId === State.getState().getCurrentUser()?.id) {
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
-                removeButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
+                removeButton.className = 'px-3 py-1 bg-[#75104D] text-white rounded-lg hover:bg-[#B5599B] transition-colors text-sm';
                 removeButton.onclick = async (evt) => {
                     evt.preventDefault();
                     if (this.data?.tournament.status === 'in progress') {
@@ -263,7 +263,7 @@ export default class TournamentComponent extends Component {
             } else if (participant.userId === State.getState().getCurrentUser()?.id) {
                 const leaveButton = document.createElement('button');
                 leaveButton.textContent = 'Leave';
-                leaveButton.className = 'px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm';
+                leaveButton.className = 'px-3 py-1 bg-[#75104D] text-white rounded-lg hover:bg-[#B5599B] transition-colors text-sm';
                 leaveButton.onclick = async (evt) => {
                     evt.preventDefault();
                     if (this.data?.tournament.status === 'in progress') {
@@ -329,7 +329,7 @@ export default class TournamentComponent extends Component {
     public render(parent: HTMLElement | Component): void {
         this.element.innerHTML = '';
         const title = document.createElement('h1');
-        title.textContent = 'Tournament';
+        title.textContent = '🏆 Tournament';
         title.className = 'text-3xl font-bold mb-8 text-white';
         this.element.append(title);
 
@@ -341,7 +341,7 @@ export default class TournamentComponent extends Component {
             error.render(this.element);
         } else {
             const container = document.createElement('div');
-            container.className = 'flex flex-col md:flex-row gap-8 w-full max-w-7xl mx-auto p-8';
+            container.className = 'flex flex-col md:flex-row gap-8 w-full max-w-3xl mx-auto p-8';
 
             // Left side - Tournament info and participants
             const leftSide = document.createElement('div');
@@ -367,8 +367,8 @@ export default class TournamentComponent extends Component {
             
             if (isParticipant) {
             const openChatButton = document.createElement('button');
-            openChatButton.textContent = 'Open Chat';
-            openChatButton.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mt-4';
+            openChatButton.textContent = 'Open Chat 💬';
+            openChatButton.className = 'px-4 py-2 bg-[#644094] text-white rounded-lg hover:bg-[#9072B8] transition-colors mt-4';
             
 
                 openChatButton.onclick = () => {
@@ -390,7 +390,7 @@ export default class TournamentComponent extends Component {
 
                 const startButton = document.createElement('button');
                 startButton.textContent = 'Start Tournament';
-                startButton.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors';
+                startButton.className = 'px-4 py-2 rounded-lg text-md font-semibold transition-all duration-300 bg-black/50 text-[#3DD1A5] border-2 border-[#3DD1A5] hover:bg-[#3DD1A5]/20 shadow-[0_0_10px_#3DD1A5,0_0_20px_#3DD1A5] hover:shadow-[0_0_20px_#3DD1A5,0_0_40px_#3DD1A5]';
                 startButton.onclick = async (evt) => {
                     evt.preventDefault();
                     try {
@@ -402,7 +402,7 @@ export default class TournamentComponent extends Component {
                 };
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete Tournament';
-                deleteButton.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors';
+                deleteButton.className = 'px-4 py-2 rounded-lg text-md font-semibold transition-all duration-300 bg-transparent text-[#BD315F] border-2 border-[#BD315F] hover:bg-[#BD315F]/20 shadow-[0_0_10px_#BD315F,0_0_20px_#BD315F] hover:shadow-[0_0_20px_#BD315F,0_0_40px_#BD315F]';
                 deleteButton.onclick = async (evt) => {
                     evt.preventDefault();
                     if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
