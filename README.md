@@ -1,14 +1,16 @@
 #
 
-# <p align="center">**ft_transcendence**</p>
+<p align="center">
+  <img src="./readme_assets/logo_githubbackgroundcolor.png" alt="PongJam Logo" width="400">
+</p>
 
 ## <p align="center"> 🕹️ A realtime web-based pong game, _as our graduation project at [42](https://www.42network.org) 🎓_ </p>
 
 ### 👥 Team members & collaboration: 
 - 🛠️ [Ramy](https://github.com/letsgogeeky): Team & Project Management, Devops, containerization & overall infrastructure 
 - 🔐 [Bori](https://github.com/pisakbori): User Management, authentication (2FA & remote), database & microservices for the backend
-- 🎮 [Alex](https://github.com/aoprea42): Game component with 3D graphics & AI opponent
 - 🎨 [Mary Kate](https://github.com/MKcodes2): frontend & overall design of the platform, creation of this README
+- 🎮 [Alex](https://github.com/aoprea42): Game component with 3D graphics & AI opponent
 - 💬 [Timo](https://github.com/TimoKillinger): live-chat component (tournament & private chat)
 
 #
@@ -291,13 +293,13 @@ This setup gives us a _clear view of system health, traffic, and resource usage_
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/MKcodes2/transcendence
+git clone https://github.com/MKcodes2/PongJam
 ```
 
 2. Navigate to the project's directory:
 
 ```bash
-cd transcendence
+cd PongJam
 ```
 <!-- [❕ _Make sure you have <img src="https://skillicons.dev/icons?i=docker" alt="Docker" height="12"> [*Docker*](https://www.docker.com) installed, so that you can move on to..._] -->
 
@@ -356,7 +358,7 @@ This `.env file` is considered _"enough"_ for the containers to boot up and the 
 
 <br>
 
-✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉, as shown in the [Main Components](https://github.com/MKcodes2/transcendence?tab=readme-ov-file#-main-components) above.
+✨ Once you get those 9 values, you can add them in the `.env` (_replacing the current placeholder values_), then you do `make up` again, and now you have the fully working website, where you can sign up and log in to play the game and access all features 🥳 🎉, as shown in the [Main Components](https://github.com/MKcodes2/PongJam?tab=readme-ov-file#-main-components) above.
 #
 
 ## 📘 Subject Modules
@@ -382,7 +384,7 @@ Total: 10.5
 
 ## 📜 License
 
-This project is released under the [MIT License](https://github.com/MKcodes2/transcendence?tab=License-1-ov-file). Contributions are welcome!
+This project is released under the [MIT License](https://github.com/MKcodes2/PongJam?tab=License-1-ov-file). Contributions are welcome!
 <br>
 
 
